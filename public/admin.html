@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stumps Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0f14;
+            --bg-elev: #141a24;
+            --text: #e8eaf6;
+            --text-dim: #6b7280;
+            --accent: #f59e0b;
+            --accent-dim: #d97706;
+            --win: #22c55e;
+            --loss: #ef4444;
+            --border: #1f2937;
+            --blue: #3b82f6;
+            --purple: #8b5cf6;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .page { display: none; min-height: 100vh; }
+        .page.active { display: block; }
+
+        /* Login */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-box { width: 100%; max-width: 400px; }
+        .login-box h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .login-box h1 span { color: var(--accent); }
+        .login-box p { color: var(--text-dim); margin-bottom: 24px; font-size: 14px; }
+
+        .input-group { margin-bottom: 16px; }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            color: var(--text-dim);
+        }
+        .input-group input {
+            width: 100%;
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-size: 16px;
+        }
+        .input-group input:focus { outline: none; border-color: var(--accent); }
+
+        .btn {
+            width: 100%;
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-secondary {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-danger {
+            background: var(--loss);
+            color: white;
+        }
+        .btn-success {
+            background: var(--win);
+            color: white;
+        }
+        .btn-blue {
+            background: var(--blue);
+            color: white;
+        }
+
+        /* Dashboard */
+        .header {
+            background: var(--bg-elev);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 20px; font-weight: 800; }
+        .header h1 span { color: var(--accent); }
+        .header-actions { display: flex; gap: 12px; }
+        .header-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .header-btn:hover { border-color: var(--accent); }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .stat-value.accent { color: var(--accent); }
+        .stat-value.success { color: var(--win); }
+        .stat-value.danger { color: var(--loss); }
+
+        /* Section title */
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+            margin-top: 24px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-title { font-size: 16px; font-weight: 700; }
+        .card-body { padding: 20px; }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-live {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent);
+        }
+        .badge-settled {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--win);
+        }
+        .badge-pending {
+            background: rgba(107, 114, 128, 0.15);
+            color: var(--text-dim);
+        }
+        .badge-won {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--win);
+        }
+        .badge-lost {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--loss);
+        }
+
+        /* Match settle buttons */
+        .settle-btns {
+            display: flex;
+            gap: 8px;
+        }
+        .settle-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .settle-btn-a { background: var(--blue); color: white; }
+        .settle-btn-b { background: var(--purple); color: white; }
+        .settle-btn-draw { background: var(--bg); border: 1px solid var(--border); color: var(--text); }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-title { font-size: 18px; font-weight: 700; }
+        .modal-body { padding: 20px; }
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+        .modal-footer .btn { flex: 1; }
+
+        /* Form grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 480px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Confirm modal */
+        .confirm-text {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .confirm-text strong { color: var(--accent); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            table { font-size: 13px; }
+            th, td { padding: 8px; }
+            .settle-btns { flex-direction: column; }
+        }
+
+        /* Desktop/Laptop Responsive */
+        @media (min-width: 1024px) {
+            .login-box {
+                max-width: 480px;
+            }
+            .login-box h1 {
+                font-size: 36px;
+            }
+
+            .header-content {
+                max-width: 1400px;
+                padding: 0 48px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .container {
+                max-width: 1400px;
+                padding: 32px 48px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .stat-card {
+                padding: 28px;
+            }
+            .stat-value {
+                font-size: 36px;
+            }
+
+            .card-header {
+                padding: 20px 24px;
+            }
+            .card-title {
+                font-size: 18px;
+            }
+            .card-body {
+                padding: 24px;
+            }
+
+            table {
+                font-size: 15px;
+            }
+            th, td {
+                padding: 16px;
+            }
+
+            .settle-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            /* Two column layout for tables */
+            .tables-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1600px;
+                padding: 40px 64px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .stat-value {
+                font-size: 42px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login -->
+    <div id="loginPage" class="page active">
+        <div class="login-container">
+            <div class="login-box">
+                <h1>Stumps <span>Admin</span></h1>
+                <p>Admin portal for match management</p>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="username" required placeholder="admin">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="password" required placeholder="••••••">
+                    </div>
+                    <button type="submit" class="btn">Sign In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboardPage" class="page">
+        <div class="header">
+            <div class="header-content">
+                <h1>Stumps <span>Admin</span></h1>
+                <div class="header-actions">
+                    <a href="/" class="header-btn">View Site</a>
+                    <button class="header-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="totalUsers">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Live Matches</div>
+                    <div class="stat-value accent" id="liveMatches">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Bets</div>
+                    <div class="stat-value" id="totalBets">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pending Bets</div>
+                    <div class="stat-value danger" id="pendingBets">0</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('matches')">Matches</button>
+                <button class="tab" onclick="showTab('bets')">All Bets</button>
+                <button class="tab" onclick="showTab('users')">Users</button>
+            </div>
+
+            <!-- Matches Tab -->
+            <div id="matchesTab" class="tab-content active">
+                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                    <button class="btn btn-blue" id="addMatchBtn">
+                        + Add Match
+                    </button>
+                    <button class="btn" id="randomMatchBtn" style="background: var(--purple);">
+                        🎲 Random Match
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">All Matches</div>
+                    </div>
+                    <div class="card-body">
+                        <table id="matchesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Teams</th>
+                                    <th>Odds (A/Draw/B)</th>
+                                    <th>Status</th>
+                                    <th>Result</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bets Tab -->
+            <div id="betsTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">All Bets</div>
+                    </div>
+                    <div class="card-body">
+                        <table id="betsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Match</th>
+                                    <th>Pick</th>
+                                    <th>Stake</th>
+                                    <th>Payout</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">All Users</div>
+                    </div>
+                    <div class="card-body">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Balance</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Match Modal -->
+    <div class="modal-overlay" id="addMatchModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Add New Match</div>
+            </div>
+            <div class="modal-body">
+                <form id="addMatchForm">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Team A</label>
+                            <input type="text" id="newTeamA" required placeholder="e.g. India">
+                        </div>
+                        <div class="input-group">
+                            <label>Team B</label>
+                            <input type="text" id="newTeamB" required placeholder="e.g. Australia">
+                        </div>
+                        <div class="input-group">
+                            <label>Odds Team A</label>
+                            <input type="number" id="newOddsA" step="0.01" required placeholder="1.85">
+                        </div>
+                        <div class="input-group">
+                            <label>Odds Draw</label>
+                            <input type="number" id="newOddsDraw" step="0.01" required placeholder="3.40">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Odds Team B</label>
+                        <input type="number" id="newOddsB" step="0.01" required placeholder="2.10">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddMatchModal()">Cancel</button>
+                <button class="btn" onclick="addMatch()">Add Match</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settle Confirm Modal -->
+    <div class="modal-overlay" id="settleModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Settle Match</div>
+            </div>
+            <div class="modal-body">
+                <p class="confirm-text">
+                    You are declaring <strong id="winnerName"></strong> as the winner for:
+                    <br><br>
+                    <span id="settleMatchName"></span>
+                </p>
+                <p style="font-size: 13px; color: var(--text-dim);">
+                    This will settle all pending bets for this match. Winners will be paid out automatically.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSettleModal()">Cancel</button>
+                <button class="btn btn-success" id="confirmSettleBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = window.location.origin;
+        let token = localStorage.getItem('adminToken');
+        let currentMatchId = null;
+        let currentResult = null;
+        let matches = [];
+
+        // Check auth
+        async function init() {
+            if (token) {
+                try {
+                    const res = await fetch(`${API}/api/admin/matches`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        showDashboard();
+                    } else {
+                        token = null;
+                        localStorage.removeItem('adminToken');
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch(`${API}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok && data.user.isAdmin) {
+                    token = data.token;
+                    localStorage.setItem('adminToken', token);
+                    showDashboard();
+                } else {
+                    alert('Invalid admin credentials');
+                }
+            } catch (e) {
+                alert('Network error');
+            }
+        });
+
+        // Logout
+        function logout() {
+            token = null;
+            localStorage.removeItem('adminToken');
+            document.getElementById('loginPage').classList.add('active');
+            document.getElementById('dashboardPage').classList.remove('active');
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loginPage').classList.remove('active');
+            document.getElementById('dashboardPage').classList.add('active');
+            loadAllData();
+        }
+
+        // Tab switching
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+
+            if (tab === 'matches') loadMatches();
+            if (tab === 'bets') loadBets();
+            if (tab === 'users') loadUsers();
+        }
+
+        // Load all data
+        async function loadAllData() {
+            await Promise.all([loadMatches(), loadUsers(), loadBets()]);
+        }
+
+        // Load matches
+        async function loadMatches() {
+            try {
+                const res = await fetch(`${API}/api/admin/matches`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Failed');
+                matches = await res.json();
+                renderMatches(matches);
+            } catch (e) {
+                console.error('Failed to load matches', e);
+            }
+        }
+
+        // Render matches
+        function renderMatches(matches) {
+            const tbody = document.querySelector('#matchesTable tbody');
+            const liveCount = matches.filter(m => m.status === 'live').length;
+            document.getElementById('liveMatches').textContent = liveCount;
+
+            if (matches.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 32px;">No matches</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = matches.map(m => `
+                <tr>
+                    <td>#${m.id}</td>
+                    <td>
+                        <strong>${m.team_a}</strong> vs <strong>${m.team_b}</strong>
+                    </td>
+                    <td>${m.odds_a} / ${m.odds_draw} / ${m.odds_b}</td>
+                    <td><span class="badge badge-${m.status}">${m.status}</span></td>
+                    <td>${m.result || '-'}</td>
+                    <td>
+                        ${m.status === 'live' ? `
+                            <div class="settle-btns">
+                                <button class="settle-btn settle-btn-a" onclick="openSettleModal(${m.id}, 'A', '${m.team_a}')">${m.team_a}</button>
+                                <button class="settle-btn settle-btn-draw" onclick="openSettleModal(${m.id}, 'draw', 'Draw')">Draw</button>
+                                <button class="settle-btn settle-btn-b" onclick="openSettleModal(${m.id}, 'B', '${m.team_b}')">${m.team_b}</button>
+                            </div>
+                        ` : '<span style="color: var(--text-dim);">Settled</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                const res = await fetch(`${API}/api/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Failed');
+                const users = await res.json();
+                renderUsers(users);
+            } catch (e) {
+                console.error('Failed to load users', e);
+            }
+        }
+
+        // Render users
+        function renderUsers(users) {
+            document.getElementById('totalUsers').textContent = users.length;
+            const tbody = document.querySelector('#usersTable tbody');
+
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 32px;">No users</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>#${u.id}</td>
+                    <td>${u.name}</td>
+                    <td>@${u.username}</td>
+                    <td>₹${u.balance}</td>
+                    <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Load bets
+        async function loadBets() {
+            try {
+                const res = await fetch(`${API}/api/admin/bets`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Failed');
+                const bets = await res.json();
+                renderBets(bets);
+            } catch (e) {
+                console.error('Failed to load bets', e);
+            }
+        }
+
+        // Render bets
+        function renderBets(bets) {
+            document.getElementById('totalBets').textContent = bets.length;
+            document.getElementById('pendingBets').textContent = bets.filter(b => b.status === 'pending').length;
+            const tbody = document.querySelector('#betsTable tbody');
+
+            if (bets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 32px;">No bets</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = bets.map(b => `
+                <tr>
+                    <td>#${b.id}</td>
+                    <td>${b.name}</td>
+                    <td>${b.team_a} vs ${b.team_b}</td>
+                    <td>${b.pick}</td>
+                    <td>₹${b.stake}</td>
+                    <td>₹${b.payout}</td>
+                    <td><span class="badge badge-${b.status}">${b.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Add match modal
+        function openAddMatchModal() {
+            document.getElementById('addMatchModal').classList.add('active');
+        }
+
+        function closeAddMatchModal() {
+            document.getElementById('addMatchModal').classList.remove('active');
+            document.getElementById('addMatchForm').reset();
+        }
+
+        async function addMatch() {
+            const team_a = document.getElementById('newTeamA').value.trim();
+            const team_b = document.getElementById('newTeamB').value.trim();
+            const odds_a = parseFloat(document.getElementById('newOddsA').value);
+            const odds_draw = parseFloat(document.getElementById('newOddsDraw').value);
+            const odds_b = parseFloat(document.getElementById('newOddsB').value);
+
+            if (!team_a || !team_b) {
+                alert('Enter both team names');
+                return;
+            }
+            if (!odds_a || !odds_draw || !odds_b) {
+                alert('Enter all odds values');
+                return;
+            }
+            if (odds_a <= 1 || odds_draw <= 1 || odds_b <= 1) {
+                alert('Odds must be greater than 1');
+                return;
+            }
+
+            console.log('Creating match:', { team_a, team_b, odds_a, odds_draw, odds_b });
+
+            try {
+                const res = await fetch(`${API}/api/admin/matches`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ team_a, team_b, odds_a, odds_draw, odds_b })
+                });
+                const data = await res.json();
+                console.log('Response:', res.status, data);
+
+                if (res.ok) {
+                    closeAddMatchModal();
+                    loadMatches();
+                    alert('Match created!');
+                } else {
+                    alert(data.error || 'Failed to add match');
+                }
+            } catch (e) {
+                console.error('Error:', e);
+                alert('Network error: ' + e.message);
+            }
+        }
+
+        // Settle modal
+        function openSettleModal(matchId, result, winnerName) {
+            currentMatchId = matchId;
+            currentResult = result;
+            document.getElementById('winnerName').textContent = winnerName;
+            const match = matches.find(m => m.id === matchId);
+            document.getElementById('settleMatchName').textContent = `${match.team_a} vs ${match.team_b}`;
+            document.getElementById('settleModal').classList.add('active');
+        }
+
+        function closeSettleModal() {
+            document.getElementById('settleModal').classList.remove('active');
+            currentMatchId = null;
+            currentResult = null;
+        }
+
+        // Setup event listeners
+        document.getElementById('addMatchBtn').addEventListener('click', openAddMatchModal);
+
+        // Random match generator
+        const indianTeams = [
+            'India', 'Australia', 'England', 'Pakistan',
+            'Mumbai Indians', 'Chennai Super Kings', 'Royal Challengers Bangalore',
+            'Rajasthan Royals', 'Delhi Capitals', 'Kolkata Knight Riders',
+            'Punjab Kings', 'Gujarat Titans', 'Lucknow Super Giants',
+            'Sunrisers Hyderabad', 'New Zealand', 'South Africa',
+            'Sri Lanka', 'West Indies', 'Bangladesh', 'Afghanistan'
+        ];
+
+        function getRandomTeam() {
+            return indianTeams[Math.floor(Math.random() * indianTeams.length)];
+        }
+
+        function getRandomOdds() {
+            // Generate realistic odds between 1.5 and 4.0
+            return (Math.random() * 2.5 + 1.5).toFixed(2);
+        }
+
+        async function createRandomMatch() {
+            let teamA = getRandomTeam();
+            let teamB = getRandomTeam();
+
+            // Ensure different teams
+            while (teamA === teamB) {
+                teamB = getRandomTeam();
+            }
+
+            const oddsA = parseFloat(getRandomOdds());
+            const oddsDraw = parseFloat(getRandomOdds());
+            const oddsB = parseFloat(getRandomOdds());
+
+            try {
+                const res = await fetch(`${API}/api/admin/matches`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        team_a: teamA,
+                        team_b: teamB,
+                        odds_a: oddsA,
+                        odds_draw: oddsDraw,
+                        odds_b: oddsB
+                    })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    loadMatches();
+                    alert(`Created match: ${teamA} vs ${teamB}`);
+                } else {
+                    alert(data.error || 'Failed to create match');
+                }
+            } catch (e) {
+                alert('Network error: ' + e.message);
+            }
+        }
+
+        document.getElementById('randomMatchBtn').addEventListener('click', createRandomMatch);
+
+        document.getElementById('confirmSettleBtn').addEventListener('click', async () => {
+            if (!currentMatchId || !currentResult) return;
+
+            try {
+                const res = await fetch(`${API}/api/admin/matches/${currentMatchId}/settle`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ result: currentResult })
+                });
+                if (res.ok) {
+                    closeSettleModal();
+                    loadAllData();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to settle');
+                }
+            } catch (e) {
+                alert('Network error');
+            }
+        });
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
