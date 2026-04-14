@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stumps - Educational Cricket Betting Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1419;
+            --bg-elev: #1b2025;
+            --text: #dee3ea;
+            --text-dim: #8b949e;
+            --accent: #f59e0b;
+            --accent-light: #ffc174;
+            --border: #2d333b;
+            --success: #22c55e;
+            --error: #ff6b6b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            background:
+                radial-gradient(ellipse at top, rgba(245, 158, 11, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(245, 158, 11, 0.05) 0%, transparent 40%),
+                var(--bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f59e0b' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            font-size: 64px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -2px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .tagline {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 32px;
+        }
+
+        .tagline span {
+            color: var(--accent-light);
+        }
+
+        /* Warning Banner */
+        .warning-banner {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+            border: 1px solid var(--error);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+
+        .warning-banner h2 {
+            color: var(--error);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-banner p {
+            color: var(--text-dim);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .warning-banner strong {
+            color: var(--text);
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 24px;
+        }
+
+        .feature-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        /* CTA Button */
+        .cta-section {
+            margin-bottom: 32px;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg);
+            font-size: 18px;
+            font-weight: 700;
+            padding: 18px 48px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+        }
+
+        .cta-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Open Source Badge */
+        .opensource {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: var(--text-dim);
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .opensource:hover {
+            color: var(--text);
+            border-color: var(--accent);
+        }
+
+        .opensource svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .logo { font-size: 48px; }
+            .tagline { font-size: 18px; }
+            .warning-banner { padding: 20px; }
+            .features { grid-template-columns: 1fr; }
+            .cta-button { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <h1 class="logo">Stumps<span>.</span></h1>
+            <p class="tagline">Learn Before You <span>Bet</span></p>
+
+            <div class="warning-banner">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    Educational Purpose Only
+                </h2>
+                <p>
+                    <strong>Stumps is a simulation platform designed for educational purposes.</strong>
+                    We do not encourage or promote real-money gambling. This platform helps you understand
+                    how betting mechanics work <strong>before</strong> you consider engaging with real betting platforms.
+                    If you choose to bet with real money elsewhere, please gamble responsibly and only wager
+                    what you can afford to lose.
+                </p>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Learn Risk-Free</h3>
+                    <p>Practice betting strategies without losing real money</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Virtual Currency</h3>
+                    <p>Play with fake money. No deposits, no withdrawals</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔓</div>
+                    <h3>Open Source</h3>
+                    <p>Transparent code. Built for learning, not profit</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎓</div>
+                    <h3>Understand Odds</h3>
+                    <p>Learn how betting odds and payouts work</p>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <a href="index.html" class="cta-button">
+                    Enter Platform
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+
+            <a href="https://github.com/Sampath0411/Betweb" target="_blank" class="opensource">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>Made for educational purposes. Not a real betting platform.</p>
+        </div>
+    </div>
+</body>
+</html>
