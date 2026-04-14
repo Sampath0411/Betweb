@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -33,12 +34,12 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN || 'http://localhost:3000',
+  origin: process.env.ALLOWED_ORIGIN || '*',
   credentials: true
 }));
 
 app.use(express.json({ limit: '10kb' }));
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Rate limiting
 const authLimiter = rateLimit({
@@ -62,9 +63,17 @@ const betLimiter = rateLimit({
 });
 
 // Database setup with busy timeout for concurrency
-const db = new sqlite3.Database('./database.sqlite');
+// Use /tmp for Vercel serverless (only writable location), local file for dev
+const DB_PATH = process.env.VERCEL ? '/tmp/database.sqlite' : './database.sqlite';
+const db = new sqlite3.Database(DB_PATH);
 db.run('PRAGMA busy_timeout = 5000');
 db.run('PRAGMA foreign_keys = ON');
+console.log('Database path:', DB_PATH);
+
+// Health check endpoint for Vercel
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', time: new Date().toISOString() });
+});
 
 // Input sanitization
 const sanitize = (str) => {
@@ -540,7 +549,12 @@ app.delete('/api/admin/matches/:id', auth, adminOnly, (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Admin login: admin / (see ADMIN_PASSWORD env or default)`);
-});
+// Export for Vercel serverless
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Admin login: admin / (see ADMIN_PASSWORD env or default)`);
+  });
+}
