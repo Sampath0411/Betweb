@@ -128,6 +128,143 @@ async function initDatabase() {
   }
 }
 
+// Auto-match system
+const TEAMS = [
+  'India', 'Australia', 'England', 'Pakistan', 'South Africa', 'New Zealand',
+  'Sri Lanka', 'Bangladesh', 'West Indies', 'Afghanistan',
+  'Mumbai Indians', 'Chennai Super Kings', 'Royal Challengers Bangalore',
+  'Kolkata Knight Riders', 'Delhi Capitals', 'Punjab Kings',
+  'Rajasthan Royals', 'Sunrisers Hyderabad', 'Gujarat Titans', 'Lucknow Super Giants'
+];
+
+function getRandomTeams() {
+  const shuffled = [...TEAMS].sort(() => 0.5 - Math.random());
+  return [shuffled[0], shuffled[1]];
+}
+
+function getRandomOdds() {
+  const baseA = 1.5 + Math.random() * 1.5;
+  const baseB = 1.5 + Math.random() * 1.5;
+  const draw = 3.0 + Math.random() * 1.5;
+  return {
+    odds_a: parseFloat(baseA.toFixed(2)),
+    odds_draw: parseFloat(draw.toFixed(2)),
+    odds_b: parseFloat(baseB.toFixed(2))
+  };
+}
+
+async function createAutoMatches() {
+  try {
+    const matches = [];
+    for (let i = 0; i < 5; i++) {
+      const [teamA, teamB] = getRandomTeams();
+      const odds = getRandomOdds();
+      matches.push({
+        team_a: teamA,
+        team_b: teamB,
+        odds_a: odds.odds_a,
+        odds_draw: odds.odds_draw,
+        odds_b: odds.odds_b,
+        status: 'live',
+        created_at: new Date().toISOString()
+      });
+    }
+    const { data, error } = await supabase.from('matches').insert(matches).select();
+    if (error) throw error;
+    console.log('Auto-created 5 matches:', data.map(m => `${m.team_a} vs ${m.team_b}`));
+    // Schedule auto-settle in 1 minute
+    setTimeout(() => autoSettleMatches(data), 60000);
+  } catch (err) {
+    console.error('Auto-create matches error:', err);
+  }
+}
+
+async function autoSettleMatches(matches) {
+  try {
+    for (const match of matches) {
+      const results = ['a', 'draw', 'b'];
+      const result = results[Math.floor(Math.random() * results.length)];
+      // Settle match and payout
+      await settleMatchWithPayout(match.id, result);
+    }
+    console.log('Auto-settled 5 matches');
+    // Create new matches after settling
+    setTimeout(createAutoMatches, 5000);
+  } catch (err) {
+    console.error('Auto-settle error:', err);
+  }
+}
+
+async function settleMatchWithPayout(matchId, result) {
+  try {
+    // Update match result
+    await supabase
+      .from('matches')
+      .update({ status: 'settled', result: result })
+      .eq('id', matchId);
+    // Get all bets for this match
+    const { data: bets } = await supabase
+      .from('bets')
+      .select('*')
+      .eq('match_id', matchId)
+      .eq('status', 'pending');
+    if (!bets || bets.length === 0) return;
+    // Process each bet
+    for (const bet of bets) {
+      const won = bet.pick === result;
+      const payout = won ? bet.stake * bet.odds : 0;
+      // Update bet status
+      await supabase
+        .from('bets')
+        .update({
+          status: won ? 'won' : 'lost',
+          payout: won ? payout : 0
+        })
+        .eq('id', bet.id);
+      // Credit winner
+      if (won) {
+        const { data: user } = await supabase
+          .from('users')
+          .select('balance')
+          .eq('id', bet.user_id)
+          .single();
+        if (user) {
+          await supabase
+            .from('users')
+            .update({ balance: user.balance + payout })
+            .eq('id', bet.user_id);
+          // Add transaction
+          await supabase.from('transactions').insert({
+            user_id: bet.user_id,
+            type: 'credit',
+            amount: payout - bet.stake,
+            description: `Won bet on match #${matchId} (${result})`,
+            created_at: new Date().toISOString()
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Settle match error:', err);
+  }
+}
+
+// Check matches every 30 seconds
+setInterval(async () => {
+  try {
+    const { data: liveMatches } = await supabase
+      .from('matches')
+      .select('id')
+      .eq('status', 'live');
+    if (!liveMatches || liveMatches.length === 0) {
+      console.log('No live matches - auto-creating...');
+      await createAutoMatches();
+    }
+  } catch (err) {
+    console.error('Match check error:', err);
+  }
+}, 30000);
+
 // Health check endpoint for Vercel
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
@@ -720,12 +857,29 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error', message: err.message });
 });
 
+// Initialize and start
+async function startServer() {
+  await initDatabase();
+  // Check if matches exist, if not create auto matches
+  const { data: liveMatches } = await supabase
+    .from('matches')
+    .select('id')
+    .eq('status', 'live');
+  if (!liveMatches || liveMatches.length === 0) {
+    console.log('No live matches on startup - creating auto matches...');
+    await createAutoMatches();
+  }
+}
+
 // Export for Vercel serverless
 if (process.env.VERCEL) {
   module.exports = app;
+  startServer();
 } else {
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Admin login: admin / (see ADMIN_PASSWORD env or default)`);
+    console.log('Auto-match system: 5 matches every 1 minute with random results');
+    startServer();
   });
 }
