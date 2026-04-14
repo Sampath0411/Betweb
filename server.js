@@ -367,7 +367,11 @@ app.post('/api/admin/matches/:id/settle', auth, adminOnly, async (req, res) => {
 
         if (won) {
           await supabase.from('bets').update({ status: 'won', settled_at: new Date().toISOString() }).eq('id', bet.id);
-          await supabase.rpc('increment_balance', { user_id: bet.user_id, amount: bet.payout });
+          // Get current balance and update
+          const { data: userData } = await supabase.from('users').select('balance').eq('id', bet.user_id).single();
+          if (userData) {
+            await supabase.from('users').update({ balance: userData.balance + bet.payout }).eq('id', bet.user_id);
+          }
           await supabase.from('transactions').insert({
             user_id: bet.user_id,
             type: 'credit',
