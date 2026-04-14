@@ -650,17 +650,65 @@ app.delete('/api/admin/matches/:id', auth, adminOnly, async (req, res) => {
   }
 });
 
+// Debug login (development only - remove in production)
+app.post('/api/debug/login', async (req, res) => {
+  const { username } = req.body;
+  try {
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username.toLowerCase().trim())
+      .single();
+    if (!user) {
+      return res.json({ exists: false, message: 'User not found' });
+    }
+    res.json({
+      exists: true,
+      is_admin: user.is_admin,
+      has_password: !!user.password,
+      password_length: user.password ? user.password.length : 0
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Admin password reset (development only - remove in production)
 app.get('/api/admin/fix-password', async (req, res) => {
   try {
     const hashed = await bcrypt.hash('admin123', SALT_ROUNDS);
-    const { data, error } = await supabase
+
+    // Check if admin exists
+    const { data: existing } = await supabase
       .from('users')
-      .update({ password: hashed })
+      .select('id')
       .eq('username', 'admin')
-      .select();
-    if (error) throw error;
-    res.json({ message: 'Admin password reset to: admin123', data });
+      .single();
+
+    if (existing) {
+      // Update password
+      const { data, error } = await supabase
+        .from('users')
+        .update({ password: hashed })
+        .eq('username', 'admin')
+        .select();
+      if (error) throw error;
+      return res.json({ message: 'Admin password reset to: admin123', data });
+    } else {
+      // Create admin
+      const { data, error } = await supabase
+        .from('users')
+        .insert({
+          name: 'Admin',
+          username: 'admin',
+          password: hashed,
+          is_admin: true,
+          balance: 0
+        })
+        .select();
+      if (error) throw error;
+      return res.json({ message: 'Admin created with password: admin123', data });
+    }
   } catch (err) {
     res.status(500).json({ error: 'Failed to reset', details: err.message });
   }
