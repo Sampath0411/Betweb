@@ -308,6 +308,25 @@
         /* Opacity */
         .opacity-30 { opacity: 0.3; }
         .opacity-40 { opacity: 0.4; }
+
+        /* Transitions */
+        .transition-all { transition: all 0.2s ease; }
+        .transition-colors { transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease; }
+
+        /* Space (vertical gap between children) */
+        .space-y-1 > * + * { margin-top: 4px; }
+        .space-y-3 > * + * { margin-top: 12px; }
+        .space-y-4 > * + * { margin-top: 16px; }
+        .space-y-6 > * + * { margin-top: 24px; }
+
+        /* Flex shrink */
+        .flex-shrink-0 { flex-shrink: 0; }
+
+        /* Items baseline */
+        .items-baseline { align-items: baseline; }
+
+        /* Background transparent */
+        .bg-transparent { background-color: transparent; }
         .opacity-50 { opacity: 0.5; }
         .opacity-60 { opacity: 0.6; }
         .opacity-70 { opacity: 0.7; }
