@@ -123,6 +123,13 @@
         }
         .wallet-chip span { color: var(--accent); }
 
+        /* Header Right (nav + balance) */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         /* Header Nav */
         .header-nav {
             display: none;
@@ -591,11 +598,13 @@
         <div class="header">
             <div class="header-content">
                 <h1>Stumps<span>.</span></h1>
-                <div class="header-nav">
-                    <button class="header-nav-item active" onclick="navigate('dashboard')">Matches</button>
-                    <button class="header-nav-item" onclick="navigate('history')">History</button>
-                    <button class="header-nav-item" onclick="navigate('wallet')">Wallet</button>
-                    <button class="header-nav-item" onclick="navigate('profile')">Profile</button>
+                <div class="header-right">
+                    <div class="header-nav">
+                        <button class="header-nav-item active" onclick="navigate('dashboard')">Matches</button>
+                        <button class="header-nav-item" onclick="navigate('history')">History</button>
+                        <button class="header-nav-item" onclick="navigate('wallet')">Wallet</button>
+                        <button class="header-nav-item" onclick="navigate('profile')">Profile</button>
+                    </div>
                     <div class="wallet-chip">₹<span id="headerBalance">0</span></div>
                 </div>
             </div>
