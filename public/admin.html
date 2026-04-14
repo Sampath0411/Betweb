@@ -673,12 +673,13 @@
                     body: JSON.stringify({ username, password })
                 });
                 const data = await res.json();
-                if (res.ok && data.user.isAdmin) {
+                console.log('Login response:', data);
+                if (res.ok && data.user && data.user.isAdmin) {
                     token = data.token;
                     localStorage.setItem('adminToken', token);
                     showDashboard();
                 } else {
-                    alert('Invalid admin credentials');
+                    alert('Invalid admin credentials. isAdmin: ' + (data.user ? data.user.isAdmin : 'no user'));
                 }
             } catch (e) {
                 alert('Network error');
@@ -909,7 +910,6 @@
             document.getElementById('settleModal').classList.remove('active');
             currentMatchId = null;
             currentResult = null;
-        }
         }
 
         // Setup event listeners
