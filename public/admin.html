@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+    <!-- Cache bust -->
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -44,8 +47,33 @@
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f1419; color: #dee3ea; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0f1419;
+            color: #dee3ea;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            font-feature-settings: 'liga';
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
         .editorial-track { letter-spacing: -0.04em; }
         .label-track { letter-spacing: 0.08em; }
         .signature-cta { background: linear-gradient(160deg, #ffc174 0%, #f59e0b 100%); }
@@ -55,6 +83,14 @@
             50% { opacity: 0.3; }
         }
         .animate-pulse-dot { animation: pulse-dot 1s infinite; }
+
+        input, button { font-family: inherit; }
+        button { cursor: pointer; border: none; background: none; }
+        input:focus { outline: none; }
+
+        .hidden { display: none !important; }
+        .page { display: none; min-height: 100vh; }
+        .page.active { display: block; }
     </style>
 </head>
 <body class="bg-background text-on-surface">
