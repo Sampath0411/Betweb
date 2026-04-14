@@ -151,7 +151,7 @@ const adminOnly = (req, res, next) => {
 
 // Auth routes with rate limiting
 app.post('/api/register', authLimiter, async (req, res) => {
-  let { name, username, password } = req.body;
+  let { name, username, password, referral_code } = req.body;
 
   if (!name || !username || !password) {
     return res.status(400).json({ error: 'Missing fields' });
@@ -172,10 +172,26 @@ app.post('/api/register', authLimiter, async (req, res) => {
 
   try {
     const hashed = await bcrypt.hash(password, SALT_ROUNDS);
+    let welcomeBonus = 100;
+    let referrerId = null;
+
+    // Check referral code if provided
+    if (referral_code) {
+      const { data: referrer } = await supabase
+        .from('users')
+        .select('id')
+        .eq('username', referral_code.toLowerCase())
+        .single();
+
+      if (referrer) {
+        referrerId = referrer.id;
+        welcomeBonus += 50; // New user gets extra ₹50
+      }
+    }
 
     const { data: newUser, error } = await supabase
       .from('users')
-      .insert({ name, username, password: hashed, balance: 1000 })
+      .insert({ name, username, password: hashed, balance: welcomeBonus, referred_by: referrerId })
       .select()
       .single();
 
@@ -188,9 +204,23 @@ app.post('/api/register', authLimiter, async (req, res) => {
     await supabase.from('transactions').insert({
       user_id: newUser.id,
       type: 'credit',
-      amount: 1000,
-      description: 'Welcome bonus'
+      amount: welcomeBonus,
+      description: referrerId ? 'Welcome bonus + Referral reward' : 'Welcome bonus'
     });
+
+    // Give ₹50 to referrer
+    if (referrerId) {
+      const { data: refData } = await supabase.from('users').select('balance').eq('id', referrerId).single();
+      if (refData) {
+        await supabase.from('users').update({ balance: refData.balance + 50 }).eq('id', referrerId);
+        await supabase.from('transactions').insert({
+          user_id: referrerId,
+          type: 'credit',
+          amount: 50,
+          description: `Referral bonus: ${username}`
+        });
+      }
+    }
 
     res.json({ message: 'Registered', userId: newUser.id });
   } catch (err) {

@@ -237,7 +237,7 @@
             background: var(--bg-elev);
             border-top: 1px solid var(--border);
             display: flex;
-            padding: 8px 0;
+            padding: 4px 0;
             z-index: 100;
         }
         .nav-item {
@@ -245,17 +245,17 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            padding: 8px;
+            gap: 2px;
+            padding: 6px 4px;
             color: var(--text-dim);
             background: none;
             border: none;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 10px;
+            font-weight: 500;
             cursor: pointer;
         }
         .nav-item.active { color: var(--accent); }
-        .nav-icon { width: 24px; height: 24px; }
+        .nav-icon { width: 20px; height: 20px; }
 
         /* History */
         .bet-item {
@@ -405,6 +405,65 @@
             background: var(--border);
         }
 
+        /* Refer & Earn */
+        .refer-card {
+            background: linear-gradient(135deg, var(--bg-elev) 0%, var(--border) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        .refer-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+        .refer-text {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+        .refer-code-box {
+            background: var(--bg);
+            border: 1px dashed var(--accent);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .refer-label {
+            font-size: 12px;
+            color: var(--text-dim);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .refer-code {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .btn-copy {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-copy:hover {
+            opacity: 0.9;
+        }
+        .refer-earned {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+        .refer-earned span {
+            color: var(--win);
+            font-weight: 700;
+        }
+
         .empty-state { text-align: center; padding: 48px; color: var(--text-dim); }
 
         /* Desktop/Laptop Responsive */
@@ -515,8 +574,8 @@
                 flex-direction: column;
                 background: var(--bg-elev);
                 border-right: 1px solid var(--border);
-                padding: 16px 12px;
-                width: 160px;
+                padding: 12px 8px;
+                width: 140px;
                 height: 100vh;
                 position: fixed;
                 left: 0;
@@ -526,14 +585,14 @@
             .sidebar-nav .nav-item {
                 flex-direction: row;
                 justify-content: flex-start;
-                gap: 8px;
-                padding: 12px;
-                font-size: 13px;
-                border-radius: 8px;
+                gap: 6px;
+                padding: 8px 10px;
+                font-size: 12px;
+                border-radius: 6px;
             }
             .sidebar-nav .nav-icon {
-                width: 20px;
-                height: 20px;
+                width: 18px;
+                height: 18px;
             }
             .sidebar-nav .nav-item:hover {
                 background: var(--bg);
@@ -544,9 +603,9 @@
 
             /* Push content to the right on desktop */
             .view {
-                margin-left: 160px;
+                margin-left: 140px;
                 padding-top: 73px;
-                width: calc(100% - 160px);
+                width: calc(100% - 140px);
             }
         }
 
@@ -558,11 +617,11 @@
         @media (min-width: 768px) {
             .sidebar-nav {
                 display: flex;
-                width: 160px;
+                width: 140px;
             }
             .view {
-                margin-left: 160px;
-                width: calc(100% - 160px);
+                margin-left: 140px;
+                width: calc(100% - 140px);
             }
         }
     </style>
@@ -615,6 +674,11 @@
                             <input type="password" id="regPassword" required placeholder="Create password" style="width: 100%; padding-right: 40px;">
                             <button type="button" onclick="togglePassword('regPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-dim);">👁️</button>
                         </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Referral Code (Optional)</label>
+                        <input type="text" id="regReferralCode" placeholder="Enter friend's username" style="text-transform: uppercase;">
+                        <small style="color: var(--text-dim); font-size: 11px;">Get ₹50 bonus when you use a referral code!</small>
                     </div>
                     <button type="submit" class="btn">Create Account</button>
                 </form>
@@ -738,6 +802,19 @@
                             <span class="profile-value" id="profileDate">-</span>
                         </div>
                     </div>
+                </div>
+
+                <div class="section-title" style="margin-top: 24px;">Refer & Earn</div>
+
+                <div class="refer-card">
+                    <div class="refer-icon">🎁</div>
+                    <div class="refer-text">Earn ₹50 for every friend who joins!</div>
+                    <div class="refer-code-box">
+                        <span class="refer-label">Your Referral Code:</span>
+                        <div class="refer-code" id="referralCode">-</div>
+                        <button class="btn-copy" onclick="copyReferralCode()">Copy</button>
+                    </div>
+                    <div class="refer-earned">Total Earned: <span id="referralEarnings">₹0</span></div>
                 </div>
 
                 <div class="section-title" style="margin-top: 24px;">Settings</div>
@@ -970,12 +1047,13 @@
             const name = document.getElementById('regName').value.trim();
             const username = document.getElementById('regUsername').value.trim().toLowerCase();
             const password = document.getElementById('regPassword').value;
+            const referralCode = document.getElementById('regReferralCode')?.value?.trim();
 
             try {
                 const res = await fetch(`${API}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, username, password })
+                    body: JSON.stringify({ name, username, password, referral_code: referralCode })
                 });
                 const data = await res.json();
 
@@ -1307,7 +1385,11 @@
             document.getElementById('profileBalance').textContent = '₹' + (user.balance || 0);
             document.getElementById('profileAvatar').textContent = (user.name || '?').charAt(0).toUpperCase();
 
-            // Get user creation date from API
+            // Generate referral code from username
+            const refCode = user.username?.toUpperCase() || '-';
+            document.getElementById('referralCode').textContent = refCode;
+
+            // Get user data from API
             try {
                 const res = await fetch(`${API}/api/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -1317,10 +1399,20 @@
                     document.getElementById('profileDate').textContent = data.created_at
                         ? new Date(data.created_at).toLocaleDateString()
                         : '-';
+                    // Load referral earnings
+                    document.getElementById('referralEarnings').textContent = '₹' + (data.referral_earnings || 0);
                 }
             } catch (e) {
                 document.getElementById('profileDate').textContent = '-';
             }
+        }
+
+        // Copy referral code
+        function copyReferralCode() {
+            const code = document.getElementById('referralCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Referral code copied!');
+            });
         }
 
         // Change password form
