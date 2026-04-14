@@ -168,15 +168,26 @@ app.get('/api/health', (req, res) => {
 });
 
 // Middleware
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'No token' });
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid token' });
-    req.user = user;
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    // Check if user is banned
+    const { data: user } = await supabase
+      .from('users')
+      .select('is_banned')
+      .eq('id', decoded.id)
+      .single();
+    if (user?.is_banned) {
+      return res.status(403).json({ error: 'Account banned' });
+    }
+    req.user = decoded;
     next();
-  });
+  } catch (err) {
+    return res.status(403).json({ error: 'Invalid token' });
+  }
 };
 
 const adminOnly = (req, res, next) => {
@@ -324,6 +335,45 @@ app.get('/api/me', auth, async (req, res) => {
   }
 });
 
+// Update profile
+app.post('/api/profile', auth, async (req, res) => {
+  const { name, currentPassword, newPassword } = req.body;
+
+  if (!name || !currentPassword) {
+    return res.status(400).json({ error: 'Name and current password required' });
+  }
+
+  try {
+    // Verify current password
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', req.user.id)
+      .single();
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const valid = await bcrypt.compare(currentPassword, user.password);
+    if (!valid) return res.status(400).json({ error: 'Current password is incorrect' });
+
+    // Build update object
+    const updates = { name: sanitize(name) };
+
+    // Update password if provided
+    if (newPassword) {
+      if (!validatePassword(newPassword)) {
+        return res.status(400).json({ error: 'New password: 8+ chars, uppercase, lowercase, number required' });
+      }
+      updates.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    }
+
+    await supabase.from('users').update(updates).eq('id', req.user.id);
+    res.json({ message: 'Profile updated' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Public routes (no auth required)
 app.get('/api/matches', async (req, res) => {
   try {
@@ -389,9 +439,10 @@ app.post('/api/admin/matches', auth, adminOnly, async (req, res) => {
   team_b = sanitize(team_b);
 
   try {
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutes
     const { data, error } = await supabase
       .from('matches')
-      .insert({ team_a, team_b, odds_a, odds_draw, odds_b })
+      .insert({ team_a, team_b, odds_a, odds_draw, odds_b, expires_at: expiresAt })
       .select()
       .single();
 
@@ -641,7 +692,7 @@ app.get('/api/admin/users', auth, adminOnly, async (req, res) => {
   try {
     const { data: users, error } = await supabase
       .from('users')
-      .select('id, name, username, balance, created_at')
+      .select('id, name, username, balance, created_at, is_banned')
       .eq('is_admin', false)
       .order('created_at', { ascending: false });
 
@@ -652,6 +703,23 @@ app.get('/api/admin/users', auth, adminOnly, async (req, res) => {
     res.json(users || []);
   } catch (err) {
     console.error('Users fetch error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Ban/unban user
+app.post('/api/admin/users/:id/ban', auth, adminOnly, async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const { banned } = req.body;
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+  }
+
+  try {
+    await supabase.from('users').update({ is_banned: banned }).eq('id', userId);
+    res.json({ message: banned ? 'User banned' : 'User unbanned' });
+  } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
 });

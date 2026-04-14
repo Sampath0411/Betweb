@@ -200,6 +200,19 @@
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+        .match-timer {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #ff6b6b;
+            margin-left: 8px;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
         .teams {
             display: flex;
             justify-content: space-between;
@@ -701,6 +714,22 @@
                     </div>
                     <p style="color: var(--text-dim); font-size: 13px; margin-top: 12px; text-align: center;">Share your code. Both get ₹50 when they join!</p>
                 </div>
+                <div class="section-title">Edit Profile</div>
+                <div class="wallet-card" style="padding: 20px;">
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px;">Full Name</label>
+                        <input type="text" id="editName" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); font-size: 14px;" placeholder="Your name">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px;">Current Password</label>
+                        <input type="password" id="currentPassword" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); font-size: 14px;" placeholder="Required to save changes">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px;">New Password (optional)</label>
+                        <input type="password" id="newPassword" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); font-size: 14px;" placeholder="Leave blank to keep current">
+                    </div>
+                    <button onclick="saveProfile()" class="btn" style="width: 100%;">Save Changes</button>
+                </div>
             </div>
         </div>
 
@@ -810,6 +839,23 @@
                 autoRefreshInterval = null;
             }
         }
+
+        // Update countdown timers every second
+        setInterval(() => {
+            document.querySelectorAll('.match-timer').forEach(timer => {
+                const expires = new Date(timer.dataset.expires);
+                const now = new Date();
+                const diff = expires - now;
+                if (diff <= 0) {
+                    timer.querySelector('.timer-display').textContent = 'Closing...';
+                    return;
+                }
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                timer.querySelector('.timer-display').textContent =
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            });
+        }, 1000);
 
         async function refreshUserData() {
             try {
@@ -1021,7 +1067,10 @@
 
                 return `
                     <div class="match-card">
-                        <div class="live-badge">LIVE</div>
+                        <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                            <div class="live-badge">LIVE</div>
+                            ${m.expires_at ? `<div class="match-timer" data-expires="${m.expires_at}">⏱️ <span class="timer-display">--:--</span></div>` : ''}
+                        </div>
                         <div class="teams">
                             <div class="team"><div class="team-name">${escapeHtml(m.team_a)}</div></div>
                             <div class="vs">VS</div>
@@ -1211,6 +1260,44 @@
                 }
             } catch (e) {
                 console.error('Failed to load profile');
+            }
+        }
+
+        // Save profile changes
+        async function saveProfile() {
+            const name = document.getElementById('editName').value.trim();
+            const currentPass = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+
+            if (!name) {
+                alert('Name is required');
+                return;
+            }
+            if (!currentPass) {
+                alert('Current password is required');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/api/profile`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, currentPassword: currentPass, newPassword: newPass })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('Profile updated!');
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    loadProfile();
+                } else {
+                    alert(data.error || 'Failed to update profile');
+                }
+            } catch (e) {
+                alert('Network error');
             }
         }
 
