@@ -450,8 +450,8 @@
                 flex-direction: column;
                 background: var(--bg-elev);
                 border-right: 1px solid var(--border);
-                padding: 20px 16px;
-                width: 180px;
+                padding: 16px 12px;
+                width: 160px;
                 height: 100vh;
                 position: fixed;
                 left: 0;
@@ -461,10 +461,14 @@
             .sidebar-nav .nav-item {
                 flex-direction: row;
                 justify-content: flex-start;
-                gap: 12px;
-                padding: 16px;
-                font-size: 14px;
+                gap: 8px;
+                padding: 12px;
+                font-size: 13px;
                 border-radius: 8px;
+            }
+            .sidebar-nav .nav-icon {
+                width: 20px;
+                height: 20px;
             }
             .sidebar-nav .nav-item:hover {
                 background: var(--bg);
@@ -475,9 +479,9 @@
 
             /* Push content to the right on desktop */
             .view {
-                margin-left: 180px;
+                margin-left: 160px;
                 padding-top: 73px;
-                width: calc(100% - 180px);
+                width: calc(100% - 160px);
             }
         }
 
@@ -489,11 +493,11 @@
         @media (min-width: 768px) {
             .sidebar-nav {
                 display: flex;
-                width: 180px;
+                width: 160px;
             }
             .view {
-                margin-left: 180px;
-                width: calc(100% - 180px);
+                margin-left: 160px;
+                width: calc(100% - 160px);
             }
         }
     </style>
@@ -677,7 +681,6 @@
 
         // Initialize
         async function init() {
-            const staySignedIn = localStorage.getItem('staySignedIn');
             if (token) {
                 try {
                     const res = await fetch(`${API}/api/me`, {
@@ -696,13 +699,12 @@
                     localStorage.removeItem('token');
                     localStorage.removeItem('staySignedIn');
                 } catch (e) {
-                    // Network error - keep token for retry if staySignedIn
                     console.error('Auth error:', e);
-                    if (staySignedIn !== 'true') {
-                        token = null;
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('staySignedIn');
-                    }
+                    // On network error, still try to show app with cached token
+                    // but clear if verification fails
+                    token = null;
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('staySignedIn');
                 }
             }
             showAuth();
@@ -753,10 +755,30 @@
             }
         }
 
-        function showApp() {
+        async function showApp() {
+            // Ensure we have user data
+            if (!user || !user.name) {
+                try {
+                    const res = await fetch(`${API}/api/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        user = await res.json();
+                    }
+                } catch (e) {
+                    console.error('Failed to load user:', e);
+                }
+            }
+
+            // If still no user, show auth
+            if (!user || !user.id) {
+                showAuth();
+                return;
+            }
+
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('appPage').classList.remove('hidden');
-            document.getElementById('welcomeName').textContent = `Hey, ${user?.name || 'there'}`;
+            document.getElementById('welcomeName').textContent = `Hey, ${user.name}`;
             updateBalance();
             loadMatches();
             startAutoRefresh();

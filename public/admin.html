@@ -651,12 +651,18 @@
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (res.ok) {
-                        showDashboard();
+                        await showDashboard();
                     } else {
                         token = null;
                         localStorage.removeItem('adminToken');
+                        document.getElementById('loginPage').classList.add('active');
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.error('Admin init error:', e);
+                    document.getElementById('loginPage').classList.add('active');
+                }
+            } else {
+                document.getElementById('loginPage').classList.add('active');
             }
         }
 
@@ -694,10 +700,10 @@
         }
 
         // Show dashboard
-        function showDashboard() {
+        async function showDashboard() {
             document.getElementById('loginPage').classList.remove('active');
             document.getElementById('dashboardPage').classList.add('active');
-            loadAllData();
+            await loadAllData();
         }
 
         // Tab switching
@@ -715,7 +721,11 @@
 
         // Load all data
         async function loadAllData() {
-            await Promise.all([loadMatches(), loadUsers(), loadBets()]);
+            try {
+                await Promise.all([loadMatches(), loadUsers(), loadBets()]);
+            } catch (e) {
+                console.error('loadAllData error:', e);
+            }
         }
 
         // Load matches
@@ -771,11 +781,18 @@
                 const res = await fetch(`${API}/api/admin/users`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                if (!res.ok) throw new Error('Failed');
+                if (!res.ok) {
+                    console.error('Users API error:', res.status);
+                    throw new Error('Failed');
+                }
                 const users = await res.json();
+                console.log('Loaded users:', users.length);
                 renderUsers(users);
             } catch (e) {
                 console.error('Failed to load users', e);
+                document.getElementById('totalUsers').textContent = 'Error';
+                const tbody = document.querySelector('#usersTable tbody');
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 32px; color: var(--loss);">Failed to load users</td></tr>';
             }
         }
 
