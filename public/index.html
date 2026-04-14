@@ -340,6 +340,71 @@
             margin-top: 24px;
         }
 
+        /* Profile Styles */
+        .profile-card {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .profile-avatar {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            background: var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto;
+        }
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .profile-row:last-child {
+            border-bottom: none;
+        }
+        .profile-label {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+        .profile-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .profile-section {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .profile-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .btn-secondary {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
         .empty-state { text-align: center; padding: 48px; color: var(--text-dim); }
 
         /* Desktop/Laptop Responsive */
@@ -595,6 +660,13 @@
                 </svg>
                 Wallet
             </button>
+            <button class="nav-item" onclick="navigate('profile')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Profile
+            </button>
             <div style="margin-top: auto;">
                 <button class="nav-item" onclick="logout()">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -640,6 +712,56 @@
             </div>
         </div>
 
+        <!-- Profile -->
+        <div id="profileView" class="view hidden">
+            <div class="container">
+                <div class="section-title">My Profile</div>
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <div class="avatar-circle" id="profileAvatar">👤</div>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-row">
+                            <span class="profile-label">Name</span>
+                            <span class="profile-value" id="profileName">-</span>
+                        </div>
+                        <div class="profile-row">
+                            <span class="profile-label">Username</span>
+                            <span class="profile-value" id="profileUsername">-</span>
+                        </div>
+                        <div class="profile-row">
+                            <span class="profile-label">Balance</span>
+                            <span class="profile-value" id="profileBalance">₹0</span>
+                        </div>
+                        <div class="profile-row">
+                            <span class="profile-label">Member Since</span>
+                            <span class="profile-value" id="profileDate">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title" style="margin-top: 24px;">Settings</div>
+
+                <div class="profile-section">
+                    <div class="profile-section-title">Change Password</div>
+                    <form id="changePasswordForm">
+                        <div class="input-group" style="margin-bottom: 12px;">
+                            <input type="password" id="currentPassword" placeholder="Current password" required>
+                        </div>
+                        <div class="input-group" style="margin-bottom: 12px;">
+                            <input type="password" id="newPassword" placeholder="New password (8+ chars)" required>
+                        </div>
+                        <div class="input-group" style="margin-bottom: 12px;">
+                            <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
+                        </div>
+                        <button type="submit" class="btn btn-secondary">Update Password</button>
+                    </form>
+                </div>
+
+                <button class="logout-btn" onclick="logout()" style="margin-top: 32px;">Logout</button>
+            </div>
+        </div>
+
         <!-- Bottom Nav -->
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="navigate('dashboard')">
@@ -665,6 +787,13 @@
                     <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
                 </svg>
                 Wallet
+            </button>
+            <button class="nav-item" onclick="navigate('profile')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Profile
             </button>
         </nav>
     </div>
@@ -915,15 +1044,16 @@
 
             // Update active state on all nav items (sidebar + bottom nav)
             const navItems = document.querySelectorAll('.nav-item');
-            const viewIndex = { dashboard: 0, history: 1, wallet: 2 }[view];
+            const viewIndex = { dashboard: 0, history: 1, wallet: 2, profile: 3 }[view];
 
-            // Set active on matching items (0,3 for dashboard, 1,4 for history, 2,5 for wallet)
+            // Set active on matching items
             navItems.forEach((item, idx) => {
-                if (idx % 3 === viewIndex) item.classList.add('active');
+                if (idx % 4 === viewIndex) item.classList.add('active');
             });
 
             if (view === 'history') loadHistory();
             if (view === 'wallet') loadWallet();
+            if (view === 'profile') loadProfile();
         }
 
         // Load matches
@@ -1168,6 +1298,68 @@
             if (!str) return '';
             return str.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\\n/g, '\\n').replace(/\\r/g, '\\r');
         }
+
+        // Load profile
+        async function loadProfile() {
+            if (!user) return;
+            document.getElementById('profileName').textContent = user.name || '-';
+            document.getElementById('profileUsername').textContent = '@' + (user.username || '-');
+            document.getElementById('profileBalance').textContent = '₹' + (user.balance || 0);
+            document.getElementById('profileAvatar').textContent = (user.name || '?').charAt(0).toUpperCase();
+
+            // Get user creation date from API
+            try {
+                const res = await fetch(`${API}/api/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('profileDate').textContent = data.created_at
+                        ? new Date(data.created_at).toLocaleDateString()
+                        : '-';
+                }
+            } catch (e) {
+                document.getElementById('profileDate').textContent = '-';
+            }
+        }
+
+        // Change password form
+        document.getElementById('changePasswordForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (newPass !== confirm) {
+                alert('New passwords do not match');
+                return;
+            }
+            if (newPass.length < 8) {
+                alert('Password must be at least 8 characters');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/api/change-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ current, new: newPass })
+                });
+
+                if (res.ok) {
+                    alert('Password updated successfully');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to update password');
+                }
+            } catch (err) {
+                alert('Network error');
+            }
+        });
 
         // Start
         init();

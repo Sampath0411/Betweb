@@ -507,6 +507,54 @@ app.get('/api/transactions', auth, async (req, res) => {
   }
 });
 
+// Change password
+app.post('/api/change-password', auth, async (req, res) => {
+  const { current, new: newPass } = req.body;
+
+  if (!current || !newPass) {
+    return res.status(400).json({ error: 'Missing fields' });
+  }
+
+  if (!validatePassword(newPass)) {
+    return res.status(400).json({ error: 'Password: 8+ chars, uppercase, lowercase, number required' });
+  }
+
+  try {
+    // Get current user password
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('password')
+      .eq('id', req.user.id)
+      .single();
+
+    if (userError || !userData) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Verify current password
+    const valid = await bcrypt.compare(current, userData.password);
+    if (!valid) {
+      return res.status(400).json({ error: 'Current password incorrect' });
+    }
+
+    // Hash new password
+    const hashed = await bcrypt.hash(newPass, SALT_ROUNDS);
+
+    // Update password
+    const { error } = await supabase
+      .from('users')
+      .update({ password: hashed })
+      .eq('id', req.user.id);
+
+    if (error) return res.status(500).json({ error: 'Failed to update password' });
+
+    res.json({ message: 'Password updated' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.get('/api/admin/users', auth, adminOnly, async (req, res) => {
   try {
     const { data: users, error } = await supabase
