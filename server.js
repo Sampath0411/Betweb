@@ -113,15 +113,18 @@ async function initDatabase() {
       .eq('status', 'live');
 
     if (!matchesCount || matchesCount.length === 0) {
+      const expiresAt = new Date(Date.now() + 60000).toISOString();
       const matches = [
-        { team_a: 'India', team_b: 'Australia', odds_a: 1.85, odds_draw: 3.40, odds_b: 2.10 },
-        { team_a: 'Mumbai Indians', team_b: 'Chennai Super Kings', odds_a: 1.90, odds_draw: 3.20, odds_b: 1.95 },
-        { team_a: 'Royal Challengers Bangalore', team_b: 'Rajasthan Royals', odds_a: 2.05, odds_draw: 3.30, odds_b: 1.80 },
-        { team_a: 'Delhi Capitals', team_b: 'Kolkata Knight Riders', odds_a: 1.75, odds_draw: 3.50, odds_b: 2.30 },
-        { team_a: 'Punjab Kings', team_b: 'Gujarat Titans', odds_a: 2.20, odds_draw: 3.10, odds_b: 1.75 }
+        { team_a: 'India', team_b: 'Australia', odds_a: 1.85, odds_draw: 3.40, odds_b: 2.10, status: 'live', expires_at: expiresAt },
+        { team_a: 'Mumbai Indians', team_b: 'Chennai Super Kings', odds_a: 1.90, odds_draw: 3.20, odds_b: 1.95, status: 'live', expires_at: expiresAt },
+        { team_a: 'Royal Challengers Bangalore', team_b: 'Rajasthan Royals', odds_a: 2.05, odds_draw: 3.30, odds_b: 1.80, status: 'live', expires_at: expiresAt },
+        { team_a: 'Delhi Capitals', team_b: 'Kolkata Knight Riders', odds_a: 1.75, odds_draw: 3.50, odds_b: 2.30, status: 'live', expires_at: expiresAt },
+        { team_a: 'Punjab Kings', team_b: 'Gujarat Titans', odds_a: 2.20, odds_draw: 3.10, odds_b: 1.75, status: 'live', expires_at: expiresAt }
       ];
       await supabase.from('matches').insert(matches);
       console.log('Seed matches created');
+      // Schedule auto-settle
+      setTimeout(() => autoSettleMatches(matches.map((m, i) => ({ ...m, id: i + 1 }))), 60000);
     }
   } catch (err) {
     console.error('Database init error:', err);
@@ -155,6 +158,7 @@ function getRandomOdds() {
 
 async function createAutoMatches() {
   try {
+    const expiresAt = new Date(Date.now() + 60000).toISOString(); // 1 minute from now
     const matches = [];
     for (let i = 0; i < 5; i++) {
       const [teamA, teamB] = getRandomTeams();
@@ -166,7 +170,8 @@ async function createAutoMatches() {
         odds_draw: odds.odds_draw,
         odds_b: odds.odds_b,
         status: 'live',
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        expires_at: expiresAt
       });
     }
     const { data, error } = await supabase.from('matches').insert(matches).select();
@@ -197,6 +202,13 @@ async function autoSettleMatches(matches) {
 
 async function settleMatchWithPayout(matchId, result) {
   try {
+    // Get match details first
+    const { data: match } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('id', matchId)
+      .single();
+    if (!match) return;
     // Update match result
     await supabase
       .from('matches')
@@ -209,9 +221,11 @@ async function settleMatchWithPayout(matchId, result) {
       .eq('match_id', matchId)
       .eq('status', 'pending');
     if (!bets || bets.length === 0) return;
+    // Map result to team name or "Draw"
+    const resultName = result === 'a' ? match.team_a : result === 'b' ? match.team_b : 'Draw';
     // Process each bet
     for (const bet of bets) {
-      const won = bet.pick === result;
+      const won = bet.pick === resultName;
       const payout = won ? bet.stake * bet.odds : 0;
       // Update bet status
       await supabase

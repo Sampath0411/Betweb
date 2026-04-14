@@ -200,6 +200,19 @@
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+        .match-timer {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--error);
+            margin-left: 12px;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
         .teams {
             display: flex;
             justify-content: space-between;
@@ -811,6 +824,26 @@
             }
         }
 
+        // Update countdown timers
+        function updateTimers() {
+            document.querySelectorAll('.match-timer').forEach(timer => {
+                const expires = new Date(timer.dataset.expires);
+                const now = new Date();
+                const diff = expires - now;
+                if (diff <= 0) {
+                    timer.querySelector('.timer-display').textContent = 'Settling...';
+                    return;
+                }
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                timer.querySelector('.timer-display').textContent =
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            });
+        }
+
+        // Start timer updates
+        setInterval(updateTimers, 1000);
+
         async function refreshUserData() {
             try {
                 const res = await fetch(`${API}/api/me`, {
@@ -1021,7 +1054,10 @@
 
                 return `
                     <div class="match-card">
-                        <div class="live-badge">LIVE</div>
+                        <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                            <div class="live-badge">LIVE</div>
+                            ${m.expires_at ? `<div class="match-timer" data-expires="${m.expires_at}">⏱️ <span class="timer-display">--:--</span></div>` : ''}
+                        </div>
                         <div class="teams">
                             <div class="team"><div class="team-name">${escapeHtml(m.team_a)}</div></div>
                             <div class="vs">VS</div>

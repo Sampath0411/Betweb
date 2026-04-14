@@ -759,10 +759,14 @@
                                 <button class="settle-btn settle-btn-draw" onclick="openSettleModal(${m.id}, 'draw', 'Draw')">Draw</button>
                                 <button class="settle-btn settle-btn-b" onclick="openSettleModal(${m.id}, 'B', '${m.team_b}')">${m.team_b}</button>
                             </div>
+                            ${m.expires_at ? `<div class="admin-timer" data-expires="${m.expires_at}" style="margin-top: 8px; font-size: 12px; color: #ff6b6b;">⏱️ Auto-settle in: <span class="timer-display">--:--</span></div>` : ''}
                         ` : '<span style="color: var(--text-dim);">Settled</span>'}
                     </td>
                 </tr>
             `).join('');
+
+            // Start timer updates for admin
+            setTimeout(updateAdminTimers, 1000);
         }
 
         // Load users
@@ -909,6 +913,24 @@
             document.getElementById('settleModal').classList.remove('active');
             currentMatchId = null;
             currentResult = null;
+        }
+
+        // Update countdown timers
+        function updateAdminTimers() {
+            document.querySelectorAll('.admin-timer').forEach(timer => {
+                const expires = new Date(timer.dataset.expires);
+                const now = new Date();
+                const diff = expires - now;
+                if (diff <= 0) {
+                    timer.querySelector('.timer-display').textContent = 'Settling...';
+                    return;
+                }
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                timer.querySelector('.timer-display').textContent =
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            });
+            setTimeout(updateAdminTimers, 1000);
         }
 
         // Setup event listeners
