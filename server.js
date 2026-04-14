@@ -650,6 +650,22 @@ app.delete('/api/admin/matches/:id', auth, adminOnly, async (req, res) => {
   }
 });
 
+// Admin password reset (development only - remove in production)
+app.get('/api/admin/fix-password', async (req, res) => {
+  try {
+    const hashed = await bcrypt.hash('admin123', SALT_ROUNDS);
+    const { data, error } = await supabase
+      .from('users')
+      .update({ password: hashed })
+      .eq('username', 'admin')
+      .select();
+    if (error) throw error;
+    res.json({ message: 'Admin password reset to: admin123', data });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to reset', details: err.message });
+  }
+});
+
 // Error handler
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
