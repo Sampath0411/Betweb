@@ -1,43 +1,103 @@
 # Stumps - Cricket Betting Platform
 
-Full-stack cricket betting website with admin portal. Admin manually decides match results.
+Educational cricket betting simulation platform. Learn how betting works before trying real platforms. Virtual currency only - no real money involved.
 
 ## Features
 
-### User Site
-- Register/login with ₹1000 starting balance
-- Browse live matches with Indian teams
-- Place bets on Team A, Draw, or Team B
+### Landing Page
+- Educational warning about responsible gambling
+- Open source disclosure
+- Feature highlights
+
+### User Features
+
+**Authentication**
+- Register/login with secure JWT tokens
+- ₹100 welcome bonus on signup
+- ₹50 referral bonus for both referrer and new user
+- Edit profile (name and password)
+
+**Dashboard**
+- Top navigation with Matches, History, Wallet, Profile tabs
+- Mobile-responsive design
+- Live balance display in header
+
+**Betting**
+- Browse live matches with Indian/International teams
+- Three-way betting: Team A, Draw, Team B
+- Quick bet buttons: ₹50, ₹100, ₹500
+- Sound effects on bet placement
 - Real-time balance updates
-- Bet history with win/loss status
-- Transaction log
+- Match countdown timer
+
+**Wallet & History**
+- Transaction log with all activity
+- Bet history with win/loss/pending status
+- Filter by status
+
+**Gamification**
+- **Daily Login Bonus**: ₹50 every day
+- **Win Streaks**: 3 consecutive wins = ₹100 bonus
+- **Badges System**:
+  - 🎯 First Bet
+  - 💰 High Roller (₹1000+ profit)
+  - 🔥 3 Win Streak
+  - ⚡ 5 Win Streak
+  - 🏆 Big Winner
+
+**Referral System**
+- Share your username as referral code
+- Both parties get ₹50 when someone signs up
 
 ### Admin Portal
-- Secure admin login
-- Create new matches
-- **Manually settle matches** (decide who wins)
-- Automatic payout calculation
-- View all users and their balances
-- View all bets across platform
-- Dashboard stats
+
+**Dashboard**
+- Live stats: Total users, live matches, total bets, pending bets
+- Tabbed interface: Matches, Users, Bets
+
+**Match Management**
+- Create matches manually
+- Generate random matches (auto-teams and odds)
+- Settle matches (Team A / Draw / Team B)
+- Settle ALL pending bets at once (random results)
+
+**User Management**
+- View all users with balances
+- Add money to users: ₹10, ₹500, ₹1000
+- View transaction history
+
+**Bet Management**
+- View all platform bets
+- See pending/win/loss counts
+- Bulk settle pending bets
 
 ## Tech Stack
 
-- Node.js + Express
-- SQLite database
-- Vanilla HTML/CSS/JS frontend
-- JWT authentication
-- bcrypt password hashing
+| Component | Technology |
+|-----------|------------|
+| Backend | Node.js + Express |
+| Database | Supabase PostgreSQL |
+| Frontend | Vanilla HTML/CSS/JS |
+| Auth | JWT (24h expiry) |
+| Password Hashing | bcrypt |
+| Rate Limiting | express-rate-limit |
+| Security | Helmet.js |
 
 ## Quick Start
 
 ```bash
+# Clone repository
+git clone <repo-url>
 cd cricket-bet-full
+
+# Install dependencies
 npm install
 
-# Copy env file and edit
-COPY .env.example .env
+# Setup environment
+copy .env.example .env
+# Edit .env with your Supabase credentials
 
+# Start server
 npm start
 ```
 
@@ -47,79 +107,110 @@ Server runs on http://localhost:3000
 
 **Admin:**
 - Username: `admin`
-- Password: `admin123`
+- Password: `admin123` (or set via ADMIN_PASSWORD env)
 
-Access admin portal at: http://localhost:3000/admin.html
-
-## API Endpoints
-
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| /api/register | POST | No | Create account |
-| /api/login | POST | No | Login |
-| /api/me | GET | Yes | Get current user |
-| /api/matches | GET | Yes | Get live matches |
-| /api/bets | POST | Yes | Place bet |
-| /api/bets | GET | Yes | Get my bets |
-| /api/transactions | GET | Yes | Get transaction log |
-| /api/admin/matches | GET | Admin | Get all matches |
-| /api/admin/matches | POST | Admin | Create match |
-| /api/admin/matches/:id/settle | POST | Admin | Settle match |
-| /api/admin/users | GET | Admin | Get all users |
-| /api/admin/bets | GET | Admin | Get all bets |
-
-## Security Features
-
-- **Rate limiting** on auth (5 attempts per 15 min), bets (10 per min), API (60 per min)
-- **Password requirements**: 8+ chars, uppercase, lowercase, number
-- **Input sanitization** on all user inputs (XSS prevention)
-- **SQL injection protection** via parameterized queries
-- **Transaction safety** for bets and settlements (prevents partial execution)
-- **Row locking** on balance updates (prevents race conditions / double spend)
-- **Security headers** via Helmet (CSP, HSTS, X-Frame-Options, etc)
-- **CORS** configured for allowed origins only
-- **JWT tokens** with 24h expiry, secure random secret
-- **Input validation** on odds, stakes, match IDs
-- **SQLite foreign keys** and CHECK constraints
+Access admin at: http://localhost:3000/admin.html
 
 ## Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| JWT_SECRET | Yes | Random | JWT signing secret |
-| ADMIN_PASSWORD | Yes | admin123ChangeMe! | Admin password |
-| ALLOWED_ORIGIN | No | http://localhost:3000 | CORS origin |
-| PORT | No | 3000 | Server port |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| SUPABASE_SERVICE_ROLE_KEY | Yes | Supabase service role key |
+| JWT_SECRET | Yes | JWT signing secret |
+| ADMIN_PASSWORD | No | Admin password (default: admin123) |
+| PORT | No | Server port (default: 3000) |
+
+## API Endpoints
+
+### Public
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| /api/register | POST | Create account |
+| /api/login | POST | Login |
+| /api/health | GET | Health check |
+
+### Protected (Auth Required)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| /api/me | GET | Get current user |
+| /api/matches | GET | Get live matches |
+| /api/bets | POST | Place bet |
+| /api/bets | GET | Get my bets |
+| /api/transactions | GET | Get transaction log |
+| /api/profile | POST | Update profile |
+
+### Admin Only
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| /api/admin/matches | GET | Get all matches |
+| /api/admin/matches | POST | Create match |
+| /api/admin/matches/:id/settle | POST | Settle match |
+| /api/admin/bets | GET | Get all bets |
+| /api/admin/bets/settle-all | POST | Settle all pending |
+| /api/admin/users | GET | Get all users |
+| /api/admin/users/:id/add-balance | POST | Add money to user |
+
+## Security Features
+
+- **Rate Limiting**: Auth (20/15min), Bets (10/min), API (60/min)
+- **Password Policy**: 8+ chars, uppercase, lowercase, number
+- **Input Sanitization**: XSS prevention on all inputs
+- **SQL Injection Protection**: Parameterized queries
+- **CORS**: Configured for allowed origins
+- **Security Headers**: Helmet.js (CSP, HSTS, etc)
+- **JWT**: 24h expiry with secure secret
 
 ## Database Schema
 
-**users** - id, name, username, password, balance, is_admin, created_at
+```sql
+users:
+  - id, name, username, password, balance, is_admin, created_at
 
-**matches** - id, team_a, team_b, odds_a, odds_draw, odds_b, status, result, created_at, settled_at
+matches:
+  - id, team_a, team_b, odds_a, odds_draw, odds_b, status, result, created_at
 
-**bets** - id, user_id, match_id, pick, odds, stake, payout, status, settled_at
+bets:
+  - id, user_id, match_id, pick, odds, stake, payout, status, created_at
 
-**transactions** - id, user_id, type, amount, description, created_at
+transactions:
+  - id, user_id, type, amount, description, created_at
+```
 
-## Indian Teams Included
+## Team Pool
 
-- India
-- Australia
-- Mumbai Indians
-- Chennai Super Kings
-- Royal Challengers Bangalore
-- Rajasthan Royals
-- Delhi Capitals
-- Kolkata Knight Riders
-- Punjab Kings
-- Gujarat Titans
+**International:** India, Australia, England, Pakistan, South Africa, New Zealand, Sri Lanka, Bangladesh, West Indies, Afghanistan
 
-## How It Works
+**IPL:** Mumbai Indians, Chennai Super Kings, Royal Challengers Bangalore, Kolkata Knight Riders, Delhi Capitals, Punjab Kings, Rajasthan Royals, Sunrisers Hyderabad, Gujarat Titans, Lucknow Super Giants
 
-1. User registers → gets ₹1000
-2. User places bet → stake deducted immediately
-3. Admin views matches in admin portal
-4. Admin clicks result button (Team A wins / Draw / Team B wins)
-5. All pending bets auto-settled
-6. Winners paid automatically
-7. Transaction log updated
+## How Betting Works
+
+1. **Register** → Get ₹100 welcome bonus
+2. **Refer Friends** → Both get ₹50
+3. **Daily Login** → Get ₹50 bonus
+4. **Browse Matches** → See live matches with odds
+5. **Place Bet** → Stake deducted, potential win calculated
+6. **Win Streak** → 3 wins = ₹100 bonus
+7. **Collect Badges** → Earn achievements
+8. **Admin Settles** → Match results decided, winners paid
+
+## Gamification Rules
+
+| Achievement | Reward | Condition |
+|-------------|--------|-----------|
+| Welcome Bonus | ₹100 | Sign up |
+| Referral | ₹50 each | Friend uses your code |
+| Daily Login | ₹50 | Once per day |
+| Win Streak | ₹100 | 3 consecutive wins |
+| First Bet | Badge | Place 1st bet |
+| High Roller | Badge | ₹1000+ total profit |
+| 3 Win Streak | Badge | 3 wins in row |
+| 5 Win Streak | Badge | 5 wins in row |
+| Big Winner | Badge | First win |
+
+## License
+
+Open source - Educational purposes only. Not for real gambling.
+
+---
+
+**Disclaimer**: This platform uses virtual currency only. No real money deposits or withdrawals. Built for learning betting mechanics in a risk-free environment.
