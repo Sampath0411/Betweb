@@ -3,786 +3,660 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Stumps | Cricket Betting</title>
+    <title>Stumps | Elite Cricket Exchange</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         :root {
-            --bg: #0a0f14;
-            --bg-elev: #141a24;
-            --text: #e8eaf6;
-            --text-dim: #6b7280;
-            --accent: #f59e0b;
-            --win: #22c55e;
-            --loss: #ef4444;
-            --border: #1f2937;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
+            --pitch-dark: #0a0e14;
+            --pitch-mid: #141a24;
+            --pitch-light: #1e2636;
+            --floodlight: #ffb84d;
+            --floodlight-dim: #c47a1a;
+            --stadium-glow: rgba(255, 184, 77, 0.15);
+            --white: #f8f9fa;
+            --gray: #8b95a8;
+            --green: #2ecc71;
+            --red: #ff4757;
+            --glass: rgba(20, 26, 36, 0.85);
         }
 
-        /* Auth Pages */
-        .auth-container {
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--pitch-dark);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Stadium Background Effect */
+        .stadium-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 0%, rgba(255, 184, 77, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(255, 184, 77, 0.08) 0%, transparent 40%),
+                linear-gradient(180deg, var(--pitch-dark) 0%, var(--pitch-mid) 100%);
+            z-index: -2;
+        }
+
+        .pitch-lines {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(255, 184, 77, 0.03) 48px, rgba(255, 184, 77, 0.03) 49px);
+            z-index: -1;
+        }
+
+        /* Auth Page */
+        .auth-page {
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            padding: 20px;
+            justify-content: center;
+            padding: 24px;
         }
-        .auth-box {
+
+        .auth-container {
             width: 100%;
-            max-width: 340px;
+            max-width: 420px;
         }
-        .auth-box h1 {
-            font-size: 32px;
-            font-weight: 800;
+
+        .brand-mark {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .brand-mark h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 72px;
+            letter-spacing: 8px;
+            color: var(--white);
+            text-shadow: 0 0 60px rgba(255, 184, 77, 0.4);
             margin-bottom: 8px;
         }
-        .auth-box h1 span { color: var(--accent); }
-        .auth-box p { color: var(--text-dim); margin-bottom: 32px; font-size: 14px; }
 
-        .input-group { margin-bottom: 16px; }
-        .input-group label {
+        .brand-mark p {
+            color: var(--gray);
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-switch {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            padding: 4px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: var(--gray);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--floodlight);
+            color: var(--pitch-dark);
+        }
+
+        .input-field {
+            margin-bottom: 20px;
+        }
+
+        .input-field label {
             display: block;
+            margin-bottom: 8px;
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
-            color: var(--text-dim);
-            margin-bottom: 6px;
+            letter-spacing: 1px;
+            color: var(--gray);
         }
-        .input-group input {
+
+        .input-field input {
             width: 100%;
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 14px 16px;
-            color: var(--text);
-            font-size: 16px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--white);
+            font-family: inherit;
+            font-size: 15px;
+            transition: all 0.3s ease;
         }
-        .input-group input:focus {
+
+        .input-field input:focus {
             outline: none;
-            border-color: var(--accent);
+            border-color: var(--floodlight);
+            background: rgba(255, 184, 77, 0.05);
         }
-        .btn {
+
+        .btn-floodlight {
             width: 100%;
-            background: var(--accent);
-            color: var(--bg);
+            padding: 18px;
+            background: linear-gradient(135deg, var(--floodlight), var(--floodlight-dim));
             border: none;
-            border-radius: 8px;
-            padding: 14px;
+            border-radius: 12px;
+            color: var(--pitch-dark);
+            font-family: inherit;
             font-size: 15px;
             font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(255, 184, 77, 0.3);
         }
-        .btn:hover { opacity: 0.9; }
-        .auth-switch {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: var(--text-dim);
+
+        .btn-floodlight:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(255, 184, 77, 0.4);
         }
-        .auth-switch a { color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
 
         /* App Layout */
-        .hidden { display: none !important; }
-
-        .app {
+        .app-layout {
+            display: none;
             min-height: 100vh;
-            padding-bottom: 80px;
         }
-        .header {
-            position: sticky;
-            top: 0;
-            background: rgba(10, 15, 20, 0.95);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 20px;
-            z-index: 100;
+
+        .app-layout.active {
+            display: grid;
+            grid-template-columns: 280px 1fr;
         }
-        .header-content {
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, var(--pitch-mid), var(--pitch-dark));
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 32px 24px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+        }
+
+        .sidebar-brand {
+            margin-bottom: 48px;
+        }
+
+        .sidebar-brand h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 36px;
+            letter-spacing: 4px;
+        }
+
+        .sidebar-brand span {
+            color: var(--floodlight);
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
             align-items: center;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-        .header h1 { font-size: 20px; font-weight: 800; }
-        .header h1 span { color: var(--accent); }
-        .wallet-chip {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 700;
-        }
-        .wallet-chip span { color: var(--accent); }
-
-        .container {
-            padding: 20px;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-
-        .welcome { margin-bottom: 24px; }
-        .welcome h2 { font-size: 22px; font-weight: 700; }
-        .welcome p { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
-
-        .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            margin-bottom: 12px;
-        }
-
-        /* Matches */
-        .match-card {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
+            gap: 16px;
+            padding: 16px 20px;
+            margin-bottom: 8px;
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
+            color: var(--gray);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        .live-badge {
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 184, 77, 0.1);
+            color: var(--floodlight);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wallet-pill {
+            margin-top: auto;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 184, 77, 0.15), rgba(196, 122, 26, 0.1));
+            border: 1px solid rgba(255, 184, 77, 0.2);
+            border-radius: 16px;
+        }
+
+        .wallet-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .wallet-amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--floodlight);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 32px 40px;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        /* Match Cards */
+        .match-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .match-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .match-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--floodlight), transparent);
+            opacity: 0.5;
+        }
+
+        .match-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 184, 77, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .match-status {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            border-radius: 20px;
             font-size: 11px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--green);
+            margin-bottom: 20px;
         }
-        .live-badge::before {
-            content: '';
+
+        .status-dot {
             width: 6px;
             height: 6px;
-            background: var(--accent);
+            background: var(--green);
             border-radius: 50%;
-            animation: blink 1s infinite;
+            animation: pulse 2s infinite;
         }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        .teams {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
-        .team { text-align: center; flex: 1; }
-        .team-name { font-size: 16px; font-weight: 700; }
-        .vs { font-size: 12px; color: var(--text-dim); padding: 0 16px; }
+
+        .teams-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .team {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .team-avatar {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--pitch-light), var(--pitch-mid));
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 24px;
+            color: var(--floodlight);
+        }
+
+        .team-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .vs-divider {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 14px;
+            color: var(--gray);
+            letter-spacing: 4px;
+        }
 
         .odds-row {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
         }
-        .odds-btn {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-        }
-        .odds-btn.selected {
-            border-color: var(--accent);
-            background: rgba(245, 158, 11, 0.1);
-        }
-        .odds-btn .label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
-        .odds-btn .value { font-size: 18px; font-weight: 800; color: var(--accent); }
 
-        .bet-slip {
-            display: none;
-            background: rgba(245, 158, 11, 0.05);
-            border: 1px solid var(--accent);
-            border-radius: 8px;
+        .odds-btn {
             padding: 16px;
-            margin-top: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--white);
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        .bet-slip.active { display: block; }
-        .stake-input {
-            width: 100%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            color: var(--text);
+
+        .odds-btn:hover {
+            background: rgba(255, 184, 77, 0.1);
+            border-color: var(--floodlight);
+        }
+
+        .odds-label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .odds-value {
             font-size: 20px;
             font-weight: 700;
-            text-align: center;
-            margin-bottom: 12px;
+            color: var(--floodlight);
         }
-        .payout-preview {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
-        .payout-preview .amount { font-size: 18px; font-weight: 800; color: var(--accent); }
 
-        /* Bottom Nav */
-        .bottom-nav {
+        /* Mobile Nav */
+        .mobile-nav {
+            display: none;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--bg-elev);
-            border-top: 1px solid var(--border);
-            display: flex;
-            padding: 8px 0;
+            background: var(--pitch-mid);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
             z-index: 100;
         }
-        .nav-item {
-            flex: 1;
+
+        .mobile-nav-items {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .mobile-nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            padding: 8px;
-            color: var(--text-dim);
-            background: none;
-            border: none;
+            padding: 8px 16px;
+            color: var(--gray);
             font-size: 11px;
-            font-weight: 600;
             cursor: pointer;
         }
-        .nav-item.active { color: var(--accent); }
-        .nav-icon { width: 24px; height: 24px; }
 
-        /* History */
-        .bet-item {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-        .bet-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .bet-match { font-weight: 700; font-size: 14px; }
-        .bet-status {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            border-radius: 12px;
-        }
-        .bet-status.pending { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
-        .bet-status.won { background: rgba(34, 197, 94, 0.15); color: var(--win); }
-        .bet-status.lost { background: rgba(239, 68, 68, 0.15); color: var(--loss); }
-        .bet-details { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-dim); }
-        .bet-result {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .bet-amount { font-size: 16px; font-weight: 800; }
-        .bet-amount.won { color: var(--win); }
-        .bet-amount.lost { color: var(--loss); }
-
-        /* Wallet */
-        .wallet-card {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 32px;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .wallet-label { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
-        .wallet-balance { font-size: 48px; font-weight: 800; color: var(--accent); }
-
-        .wallet-log {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-        }
-        .log-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .log-item:last-child { border-bottom: none; }
-        .log-title { font-size: 14px; font-weight: 600; }
-        .log-time { font-size: 12px; color: var(--text-dim); }
-        .log-amount { font-size: 14px; font-weight: 700; }
-        .log-amount.positive { color: var(--win); }
-        .log-amount.negative { color: var(--loss); }
-
-        .logout-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 24px;
+        .mobile-nav-item.active {
+            color: var(--floodlight);
         }
 
-        .empty-state { text-align: center; padding: 48px; color: var(--text-dim); }
-
-        /* Desktop/Laptop Responsive */
-        @media (min-width: 768px) {
-            .auth-box {
-                max-width: 420px;
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .app-layout.active {
+                grid-template-columns: 1fr;
             }
-            .auth-box h1 {
-                font-size: 40px;
-            }
-            .auth-box p {
-                font-size: 16px;
-            }
-            .input-group input {
-                padding: 16px 18px;
-                font-size: 17px;
-            }
-            .btn {
-                padding: 16px;
-                font-size: 16px;
-            }
-
-            .header-content {
-                max-width: 900px;
-                padding: 0 32px;
-            }
-            .container {
-                max-width: 900px;
-                padding: 32px;
-            }
-            .welcome h2 {
-                font-size: 28px;
-            }
-            .welcome p {
-                font-size: 16px;
-            }
-
-            .match-card {
-                padding: 28px;
-            }
-            .team-name {
-                font-size: 20px;
-            }
-            .vs {
-                font-size: 14px;
-            }
-            .odds-btn {
-                padding: 16px;
-            }
-            .odds-btn .value {
-                font-size: 22px;
-            }
-
-            .wallet-card {
-                padding: 48px;
-            }
-            .wallet-balance {
-                font-size: 64px;
-            }
-
-            .bet-item {
-                padding: 20px;
-            }
-            .bet-match {
-                font-size: 16px;
-            }
-
-            .bottom-nav {
+            .sidebar {
                 display: none;
             }
-            .app {
-                padding-bottom: 32px;
+            .mobile-nav {
+                display: block;
             }
-        }
-
-        @media (min-width: 1200px) {
-            .header-content {
-                max-width: 1200px;
-            }
-            .container {
-                max-width: 1200px;
-                padding: 48px;
-            }
-
-            /* Two column layout for matches on large screens */
-            #matchesList {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 24px;
-            }
-            .match-card {
-                margin-bottom: 0;
-            }
-
-            /* Side nav for desktop */
-            .app {
-                display: flex;
-                flex-direction: row;
-                padding-bottom: 0;
-            }
-            .header {
-                position: fixed;
-                width: 100%;
-                z-index: 100;
-            }
-            .sidebar-nav {
-                display: flex;
-                flex-direction: column;
-                background: var(--bg-elev);
-                border-right: 1px solid var(--border);
-                padding: 20px 16px;
-                width: 180px;
-                height: 100vh;
-                position: fixed;
-                left: 0;
-                top: 73px;
+            .main-content {
                 padding-bottom: 100px;
             }
-            .sidebar-nav .nav-item {
-                flex-direction: row;
-                justify-content: flex-start;
-                gap: 12px;
-                padding: 16px;
-                font-size: 14px;
-                border-radius: 8px;
-            }
-            .sidebar-nav .nav-item:hover {
-                background: var(--bg);
-            }
-            .sidebar-nav .nav-item.active {
-                background: rgba(245, 158, 11, 0.1);
-            }
+        }
 
-            /* Push content to the right on desktop */
-            .view {
-                margin-left: 180px;
-                padding-top: 73px;
-                width: calc(100% - 180px);
+        @media (max-width: 640px) {
+            .brand-mark h1 {
+                font-size: 52px;
+            }
+            .glass-card {
+                padding: 28px;
+            }
+            .teams-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+            .vs-divider {
+                transform: rotate(90deg);
             }
         }
 
-        /* Hide desktop nav on mobile */
-        .sidebar-nav {
-            display: none;
-        }
-
-        @media (min-width: 768px) {
-            .sidebar-nav {
-                display: flex;
-                width: 180px;
-            }
-            .view {
-                margin-left: 180px;
-                width: calc(100% - 180px);
-            }
-        }
+        /* Utility */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
+    <div class="stadium-bg"></div>
+    <div class="pitch-lines"></div>
+
     <!-- Auth Page -->
-    <div id="authPage">
+    <div id="authPage" class="auth-page">
         <div class="auth-container">
-            <div class="auth-box" id="loginBox">
-                <h1>Stumps<span>.</span></h1>
-                <p>Cricket betting, simplified.</p>
+            <div class="brand-mark">
+                <h1>STUMPS</h1>
+                <p>Elite Cricket Exchange</p>
+            </div>
+
+            <div class="glass-card">
+                <div class="tab-switch">
+                    <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+                    <button class="tab-btn" onclick="switchTab('register')">Register</button>
+                </div>
+
                 <form id="loginForm">
-                    <div class="input-group">
+                    <div class="input-field">
                         <label>Username</label>
-                        <input type="text" id="loginUsername" required placeholder="Enter username">
+                        <input type="text" id="loginUsername" placeholder="Enter username" required>
                     </div>
-                    <div class="input-group">
+                    <div class="input-field">
                         <label>Password</label>
-                        <div style="position: relative;">
-                            <input type="password" id="loginPassword" required placeholder="Enter password" style="width: 100%; padding-right: 40px;">
-                            <button type="button" onclick="togglePassword('loginPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-dim);">👁️</button>
-                        </div>
+                        <input type="password" id="loginPassword" placeholder="Enter password" required>
                     </div>
-                    <label style="display: flex; align-items: center; gap: 8px; margin: -10px 0 10px; cursor: pointer; font-size: 14px; color: var(--text-dim);">
-                        <input type="checkbox" id="staySignedIn" checked>
-                        Stay signed in
-                    </label>
-                    <button type="submit" class="btn">Sign In</button>
+                    <button type="submit" class="btn-floodlight">Enter Stadium</button>
                 </form>
-                <div class="auth-switch">
-                    No account? <a onclick="showRegister()">Create one</a>
-                </div>
-            </div>
 
-            <div class="auth-box hidden" id="registerBox">
-                <h1>Stumps<span>.</span></h1>
-                <p>Start with ₹1000. Password: 8+ chars, uppercase, lowercase, number.</p>
-                <form id="registerForm">
-                    <div class="input-group">
-                        <label>Name</label>
-                        <input type="text" id="regName" required placeholder="Your name">
+                <form id="registerForm" class="hidden">
+                    <div class="input-field">
+                        <label>Full Name</label>
+                        <input type="text" id="regName" placeholder="Your name" required>
                     </div>
-                    <div class="input-group">
+                    <div class="input-field">
                         <label>Username</label>
-                        <input type="text" id="regUsername" required placeholder="Choose username">
+                        <input type="text" id="regUsername" placeholder="Choose username" required>
                     </div>
-                    <div class="input-group">
+                    <div class="input-field">
                         <label>Password</label>
-                        <div style="position: relative;">
-                            <input type="password" id="regPassword" required placeholder="Create password" style="width: 100%; padding-right: 40px;">
-                            <button type="button" onclick="togglePassword('regPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-dim);">👁️</button>
-                        </div>
+                        <input type="password" id="regPassword" placeholder="Create password" required>
                     </div>
-                    <button type="submit" class="btn">Create Account</button>
+                    <div class="input-field">
+                        <label>Referral Code (Optional)</label>
+                        <input type="text" id="regReferral" placeholder="Friend's code">
+                    </div>
+                    <button type="submit" class="btn-floodlight">Join the Game</button>
                 </form>
-                <div class="auth-switch">
-                    Have account? <a onclick="showLogin()">Sign in</a>
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- App Page -->
-    <div id="appPage" class="hidden">
-        <div class="header">
-            <div class="header-content">
-                <h1>Stumps<span>.</span></h1>
-                <div class="wallet-chip">₹<span id="headerBalance">0</span></div>
+    <!-- App Layout -->
+    <div id="appLayout" class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h2>STUMPS<span>.</span></h2>
             </div>
-        </div>
 
-        <!-- Desktop Sidebar Nav -->
-        <nav class="sidebar-nav">
-            <button class="nav-item active" onclick="navigate('dashboard')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="7" height="7"/>
-                    <rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/>
-                    <rect x="3" y="14" width="7" height="7"/>
-                </svg>
-                Matches
-            </button>
-            <button class="nav-item" onclick="navigate('history')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
-                </svg>
-                History
-            </button>
-            <button class="nav-item" onclick="navigate('wallet')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
-                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
-                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
-                </svg>
-                Wallet
-            </button>
-            <div style="margin-top: auto;">
-                <button class="nav-item" onclick="logout()">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/>
-                        <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                    Logout
-                </button>
-            </div>
-        </nav>
-
-        <!-- Dashboard -->
-        <div id="dashboardView" class="view">
-            <div class="container">
-                <div class="welcome">
-                    <h2 id="welcomeName">Hey there</h2>
-                    <p>Live matches available now</p>
+            <nav class="nav-menu">
+                <div class="nav-item active" onclick="showView('matches')">
+                    <div class="nav-icon">🏏</div>
+                    <span>Matches</span>
                 </div>
-                <div class="section-title">Live Matches</div>
-                <div id="matchesList"><div class="empty-state">Loading...</div></div>
-            </div>
-        </div>
-
-        <!-- History -->
-        <div id="historyView" class="view hidden">
-            <div class="container">
-                <div class="section-title">Your Bets</div>
-                <div id="betsList"><div class="empty-state">Loading...</div></div>
-            </div>
-        </div>
-
-        <!-- Wallet -->
-        <div id="walletView" class="view hidden">
-            <div class="container">
-                <div class="wallet-card">
-                    <div class="wallet-label">Current Balance</div>
-                    <div class="wallet-balance" id="walletBalance">₹0</div>
+                <div class="nav-item" onclick="showView('bets')">
+                    <div class="nav-icon">📋</div>
+                    <span>My Bets</span>
                 </div>
-                <div class="section-title">Transaction Log</div>
-                <div id="walletLog"><div class="empty-state">Loading...</div></div>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
-        </div>
+                <div class="nav-item" onclick="showView('wallet')">
+                    <div class="nav-icon">💰</div>
+                    <span>Wallet</span>
+                </div>
+                <div class="nav-item" onclick="showView('profile')">
+                    <div class="nav-icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </nav>
 
-        <!-- Bottom Nav -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" onclick="navigate('dashboard')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="7" height="7"/>
-                    <rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/>
-                    <rect x="3" y="14" width="7" height="7"/>
-                </svg>
-                Matches
-            </button>
-            <button class="nav-item" onclick="navigate('history')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
-                </svg>
-                History
-            </button>
-            <button class="nav-item" onclick="navigate('wallet')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
-                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
-                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
-                </svg>
-                Wallet
-            </button>
-        </nav>
+            <div class="wallet-pill">
+                <div class="wallet-label">Balance</div>
+                <div class="wallet-amount" id="walletBalance">₹0</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- Matches View -->
+            <div id="matchesView" class="view-section">
+                <div class="page-header">
+                    <h1>Live Matches</h1>
+                    <p>Place your bets on ongoing cricket matches</p>
+                </div>
+                <div class="match-grid" id="matchList">
+                    <!-- Matches loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Other views... -->
+        </main>
     </div>
+
+    <!-- Mobile Nav -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <div class="mobile-nav-item active" onclick="showView('matches')">
+                <span>🏏</span>
+                <span>Matches</span>
+            </div>
+            <div class="mobile-nav-item" onclick="showView('bets')">
+                <span>📋</span>
+                <span>Bets</span>
+            </div>
+            <div class="mobile-nav-item" onclick="showView('wallet')">
+                <span>💰</span>
+                <span>Wallet</span>
+            </div>
+            <div class="mobile-nav-item" onclick="showView('profile')">
+                <span>👤</span>
+                <span>Profile</span>
+            </div>
+        </div>
+    </nav>
 
     <script>
         const API = window.location.origin;
-        console.log('API URL:', API); // Debug
         let token = localStorage.getItem('token');
-        let user = null;
-        let matches = [];
-        let selectedMatch = null;
-        let selectedOdd = null;
-        let selectedOddValue = null;
+        let currentUser = null;
 
         // Initialize
-        async function init() {
-            const staySignedIn = localStorage.getItem('staySignedIn');
-            if (token) {
-                try {
-                    const res = await fetch(`${API}/api/me`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data && data.id) {
-                            user = data;
-                            showApp();
-                            return;
-                        }
-                    }
-                    // Token invalid - clear it
-                    token = null;
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('staySignedIn');
-                } catch (e) {
-                    // Network error - keep token for retry if staySignedIn
-                    console.error('Auth error:', e);
-                    if (staySignedIn !== 'true') {
-                        token = null;
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('staySignedIn');
-                    }
-                }
-            }
-            showAuth();
+        if (token) {
+            validateToken();
         }
 
-        // Page visibility
-        function showAuth() {
-            stopAutoRefresh();
-            document.getElementById('authPage').classList.remove('hidden');
-            document.getElementById('appPage').classList.add('hidden');
-        }
-
-        // Auto-refresh intervals
-        let autoRefreshInterval = null;
-
-        function startAutoRefresh() {
-            // Refresh matches every 10 seconds
-            autoRefreshInterval = setInterval(() => {
-                if (token && user) {
-                    loadMatches();
-                    // Also refresh user data to get updated balance
-                    refreshUserData();
-                }
-            }, 10000);
-        }
-
-        function stopAutoRefresh() {
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshInterval = null;
-            }
-        }
-
-        async function refreshUserData() {
+        async function validateToken() {
             try {
                 const res = await fetch(`${API}/api/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.id) {
-                        user = data;
-                        updateBalance();
-                    }
+                    currentUser = await res.json();
+                    showApp();
+                } else {
+                    localStorage.removeItem('token');
+                    token = null;
                 }
             } catch (e) {
-                console.error('Refresh user data error:', e);
+                // Stay on auth
             }
         }
 
-        function showApp() {
-            document.getElementById('authPage').classList.add('hidden');
-            document.getElementById('appPage').classList.remove('hidden');
-            document.getElementById('welcomeName').textContent = `Hey, ${user?.name || 'there'}`;
-            updateBalance();
-            loadMatches();
-            startAutoRefresh();
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            }
         }
 
-        function showLogin() {
-            document.getElementById('loginBox').classList.remove('hidden');
-            document.getElementById('registerBox').classList.add('hidden');
-        }
-
-        function showRegister() {
-            document.getElementById('loginBox').classList.add('hidden');
-            document.getElementById('registerBox').classList.remove('hidden');
-        }
-
-        // Update balance
-        function updateBalance() {
-            if (!user) return;
-            document.getElementById('headerBalance').textContent = user.balance;
-            document.getElementById('walletBalance').textContent = `₹${user.balance}`;
-        }
-
-        // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+            const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
             try {
@@ -792,232 +666,122 @@
                     body: JSON.stringify({ username, password })
                 });
                 const data = await res.json();
-
-                if (res.ok && data.token) {
+                if (res.ok) {
                     token = data.token;
-                    user = data.user;
-                    const staySignedIn = document.getElementById('staySignedIn').checked;
-                    if (staySignedIn) {
-                        localStorage.setItem('token', token);
-                        localStorage.setItem('staySignedIn', 'true');
-                    }
-                    showLogin(); // Reset form for next time
-                    document.getElementById('loginForm').reset();
+                    localStorage.setItem('token', token);
+                    currentUser = data.user;
                     showApp();
                 } else {
                     alert(data.error || 'Login failed');
                 }
-            } catch (err) {
-                console.error('Login error:', err);
-                alert('Error: ' + err.message);
+            } catch (e) {
+                alert('Network error');
             }
         });
 
-        // Register
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const username = document.getElementById('regUsername').value.trim().toLowerCase();
+            const name = document.getElementById('regName').value;
+            const username = document.getElementById('regUsername').value;
             const password = document.getElementById('regPassword').value;
+            const referral = document.getElementById('regReferral').value;
 
             try {
                 const res = await fetch(`${API}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, username, password })
+                    body: JSON.stringify({ name, username, password, referral_code: referral })
                 });
                 const data = await res.json();
-
                 if (res.ok) {
-                    alert('Account created! Logging you in...');
-                    // Auto login
-                    const loginRes = await fetch(`${API}/api/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
-                    });
-                    const loginData = await loginRes.json();
-
-                    if (loginRes.ok && loginData.token) {
-                        token = loginData.token;
-                        user = loginData.user;
-                        localStorage.setItem('token', token);
-                        document.getElementById('registerForm').reset();
-                        showLogin();
-                        showApp();
-                    } else {
-                        alert('Account created but login failed. Please sign in manually.');
-                        showLogin();
-                    }
+                    alert('Registration successful! Please login.');
+                    switchTab('login');
                 } else {
                     alert(data.error || 'Registration failed');
                 }
-            } catch (err) {
-                console.error('Signup error:', err);
-                alert('Error: ' + (err.message || 'Unknown error'));
+            } catch (e) {
+                alert('Network error');
             }
         });
 
-        // Toggle password visibility
-        function togglePassword(inputId, btn) {
-            const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                btn.textContent = '🙈';
-            } else {
-                input.type = 'password';
-                btn.textContent = '👁️';
-            }
+        function showApp() {
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('appLayout').classList.add('active');
+            document.getElementById('walletBalance').textContent = `₹${currentUser?.balance || 0}`;
+            loadMatches();
         }
 
-        // Logout
-        function logout() {
-            stopAutoRefresh();
-            token = null;
-            user = null;
-            localStorage.removeItem('token');
-            localStorage.removeItem('staySignedIn');
-            selectedMatch = null;
-            selectedOdd = null;
-            selectedOddValue = null;
-            showAuth();
-            document.getElementById('loginForm').reset();
-        }
-
-        // Navigation
-        function navigate(view) {
-            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-            document.getElementById(view + 'View').classList.remove('hidden');
-
-            // Update active state on all nav items (sidebar + bottom nav)
-            const navItems = document.querySelectorAll('.nav-item');
-            const viewIndex = { dashboard: 0, history: 1, wallet: 2 }[view];
-
-            // Set active on matching items (0,3 for dashboard, 1,4 for history, 2,5 for wallet)
-            navItems.forEach((item, idx) => {
-                if (idx % 3 === viewIndex) item.classList.add('active');
+        function showView(view) {
+            // Update nav active states
+            document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(item => {
+                item.classList.remove('active');
             });
-
-            if (view === 'history') loadHistory();
-            if (view === 'wallet') loadWallet();
         }
 
-        // Load matches
         async function loadMatches() {
             try {
-                const res = await fetch(`${API}/api/matches`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await fetch(`${API}/api/matches`);
                 if (res.ok) {
-                    matches = await res.json();
-                    renderMatches();
-                } else {
-                    document.getElementById('matchesList').innerHTML = '<div class="empty-state">Failed to load matches</div>';
+                    const matches = await res.json();
+                    renderMatches(matches);
                 }
             } catch (e) {
-                document.getElementById('matchesList').innerHTML = '<div class="empty-state">Network error</div>';
+                console.error('Failed to load matches');
             }
         }
 
-        // Render matches
-        function renderMatches() {
-            const container = document.getElementById('matchesList');
-            if (matches.length === 0) {
-                container.innerHTML = '<div class="empty-state">No live matches</div>';
+        function renderMatches(matches) {
+            const container = document.getElementById('matchList');
+            if (!matches.length) {
+                container.innerHTML = '<p style="text-align: center; color: var(--gray); padding: 40px;">No live matches available</p>';
                 return;
             }
 
-            container.innerHTML = matches.map(m => {
-                const isSelected = selectedMatch === m.id;
-                const pickA = isSelected && selectedOdd === 'A';
-                const pickD = isSelected && selectedOdd === 'D';
-                const pickB = isSelected && selectedOdd === 'B';
-
-                return `
-                    <div class="match-card">
-                        <div class="live-badge">LIVE</div>
-                        <div class="teams">
-                            <div class="team"><div class="team-name">${escapeHtml(m.team_a)}</div></div>
-                            <div class="vs">VS</div>
-                            <div class="team"><div class="team-name">${escapeHtml(m.team_b)}</div></div>
-                        </div>
-                        <div class="odds-row">
-                            <div class="odds-btn ${pickA ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'A', ${m.odds_a}, '${escapeJsString(m.team_a)}')">
-                                <div class="label">${escapeHtml(m.team_a)}</div>
-                                <div class="value">${m.odds_a.toFixed(2)}</div>
-                            </div>
-                            <div class="odds-btn ${pickD ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'D', ${m.odds_draw}, 'Draw')">
-                                <div class="label">Draw</div>
-                                <div class="value">${m.odds_draw.toFixed(2)}</div>
-                            </div>
-                            <div class="odds-btn ${pickB ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'B', ${m.odds_b}, '${escapeJsString(m.team_b)}')">
-                                <div class="label">${escapeHtml(m.team_b)}</div>
-                                <div class="value">${m.odds_b.toFixed(2)}</div>
-                            </div>
-                        </div>
-                        ${isSelected ? `
-                            <div class="bet-slip active">
-                                <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--accent); margin-bottom: 12px;">
-                                    Place Bet on ${selectedOdd === 'A' ? escapeHtml(m.team_a) : selectedOdd === 'B' ? escapeHtml(m.team_b) : 'Draw'}
-                                </div>
-                                <input type="number" class="stake-input" id="stake-${m.id}" placeholder="₹ Enter stake (min 10)" min="10" max="${user.balance}">
-                                <div class="payout-preview">
-                                    <span>Potential Win:</span>
-                                    <span class="amount" id="payout-${m.id}">₹0</span>
-                                </div>
-                                <button class="btn" onclick="placeBet(${m.id})">Confirm Bet</button>
-                            </div>
-                        ` : ''}
+            container.innerHTML = matches.map(match => `
+                <div class="match-card">
+                    <div class="match-status">
+                        <div class="status-dot"></div>
+                        LIVE NOW
                     </div>
-                `;
-            }).join('');
-
-            // Add input listeners
-            matches.forEach(m => {
-                const input = document.getElementById(`stake-${m.id}`);
-                if (input) {
-                    input.addEventListener('input', () => {
-                        const stake = parseInt(input.value) || 0;
-                        const payout = Math.floor(stake * selectedOddValue);
-                        const payoutEl = document.getElementById(`payout-${m.id}`);
-                        if (payoutEl) payoutEl.textContent = `₹${payout}`;
-                    });
-                }
-            });
+                    <div class="teams-row">
+                        <div class="team">
+                            <div class="team-avatar">${match.team_a.charAt(0)}</div>
+                            <div class="team-name">${match.team_a}</div>
+                        </div>
+                        <div class="vs-divider">VS</div>
+                        <div class="team">
+                            <div class="team-avatar">${match.team_b.charAt(0)}</div>
+                            <div class="team-name">${match.team_b}</div>
+                        </div>
+                    </div>
+                    <div class="odds-row">
+                        <button class="odds-btn" onclick="placeBet(${match.id}, 'A', '${match.team_a}', ${match.odds_a})">
+                            <div class="odds-label">${match.team_a}</div>
+                            <div class="odds-value">${match.odds_a.toFixed(2)}</div>
+                        </button>
+                        <button class="odds-btn" onclick="placeBet(${match.id}, 'draw', 'Draw', ${match.odds_draw})">
+                            <div class="odds-label">Draw</div>
+                            <div class="odds-value">${match.odds_draw.toFixed(2)}</div>
+                        </button>
+                        <button class="odds-btn" onclick="placeBet(${match.id}, 'B', '${match.team_b}', ${match.odds_b})">
+                            <div class="odds-label">${match.team_b}</div>
+                            <div class="odds-value">${match.odds_b.toFixed(2)}</div>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // Select odd
-        window.selectOdd = function(matchId, odd, value, pickName) {
-            if (selectedMatch === matchId && selectedOdd === odd) {
-                selectedMatch = null;
-                selectedOdd = null;
-                selectedOddValue = null;
-            } else {
-                selectedMatch = matchId;
-                selectedOdd = odd;
-                selectedOddValue = value;
+        async function placeBet(matchId, pick, pickName, odds) {
+            if (!token) {
+                alert('Please login first');
+                return;
             }
-            renderMatches();
-        };
-
-        // Place bet
-        window.placeBet = async function(matchId) {
-            const input = document.getElementById(`stake-${matchId}`);
-            const stake = parseInt(input?.value);
-
+            const stake = prompt(`Enter stake amount for ${pickName} (odds: ${odds}):`);
             if (!stake || stake < 10) {
                 alert('Minimum stake is ₹10');
                 return;
             }
-            if (stake > user.balance) {
-                alert('Insufficient balance');
-                return;
-            }
-
-            const match = matches.find(m => m.id === matchId);
-            const pick = selectedOdd === 'A' ? match.team_a : selectedOdd === 'B' ? match.team_b : 'Draw';
 
             try {
                 const res = await fetch(`${API}/api/bets`, {
@@ -1026,129 +790,19 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ match_id: matchId, pick, odds: selectedOddValue, stake })
+                    body: JSON.stringify({ match_id: matchId, pick, odds: parseFloat(odds), stake: parseInt(stake) })
                 });
                 const data = await res.json();
-
                 if (res.ok) {
-                    // Refresh user data from server
-                    await refreshUserData();
-                    selectedMatch = null;
-                    selectedOdd = null;
-                    selectedOddValue = null;
-                    renderMatches();
                     alert(`Bet placed! Potential win: ₹${data.payout}`);
+                    validateToken();
                 } else {
-                    alert(data.error || 'Failed to place bet');
+                    alert(data.error || 'Bet failed');
                 }
             } catch (e) {
                 alert('Network error');
             }
-        };
-
-        // Load history
-        async function loadHistory() {
-            try {
-                const res = await fetch(`${API}/api/bets`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const bets = await res.json();
-                    renderHistory(bets);
-                }
-            } catch (e) {
-                document.getElementById('betsList').innerHTML = '<div class="empty-state">Failed to load</div>';
-            }
         }
-
-        // Render history
-        function renderHistory(bets) {
-            const container = document.getElementById('betsList');
-            if (bets.length === 0) {
-                container.innerHTML = '<div class="empty-state">No bets yet</div>';
-                return;
-            }
-
-            container.innerHTML = bets.map(b => `
-                <div class="bet-item">
-                    <div class="bet-header">
-                        <div class="bet-match">${escapeHtml(b.team_a)} vs ${escapeHtml(b.team_b)}</div>
-                        <div class="bet-status ${b.status}">${b.status}</div>
-                    </div>
-                    <div class="bet-details">
-                        <span>Stake: ₹${b.stake}</span>
-                        <span>Odds: ${b.odds.toFixed(2)}</span>
-                    </div>
-                    <div class="bet-result">
-                        <span>Picked: <strong>${escapeHtml(b.pick)}</strong></span>
-                        ${b.status === 'won' ? `<span class="bet-amount won">+₹${b.payout}</span>` : ''}
-                        ${b.status === 'lost' ? `<span class="bet-amount lost">-₹${b.stake}</span>` : ''}
-                        ${b.status === 'pending' ? '<span style="color: var(--text-dim); font-size: 13px;">Waiting...</span>' : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Load wallet
-        async function loadWallet() {
-            try {
-                const [userRes, txRes] = await Promise.all([
-                    fetch(`${API}/api/me`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                    fetch(`${API}/api/transactions`, { headers: { 'Authorization': `Bearer ${token}` } })
-                ]);
-
-                if (userRes.ok) {
-                    const userData = await userRes.json();
-                    user = userData;
-                    updateBalance();
-                }
-
-                if (txRes.ok) {
-                    const txs = await txRes.json();
-                    renderWallet(txs);
-                }
-            } catch (e) {
-                document.getElementById('walletLog').innerHTML = '<div class="empty-state">Failed to load</div>';
-            }
-        }
-
-        // Render wallet
-        function renderWallet(txs) {
-            const container = document.getElementById('walletLog');
-            if (txs.length === 0) {
-                container.innerHTML = '<div class="empty-state">No transactions</div>';
-                return;
-            }
-
-            container.innerHTML = txs.map(t => `
-                <div class="log-item">
-                    <div class="log-info">
-                        <div class="log-title">${escapeHtml(t.description)}</div>
-                        <div class="log-time">${new Date(t.created_at).toLocaleString()}</div>
-                    </div>
-                    <div class="log-amount ${t.type === 'credit' ? 'positive' : t.type === 'debit' ? 'negative' : ''}">
-                        ${t.type === 'credit' ? '+' : t.type === 'debit' ? '-' : ''}₹${t.amount}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // HTML escape helper
-        function escapeHtml(str) {
-            if (!str) return '';
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        // JS string escape for onclick attributes
-        function escapeJsString(str) {
-            if (!str) return '';
-            return str.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\\n/g, '\\n').replace(/\\r/g, '\\r');
-        }
-
-        // Start
-        init();
     </script>
 </body>
 </html>
