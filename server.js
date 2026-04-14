@@ -670,6 +670,107 @@ app.get('/api/admin/bets', auth, adminOnly, async (req, res) => {
   }
 });
 
+// Add balance to user
+app.post('/api/admin/users/:id/add-balance', auth, adminOnly, async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const { amount } = req.body;
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+  }
+  if (!amount || amount <= 0 || amount > 10000) {
+    return res.status(400).json({ error: 'Amount must be 1-10000' });
+  }
+
+  try {
+    const { data: user } = await supabase
+      .from('users')
+      .select('balance')
+      .eq('id', userId)
+      .single();
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const newBalance = user.balance + amount;
+    await supabase.from('users').update({ balance: newBalance }).eq('id', userId);
+    await supabase.from('transactions').insert({
+      user_id: userId,
+      type: 'credit',
+      amount: amount,
+      description: `Admin added ₹${amount}`
+    });
+
+    res.json({ message: `Added ₹${amount}`, newBalance });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Settle all pending bets (random results)
+app.post('/api/admin/bets/settle-all', auth, adminOnly, async (req, res) => {
+  try {
+    // Get all pending bets
+    const { data: bets } = await supabase
+      .from('bets')
+      .select('*, matches!inner(*)')
+      .eq('status', 'pending');
+
+    if (!bets || bets.length === 0) {
+      return res.json({ settled: 0, message: 'No pending bets' });
+    }
+
+    let settled = 0;
+    for (const bet of bets) {
+      const match = bet.matches;
+      if (!match || match.status !== 'live') continue;
+
+      // Random result
+      const results = ['A', 'draw', 'B'];
+      const result = results[Math.floor(Math.random() * results.length)];
+
+      // Update match
+      await supabase
+        .from('matches')
+        .update({ status: 'settled', result, settled_at: new Date().toISOString() })
+        .eq('id', bet.match_id);
+
+      // Determine win
+      let won = false;
+      if (result === 'A' && bet.pick === match.team_a) won = true;
+      else if (result === 'B' && bet.pick === match.team_b) won = true;
+      else if (result === 'draw' && bet.pick === 'Draw') won = true;
+
+      if (won) {
+        await supabase.from('bets').update({ status: 'won', settled_at: new Date().toISOString() }).eq('id', bet.id);
+        const { data: user } = await supabase.from('users').select('balance').eq('id', bet.user_id).single();
+        if (user) {
+          await supabase.from('users').update({ balance: user.balance + bet.payout }).eq('id', bet.user_id);
+        }
+        await supabase.from('transactions').insert({
+          user_id: bet.user_id,
+          type: 'credit',
+          amount: bet.payout,
+          description: `Won bet on ${match.team_a} vs ${match.team_b}`
+        });
+      } else {
+        await supabase.from('bets').update({ status: 'lost', settled_at: new Date().toISOString() }).eq('id', bet.id);
+        await supabase.from('transactions').insert({
+          user_id: bet.user_id,
+          type: 'loss',
+          amount: 0,
+          description: `Lost bet on ${match.team_a} vs ${match.team_b}`
+        });
+      }
+      settled++;
+    }
+
+    res.json({ settled, message: `Settled ${settled} bets` });
+  } catch (err) {
+    console.error('Settle all error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.delete('/api/admin/matches/:id', auth, adminOnly, async (req, res) => {
   const matchId = parseInt(req.params.id);
   if (!Number.isInteger(matchId) || matchId <= 0) {

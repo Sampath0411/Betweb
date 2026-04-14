@@ -556,6 +556,9 @@
                         <div class="card-title">All Users</div>
                     </div>
                     <div class="card-body">
+                        <div style="margin-bottom: 16px;">
+                            <button class="btn" onclick="settleAllPendingBets()">⚡ Settle All Pending Bets</button>
+                        </div>
                         <table id="usersTable">
                             <thead>
                                 <tr>
@@ -564,6 +567,7 @@
                                     <th>Username</th>
                                     <th>Balance</th>
                                     <th>Joined</th>
+                                    <th>Add Money</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -797,6 +801,13 @@
                     <td>@${u.username}</td>
                     <td>₹${u.balance}</td>
                     <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="btn-small" onclick="addBalance(${u.id}, 10)" style="padding: 4px 8px; font-size: 12px;">+₹10</button>
+                            <button class="btn-small" onclick="addBalance(${u.id}, 500)" style="padding: 4px 8px; font-size: 12px;">+₹500</button>
+                            <button class="btn-small" onclick="addBalance(${u.id}, 1000)" style="padding: 4px 8px; font-size: 12px;">+₹1000</button>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
         }
@@ -910,6 +921,56 @@
             document.getElementById('settleModal').classList.remove('active');
             currentMatchId = null;
             currentResult = null;
+        }
+
+        // Add balance to user
+        async function addBalance(userId, amount) {
+            if (!confirm(`Add ₹${amount} to user #${userId}?`)) return;
+            try {
+                const res = await fetch(`${API}/api/admin/users/${userId}/add-balance`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ amount })
+                });
+                if (res.ok) {
+                    alert(`Added ₹${amount} to user #${userId}`);
+                    loadUsers();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to add balance');
+                }
+            } catch (e) {
+                alert('Network error');
+            }
+        }
+
+        // Settle all pending bets
+        async function settleAllPendingBets() {
+            if (!confirm('Settle ALL pending bets randomly? This cannot be undone!')) return;
+            try {
+                const res = await fetch(`${API}/api/admin/bets/settle-all`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    alert(`Settled ${data.settled || 0} bets!`);
+                    loadBets();
+                    loadUsers();
+                    loadMatches();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to settle bets');
+                }
+            } catch (e) {
+                alert('Network error');
+            }
         }
 
         // Setup event listeners
