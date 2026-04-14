@@ -450,8 +450,8 @@
                 flex-direction: column;
                 background: var(--bg-elev);
                 border-right: 1px solid var(--border);
-                padding: 24px;
-                width: 240px;
+                padding: 20px 16px;
+                width: 180px;
                 height: 100vh;
                 position: fixed;
                 left: 0;
@@ -475,9 +475,9 @@
 
             /* Push content to the right on desktop */
             .view {
-                margin-left: 240px;
+                margin-left: 180px;
                 padding-top: 73px;
-                width: calc(100% - 240px);
+                width: calc(100% - 180px);
             }
         }
 
@@ -489,6 +489,11 @@
         @media (min-width: 768px) {
             .sidebar-nav {
                 display: flex;
+                width: 180px;
+            }
+            .view {
+                margin-left: 180px;
+                width: calc(100% - 180px);
             }
         }
     </style>
@@ -673,7 +678,7 @@
         // Initialize
         async function init() {
             const staySignedIn = localStorage.getItem('staySignedIn');
-            if (token && staySignedIn === 'true') {
+            if (token) {
                 try {
                     const res = await fetch(`${API}/api/me`, {
                         headers: { 'Authorization': `Bearer ${token}` }
@@ -691,30 +696,70 @@
                     localStorage.removeItem('token');
                     localStorage.removeItem('staySignedIn');
                 } catch (e) {
-                    // Network error - keep token for retry
+                    // Network error - keep token for retry if staySignedIn
                     console.error('Auth error:', e);
+                    if (staySignedIn !== 'true') {
+                        token = null;
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('staySignedIn');
+                    }
                 }
-            } else {
-                // Clear token if not staying signed in
-                token = null;
-                localStorage.removeItem('token');
-                localStorage.removeItem('staySignedIn');
             }
             showAuth();
         }
 
         // Page visibility
         function showAuth() {
+            stopAutoRefresh();
             document.getElementById('authPage').classList.remove('hidden');
             document.getElementById('appPage').classList.add('hidden');
+        }
+
+        // Auto-refresh intervals
+        let autoRefreshInterval = null;
+
+        function startAutoRefresh() {
+            // Refresh matches every 10 seconds
+            autoRefreshInterval = setInterval(() => {
+                if (token && user) {
+                    loadMatches();
+                    // Also refresh user data to get updated balance
+                    refreshUserData();
+                }
+            }, 10000);
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        async function refreshUserData() {
+            try {
+                const res = await fetch(`${API}/api/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.id) {
+                        user = data;
+                        updateBalance();
+                    }
+                }
+            } catch (e) {
+                console.error('Refresh user data error:', e);
+            }
         }
 
         function showApp() {
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('appPage').classList.remove('hidden');
-            document.getElementById('welcomeName').textContent = `Hey, ${user.name}`;
+            document.getElementById('welcomeName').textContent = `Hey, ${user?.name || 'there'}`;
             updateBalance();
             loadMatches();
+            startAutoRefresh();
         }
 
         function showLogin() {
@@ -827,6 +872,7 @@
 
         // Logout
         function logout() {
+            stopAutoRefresh();
             token = null;
             user = null;
             localStorage.removeItem('token');
@@ -843,9 +889,16 @@
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-            const views = { dashboard: 0, history: 1, wallet: 2 };
             document.getElementById(view + 'View').classList.remove('hidden');
-            document.querySelectorAll('.nav-item')[views[view]].classList.add('active');
+
+            // Update active state on all nav items (sidebar + bottom nav)
+            const navItems = document.querySelectorAll('.nav-item');
+            const viewIndex = { dashboard: 0, history: 1, wallet: 2 }[view];
+
+            // Set active on matching items (0,3 for dashboard, 1,4 for history, 2,5 for wallet)
+            navItems.forEach((item, idx) => {
+                if (idx % 3 === viewIndex) item.classList.add('active');
+            });
 
             if (view === 'history') loadHistory();
             if (view === 'wallet') loadWallet();
@@ -891,7 +944,7 @@
                             <div class="team"><div class="team-name">${escapeHtml(m.team_b)}</div></div>
                         </div>
                         <div class="odds-row">
-                            <div class="odds-btn ${pickA ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'A', ${m.odds_a}, '${escapeHtml(m.team_a)}')">
+                            <div class="odds-btn ${pickA ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'A', ${m.odds_a}, '${escapeJsString(m.team_a)}')">
                                 <div class="label">${escapeHtml(m.team_a)}</div>
                                 <div class="value">${m.odds_a.toFixed(2)}</div>
                             </div>
@@ -899,7 +952,7 @@
                                 <div class="label">Draw</div>
                                 <div class="value">${m.odds_draw.toFixed(2)}</div>
                             </div>
-                            <div class="odds-btn ${pickB ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'B', ${m.odds_b}, '${escapeHtml(m.team_b)}')">
+                            <div class="odds-btn ${pickB ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'B', ${m.odds_b}, '${escapeJsString(m.team_b)}')">
                                 <div class="label">${escapeHtml(m.team_b)}</div>
                                 <div class="value">${m.odds_b.toFixed(2)}</div>
                             </div>
@@ -978,8 +1031,8 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    user.balance -= stake;
-                    updateBalance();
+                    // Refresh user data from server
+                    await refreshUserData();
                     selectedMatch = null;
                     selectedOdd = null;
                     selectedOddValue = null;
@@ -1086,6 +1139,12 @@
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
+        }
+
+        // JS string escape for onclick attributes
+        function escapeJsString(str) {
+            if (!str) return '';
+            return str.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\\n/g, '\\n').replace(/\\r/g, '\\r');
         }
 
         // Start
