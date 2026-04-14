@@ -430,10 +430,9 @@ app.post('/api/admin/matches', auth, adminOnly, async (req, res) => {
   team_b = sanitize(team_b);
 
   try {
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutes
     const { data, error } = await supabase
       .from('matches')
-      .insert({ team_a, team_b, odds_a, odds_draw, odds_b, expires_at: expiresAt })
+      .insert({ team_a, team_b, odds_a, odds_draw, odds_b })
       .select()
       .single();
 
