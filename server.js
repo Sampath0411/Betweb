@@ -26,7 +26,8 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       connectSrc: ["'self'", "https:", "http:"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
       scriptSrcAttr: ["'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "blob:"],
@@ -289,7 +290,8 @@ app.get('/api/me', auth, async (req, res) => {
   }
 });
 
-app.get('/api/matches', auth, async (req, res) => {
+// Public routes (no auth required)
+app.get('/api/matches', async (req, res) => {
   try {
     const { data: matches, error } = await supabase
       .from('matches')
@@ -299,6 +301,22 @@ app.get('/api/matches', auth, async (req, res) => {
 
     if (error) return res.status(500).json({ error: 'Database error' });
     res.json(matches || []);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Alias for frontend compatibility
+app.get('/api/my-bets', auth, async (req, res) => {
+  try {
+    const { data: bets, error } = await supabase
+      .from('bets')
+      .select('*, matches(team_a, team_b, result)')
+      .eq('user_id', req.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) return res.status(500).json({ error: 'Database error' });
+    res.json(bets || []);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
