@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Stumps | Cricket Betting</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -649,6 +652,7 @@
 
     <script>
         const API = window.location.origin;
+        console.log('API URL:', API); // Debug
         let token = localStorage.getItem('token');
         let user = null;
         let matches = [];
@@ -782,7 +786,7 @@
                 }
             } catch (err) {
                 console.error('Signup error:', err);
-                alert('Error: ' + err.message);
+                alert('Error: ' + (err.message || 'Unknown error'));
             }
         });
 
