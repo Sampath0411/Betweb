@@ -917,7 +917,7 @@
 <body class="bg-background">
 
     <!-- ==================== AUTH PAGE ==================== -->
-    <div id="authPage" style="display: block;">
+    <div id="authPage">
         <div class="auth-container">
             <main class="auth-box">
                 <!-- Brand Identity Header -->
@@ -1272,6 +1272,9 @@
         document.addEventListener('DOMContentLoaded', init);
 
         async function init() {
+            // Always show auth first, only switch to app if token valid
+            showAuth();
+
             if (token) {
                 try {
                     const res = await fetch(`${API}/api/me`, {
@@ -1281,14 +1284,10 @@
                         currentUser = await res.json();
                         showApp();
                         loadAllData();
-                    } else {
-                        showAuth();
                     }
                 } catch (e) {
-                    showAuth();
+                    // Stay on auth page
                 }
-            } else {
-                showAuth();
             }
         }
 
