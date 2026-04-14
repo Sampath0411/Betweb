@@ -123,6 +123,31 @@
         }
         .wallet-chip span { color: var(--accent); }
 
+        /* Header Nav */
+        .header-nav {
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-nav-item {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .header-nav-item:hover {
+            color: var(--text);
+            background: var(--bg-elev);
+        }
+        .header-nav-item.active {
+            color: var(--accent);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
         .container {
             padding: 20px;
             max-width: 480px;
@@ -366,6 +391,9 @@
                 max-width: 900px;
                 padding: 0 32px;
             }
+            .header-nav {
+                display: flex;
+            }
             .container {
                 max-width: 900px;
                 padding: 32px;
@@ -475,10 +503,10 @@
                 background: rgba(245, 158, 11, 0.1);
             }
 
-            /* Content below top nav */
+            /* Content below header only (no top nav) */
             .view {
                 margin-left: 0;
-                padding-top: 140px;
+                padding-top: 73px;
                 width: 100%;
             }
         }
@@ -490,12 +518,12 @@
 
         @media (min-width: 768px) {
             .sidebar-nav {
-                display: flex;
-                width: 100%;
+                display: none;
             }
             .view {
                 margin-left: 0;
                 width: 100%;
+                padding-top: 73px;
             }
         }
     </style>
@@ -563,7 +591,13 @@
         <div class="header">
             <div class="header-content">
                 <h1>Stumps<span>.</span></h1>
-                <div class="wallet-chip">₹<span id="headerBalance">0</span></div>
+                <div class="header-nav">
+                    <button class="header-nav-item active" onclick="navigate('dashboard')">Matches</button>
+                    <button class="header-nav-item" onclick="navigate('history')">History</button>
+                    <button class="header-nav-item" onclick="navigate('wallet')">Wallet</button>
+                    <button class="header-nav-item" onclick="navigate('profile')">Profile</button>
+                    <div class="wallet-chip">₹<span id="headerBalance">0</span></div>
+                </div>
             </div>
         </div>
 
@@ -920,6 +954,7 @@
         function navigate(view) {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.header-nav-item').forEach(n => n.classList.remove('active'));
 
             document.getElementById(view + 'View').classList.remove('hidden');
 
@@ -931,6 +966,13 @@
             navItems.forEach((item, idx) => {
                 if (idx % 4 === viewIndex) item.classList.add('active');
             });
+
+            // Update header nav active state
+            const headerNavItems = document.querySelectorAll('.header-nav-item');
+            const headerIndex = { dashboard: 0, history: 1, wallet: 2, profile: 3 }[view];
+            if (headerNavItems[headerIndex]) {
+                headerNavItems[headerIndex].classList.add('active');
+            }
 
             if (view === 'history') loadHistory();
             if (view === 'wallet') loadWallet();
