@@ -3,1040 +3,647 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stumps | Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Cache bust -->
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <title>Stumps Admin</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #ffc174;
-            --primary-container: #f59e0b;
-            --on-primary: #472a00;
-            --on-primary-container: #613b00;
-            --secondary: #f0bd82;
-            --secondary-container: #62400f;
-            --bg: #0f1419;
-            --background: #0f1419;
-            --on-background: #dee3ea;
-            --surface: #0f1419;
-            --on-surface: #dee3ea;
-            --surface-variant: #30353b;
-            --on-surface-variant: #d8c3ad;
-            --surface-container: #1b2025;
-            --surface-container-low: #171c21;
-            --surface-container-lowest: #14191e;
-            --surface-container-high: #252a30;
-            --surface-container-highest: #30353b;
-            --outline: #a08e7a;
-            --outline-variant: #534434;
-            --error: #ffb4ab;
-            --success: #22c55e;
+            --bg: #0a0f14;
+            --bg-elev: #141a24;
+            --text: #e8eaf6;
+            --text-dim: #6b7280;
+            --accent: #f59e0b;
+            --accent-dim: #d97706;
+            --win: #22c55e;
+            --loss: #ef4444;
+            --border: #1f2937;
             --blue: #3b82f6;
             --purple: #8b5cf6;
         }
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--on-surface);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            line-height: 1.5;
         }
 
-        .material-icons {
-            font-family: 'Material Icons';
-            font-weight: normal;
-            font-style: normal;
-            font-size: 24px;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            display: inline-block;
-            white-space: nowrap;
-            word-wrap: normal;
-            direction: ltr;
-            -webkit-font-feature-settings: 'liga';
-            -webkit-font-smoothing: antialiased;
-            vertical-align: middle;
-        }
-
-        .editorial-track { letter-spacing: -0.04em; }
-        .label-track { letter-spacing: 0.08em; }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        .animate-pulse-dot { animation: pulse-dot 1s infinite; }
-
-        @keyframes ping {
-            75%, 100% { transform: scale(2); opacity: 0; }
-        }
-        .animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
-
-        input, button { font-family: inherit; }
-        button { cursor: pointer; border: none; background: none; }
-        input:focus { outline: none; }
-
-        .hidden { display: none !important; }
         .page { display: none; min-height: 100vh; }
         .page.active { display: block; }
 
-        /* Auth Page Styles */
-        .auth-container {
+        /* Login */
+        .login-container {
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            padding: 24px;
-            background: radial-gradient(circle at top right, var(--surface-container-low) 0%, var(--bg) 100%);
+            align-items: center;
+            padding: 20px;
         }
-
-        .auth-card {
-            width: 100%;
-            max-width: 440px;
-        }
-
-        .auth-header {
-            margin-bottom: 48px;
-            text-align: center;
-        }
-
-        .auth-title {
-            font-size: 2.25rem;
-            font-weight: 900;
-            text-transform: uppercase;
+        .login-box { width: 100%; max-width: 400px; }
+        .login-box h1 {
+            font-size: 28px;
+            font-weight: 800;
             margin-bottom: 8px;
-            color: var(--on-surface);
         }
+        .login-box h1 span { color: var(--accent); }
+        .login-box p { color: var(--text-dim); margin-bottom: 24px; font-size: 14px; }
 
-        .auth-title span { color: var(--primary-container); }
-
-        .auth-subtitle {
-            color: var(--on-surface-variant);
-            font-weight: 500;
-            font-size: 10px;
+        .input-group { margin-bottom: 16px; }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            color: var(--text-dim);
+        }
+        .input-group input {
+            width: 100%;
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-size: 16px;
+        }
+        .input-group input:focus { outline: none; border-color: var(--accent); }
+
+        .btn {
+            width: 100%;
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-secondary {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-danger {
+            background: var(--loss);
+            color: white;
+        }
+        .btn-success {
+            background: var(--win);
+            color: white;
+        }
+        .btn-blue {
+            background: var(--blue);
+            color: white;
         }
 
-        .auth-form-container {
-            background-color: var(--surface-container-low);
-            border-radius: 16px;
-            padding: 32px;
+        /* Dashboard */
+        .header {
+            background: var(--bg-elev);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 20px; font-weight: 800; }
+        .header h1 span { color: var(--accent); }
+        .header-actions { display: flex; gap: 12px; }
+        .header-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .header-btn:hover { border-color: var(--accent); }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
         }
 
-        .form-group {
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
             margin-bottom: 24px;
         }
-
-        .form-label {
-            display: block;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.15em;
+        .stat-card {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
             text-transform: uppercase;
-            color: var(--on-surface-variant);
+            color: var(--text-dim);
             margin-bottom: 8px;
         }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .stat-value.accent { color: var(--accent); }
+        .stat-value.success { color: var(--win); }
+        .stat-value.danger { color: var(--loss); }
 
-        .form-input {
-            width: 100%;
-            background-color: var(--surface-container-lowest);
-            border: none;
-            border-radius: 12px;
-            padding: 16px;
-            color: var(--on-surface);
+        /* Section title */
+        .section-title {
             font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .form-input::placeholder { color: var(--outline); opacity: 0.4; }
-        .form-input:focus { box-shadow: 0 0 0 2px rgba(255, 193, 116, 0.4); }
-
-        .btn-primary {
-            width: 100%;
-            background: linear-gradient(160deg, var(--primary) 0%, var(--primary-container) 100%);
-            color: var(--on-primary-container);
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 900;
-            letter-spacing: 0.1em;
+            font-weight: 700;
             text-transform: uppercase;
-            font-size: 14px;
-            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
-            transition: transform 0.15s ease;
-        }
-
-        .btn-primary:active { transform: scale(0.98); }
-
-        /* Text Colors */
-        .text-primary { color: var(--primary); }
-        .text-on-surface { color: var(--on-surface); }
-        .text-on-surface-variant { color: var(--on-surface-variant); }
-        .text-success { color: var(--success); }
-        .text-error { color: var(--error); }
-
-        /* Dashboard Layout */
-        .dashboard-layout { display: flex; min-height: 100vh; }
-
-        .sidebar {
-            display: none;
-            flex-direction: column;
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100%;
-            background-color: var(--surface-container-low);
-            width: 256px;
-            border-right: 1px solid rgba(160, 142, 122, 0.15);
-            z-index: 40;
-        }
-
-        .sidebar-header { padding: 24px; }
-        .sidebar-title {
-            font-size: 20px;
-            font-weight: 900;
-            color: var(--on-surface);
-            letter-spacing: -0.04em;
-        }
-        .sidebar-subtitle {
-            font-size: 10px;
-            font-weight: 500;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-top: 4px;
-        }
-
-        .sidebar-nav {
-            flex: 1;
-            padding: 0 16px;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 16px;
             margin-top: 24px;
         }
 
-        .nav-btn {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-            padding: 12px 16px;
+        /* Cards */
+        .card {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            font-size: 10px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--on-surface);
-            opacity: 0.6;
-            background: transparent;
-            transition: all 0.2s ease;
-            text-align: left;
-        }
-
-        .nav-btn:hover {
-            opacity: 1;
-            background-color: var(--surface-container-high);
-        }
-
-        .nav-btn.active {
-            color: var(--primary);
-            background-color: var(--surface-container);
-            font-weight: 700;
-            opacity: 1;
-        }
-
-        .nav-btn + .nav-btn { margin-top: 4px; }
-
-        .main-area {
-            flex: 1;
-            margin-left: 0;
-        }
-
-        .top-header {
-            background-color: var(--bg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 0 24px;
-            height: 64px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 30;
-            border-bottom: 1px solid rgba(160, 142, 122, 0.1);
-        }
-
-        .header-brand { display: flex; align-items: center; gap: 8px; }
-        .header-title {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--on-surface);
-            letter-spacing: -0.04em;
-        }
-        .header-title span { color: var(--primary); }
-        .header-title-desktop { display: none; }
-
-        .header-actions { display: flex; align-items: center; gap: 16px; }
-
-        .wallet-info {
-            display: none;
-            flex-direction: column;
-            align-items: flex-end;
-            margin-right: 16px;
-        }
-
-        .wallet-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            color: var(--on-surface-variant);
-            text-transform: uppercase;
-        }
-
-        .wallet-amount {
-            color: var(--primary);
-            font-weight: 700;
-        }
-
-        .btn-logout {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background-color: var(--surface-container-high);
-            color: var(--on-surface);
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            transition: all 0.2s ease;
-        }
-
-        .btn-logout:hover { background-color: var(--surface-container); }
-        .btn-logout .material-icons { font-size: 18px; }
-
-        .main-content {
-            padding-top: 80px;
-            padding-bottom: 32px;
-            padding-left: 24px;
-            padding-right: 24px;
-            min-height: 100vh;
-        }
-
-        .content-wrapper { max-width: 1280px; margin: 0 auto; }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background-color: var(--surface-container-low);
-            padding: 24px;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 128px;
-        }
-
-        .stat-card.pending { border-left: 4px solid var(--primary); }
-
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .stat-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            color: var(--primary);
-            text-transform: uppercase;
-        }
-
-        .stat-icon { color: var(--primary); opacity: 0.4; }
-
-        .stat-value {
-            font-size: 36px;
-            font-weight: 800;
-            letter-spacing: -0.04em;
-            margin-top: 8px;
-        }
-
-        .stat-value.error { color: var(--error); }
-
-        .stat-footer {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .stat-status {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-        }
-
-        .stat-status.success { color: var(--success); }
-        .stat-status.error { color: var(--error); }
-
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .pulse-wrapper {
-            position: relative;
-            display: inline-flex;
-            height: 8px;
-            width: 8px;
-        }
-
-        .pulse-ring {
-            position: absolute;
-            display: inline-flex;
-            height: 100%;
-            width: 100%;
-            border-radius: 50%;
-            background-color: var(--success);
-            opacity: 0.75;
-            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
-        }
-
-        .pulse-dot {
-            position: relative;
-            display: inline-flex;
-            border-radius: 50%;
-            height: 8px;
-            width: 8px;
-            background-color: var(--success);
-        }
-
-        /* Tab Navigation */
-        .tab-nav {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-            border-bottom: 1px solid rgba(160, 142, 122, 0.15);
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-        }
-
-        .tab-btn {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            padding-bottom: 16px;
-            margin-bottom: -16px;
-            color: var(--on-surface);
-            opacity: 0.6;
-            transition: all 0.2s ease;
-            background: transparent;
-            border-bottom: 2px solid transparent;
-        }
-
-        .tab-btn:hover { opacity: 1; }
-
-        .tab-btn.active {
-            color: var(--primary);
-            opacity: 1;
-            border-bottom-color: var(--primary);
-        }
-
-        .tab-content { display: block; }
-        .tab-content.hidden { display: none; }
-
-        /* Action Buttons */
-        .action-bar {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-
-        .btn-action {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: white;
-            transition: opacity 0.2s ease;
-        }
-
-        .btn-action:hover { opacity: 0.9; }
-        .btn-action.blue { background-color: var(--blue); }
-        .btn-action.purple { background-color: var(--purple); }
-
-        /* Table Styles */
-        .table-container {
-            background-color: var(--surface-container-low);
-            border-radius: 16px;
             overflow: hidden;
-            border: 1px solid rgba(160, 142, 122, 0.1);
         }
-
-        .table-header {
-            padding: 24px;
-            border-bottom: 1px solid rgba(160, 142, 122, 0.1);
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+        .card-title { font-size: 16px; font-weight: 700; }
+        .card-body { padding: 20px; }
 
-        .table-title {
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-
-        .table-scroll { overflow-x: auto; }
-
+        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
         }
-
         th {
             text-align: left;
-            padding: 16px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.15em;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 600;
             text-transform: uppercase;
-            color: var(--on-surface-variant);
-            border-bottom: 1px solid rgba(160, 142, 122, 0.1);
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
         }
-
         td {
-            padding: 16px;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
             font-size: 14px;
-            border-bottom: 1px solid rgba(160, 142, 122, 0.05);
         }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(255,255,255,0.02); }
 
-        tr:hover { background-color: rgba(37, 42, 48, 0.5); }
-
-        .cell-actions { display: flex; gap: 8px; }
-
-        .btn-settle {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: white;
-            transition: opacity 0.2s ease;
-        }
-
-        .btn-settle:hover { opacity: 0.9; }
-        .btn-settle.blue { background-color: var(--blue); }
-        .btn-settle.purple { background-color: var(--purple); }
-        .btn-settle.draw {
-            background-color: var(--surface-container-high);
-            border: 1px solid var(--outline-variant);
-            color: var(--on-surface);
-        }
-        .btn-settle.draw:hover { background-color: var(--surface-container); }
-
-        /* Badges */
         .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 8px;
-            border-radius: 9999px;
-            font-size: 10px;
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
         }
-
-        .badge.live {
-            background-color: rgba(255, 193, 116, 0.1);
-            color: var(--primary);
+        .badge-live {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent);
+        }
+        .badge-settled {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--win);
+        }
+        .badge-pending {
+            background: rgba(107, 114, 128, 0.15);
+            color: var(--text-dim);
+        }
+        .badge-won {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--win);
+        }
+        .badge-lost {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--loss);
         }
 
-        .badge.settled {
-            background-color: rgba(34, 197, 94, 0.1);
-            color: var(--success);
+        /* Match settle buttons */
+        .settle-btns {
+            display: flex;
+            gap: 8px;
         }
-
-        .badge.won {
-            background-color: rgba(34, 197, 94, 0.1);
-            color: var(--success);
+        .settle-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
         }
+        .settle-btn-a { background: var(--blue); color: white; }
+        .settle-btn-b { background: var(--purple); color: white; }
+        .settle-btn-draw { background: var(--bg); border: 1px solid var(--border); color: var(--text); }
 
-        .badge.lost {
-            background-color: rgba(255, 180, 171, 0.1);
-            color: var(--error);
-        }
-
-        .badge.pending {
-            background-color: rgba(255, 193, 116, 0.1);
-            color: var(--primary);
-        }
-
-        .badge-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: currentColor;
-            animation: pulse-dot 1s infinite;
-        }
-
-        /* Modal Styles */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.8);
+        /* Modal */
+        .modal-overlay {
             display: none;
-            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 200;
             justify-content: center;
-            z-index: 50;
-            padding: 16px;
+            align-items: center;
+            padding: 20px;
         }
-
-        .modal.show { display: flex; }
-
-        .modal-content {
-            background-color: var(--surface-container-low);
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
             border-radius: 16px;
             width: 100%;
-            max-width: 512px;
-            overflow: hidden;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-
         .modal-header {
-            padding: 24px;
-            border-bottom: 1px solid rgba(160, 142, 122, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
         }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .modal-close {
-            color: var(--on-surface-variant);
-            background: transparent;
-            cursor: pointer;
-        }
-
-        .modal-close:hover { color: var(--on-surface); }
-
-        .modal-body { padding: 24px; }
-
+        .modal-title { font-size: 18px; font-weight: 700; }
+        .modal-body { padding: 20px; }
         .modal-footer {
-            padding: 24px;
-            border-top: 1px solid rgba(160, 142, 122, 0.1);
+            padding: 20px;
+            border-top: 1px solid var(--border);
             display: flex;
             gap: 12px;
         }
+        .modal-footer .btn { flex: 1; }
 
-        .form-grid-2 {
+        /* Form grid */
+        .form-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
-
-        .form-grid-3 {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
+        @media (max-width: 480px) {
+            .form-grid { grid-template-columns: 1fr; }
         }
 
-        .btn-secondary {
-            flex: 1;
-            padding: 12px;
-            background-color: var(--surface-container-high);
-            color: var(--on-surface);
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            transition: all 0.2s ease;
+        /* Confirm modal */
+        .confirm-text {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
         }
-
-        .btn-secondary:hover { background-color: var(--surface-container); }
-
-        .btn-success {
-            flex: 1;
-            padding: 12px;
-            background-color: var(--success);
-            color: white;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            transition: opacity 0.2s ease;
-        }
-
-        .btn-success:hover { opacity: 0.9; }
-
-        .winner-text { color: var(--primary); font-weight: 700; }
-        .match-name { font-size: 18px; font-weight: 700; margin: 16px 0; }
-        .settle-note {
-            font-size: 12px;
-            color: var(--on-surface-variant);
-            opacity: 0.7;
-        }
-
-        .empty-state {
-            padding: 32px;
-            text-align: center;
-            color: var(--on-surface-variant);
-        }
+        .confirm-text strong { color: var(--accent); }
 
         /* Responsive */
-        @media (min-width: 640px) {
-            .form-grid-2 { grid-template-columns: repeat(2, 1fr); }
-            .form-grid-3 { grid-template-columns: repeat(3, 1fr); }
-            .wallet-info { display: flex; }
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            table { font-size: 13px; }
+            th, td { padding: 8px; }
+            .settle-btns { flex-direction: column; }
         }
 
-        @media (min-width: 768px) {
-            .sidebar { display: flex; }
-            .main-area { margin-left: 256px; }
-            .top-header { left: 256px; width: calc(100% - 256px); }
-            .header-title { display: none; }
-            .header-title-desktop { display: block; font-size: 20px; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
+        /* Desktop/Laptop Responsive */
         @media (min-width: 1024px) {
-            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+            .login-box {
+                max-width: 480px;
+            }
+            .login-box h1 {
+                font-size: 36px;
+            }
+
+            .header-content {
+                max-width: 1400px;
+                padding: 0 48px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .container {
+                max-width: 1400px;
+                padding: 32px 48px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .stat-card {
+                padding: 28px;
+            }
+            .stat-value {
+                font-size: 36px;
+            }
+
+            .card-header {
+                padding: 20px 24px;
+            }
+            .card-title {
+                font-size: 18px;
+            }
+            .card-body {
+                padding: 24px;
+            }
+
+            table {
+                font-size: 15px;
+            }
+            th, td {
+                padding: 16px;
+            }
+
+            .settle-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            /* Two column layout for tables */
+            .tables-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1600px;
+                padding: 40px 64px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .stat-value {
+                font-size: 42px;
+            }
         }
     </style>
 </head>
 <body>
-
-    <!-- ==================== LOGIN PAGE ==================== -->
+    <!-- Login -->
     <div id="loginPage" class="page active">
-        <div class="auth-container">
-            <main class="auth-card">
-                <div class="auth-header">
-                    <h1 class="auth-title editorial-track">
-                        Stumps<span>.</span>
-                    </h1>
-                    <p class="auth-subtitle label-track">
-                        Admin Portal for Match Management
-                    </p>
-                </div>
-
-                <div class="auth-form-container">
-                    <form id="loginForm">
-                        <div class="form-group">
-                            <label class="form-label">Username</label>
-                            <input type="text" id="username" required placeholder="admin" class="form-input"/>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Password</label>
-                            <input type="password" id="password" required placeholder="••••••" class="form-input"/>
-                        </div>
-                        <button type="submit" class="btn-primary">
-                            Sign In
-                        </button>
-                    </form>
-                </div>
-            </main>
+        <div class="login-container">
+            <div class="login-box">
+                <h1>Stumps <span>Admin</span></h1>
+                <p>Admin portal for match management</p>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="username" required placeholder="admin">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="password" required placeholder="••••••">
+                    </div>
+                    <button type="submit" class="btn">Sign In</button>
+                </form>
+            </div>
         </div>
     </div>
 
-    <!-- ==================== DASHBOARD PAGE ==================== -->
-    <div id="dashboardPage" class="page hidden">
-        <!-- Desktop Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1 class="sidebar-title">STUMPS</h1>
-                <p class="sidebar-subtitle">Elite Cricket Exchange</p>
-            </div>
-            <nav class="sidebar-nav">
-                <button onclick="showTab('matches')" id="nav-matches" class="nav-btn active">
-                    <span class="material-icons">settings</span>
-                    <span>Admin Control</span>
-                </button>
-                <button onclick="showTab('bets')" id="nav-bets" class="nav-btn">
-                    <span class="material-icons">receipt_long</span>
-                    <span>All Bets</span>
-                </button>
-                <button onclick="showTab('users')" id="nav-users" class="nav-btn">
-                    <span class="material-icons">group</span>
-                    <span>Users</span>
-                </button>
-            </nav>
-        </aside>
-
-        <!-- Top Header -->
-        <header class="top-header">
-            <div class="header-brand">
-                <span class="header-title editorial-track">Stumps<span class="text-primary">.</span></span>
-                <span class="header-title-desktop editorial-track">Command <span style="color: var(--primary); font-style: italic;">Center</span></span>
-            </div>
-            <div class="header-actions">
-                <div class="wallet-info">
-                    <span class="wallet-label">Admin Wallet</span>
-                    <span class="wallet-amount">₹1,250</span>
-                </div>
-                <button onclick="logout()" class="btn-logout">
-                    <span class="material-icons">logout</span>
-                    Logout
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="main-area">
-            <div class="main-content">
-                <div class="content-wrapper">
-
-                    <!-- Stats Bento Grid -->
-                    <section class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <span class="stat-label">Total Users</span>
-                                <span class="material-icons stat-icon">group</span>
-                            </div>
-                            <div>
-                                <p id="totalUsers" class="stat-value">0</p>
-                                <p class="stat-status success" style="display: flex; align-items: center; gap: 4px;">
-                                    <span class="material-icons" style="font-size: 14px;">trending_up</span> Active
-                                </p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <span class="stat-label">Live Matches</span>
-                                <span class="material-icons stat-icon">sensors</span>
-                            </div>
-                            <div>
-                                <p id="liveMatches" class="stat-value">0</p>
-                                <p class="stat-status success">
-                                    <span class="live-indicator">
-                                        <span class="pulse-wrapper">
-                                            <span class="pulse-ring"></span>
-                                            <span class="pulse-dot"></span>
-                                        </span>
-                                        Live Now
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <span class="stat-label">Total Bets</span>
-                                <span class="material-icons stat-icon">receipt_long</span>
-                            </div>
-                            <div>
-                                <p id="totalBets" class="stat-value">0</p>
-                                <p class="stat-status" style="color: var(--primary);">All Time</p>
-                            </div>
-                        </div>
-                        <div class="stat-card pending">
-                            <div class="stat-header">
-                                <span class="stat-label">Pending Bets</span>
-                                <span class="material-icons stat-icon">hourglass_empty</span>
-                            </div>
-                            <div>
-                                <p id="pendingBets" class="stat-value error">0</p>
-                                <p class="stat-status error">Awaiting Settlement</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Tab Navigation -->
-                    <section class="tab-nav">
-                        <button onclick="showTab('matches')" id="tab-matches" class="tab-btn active">Matches</button>
-                        <button onclick="showTab('users')" id="tab-users" class="tab-btn">Users</button>
-                        <button onclick="showTab('bets')" id="tab-bets" class="tab-btn">Global Bets</button>
-                    </section>
-
-                    <!-- Matches Tab Content -->
-                    <div id="matchesTab" class="tab-content">
-                        <div class="action-bar">
-                            <button onclick="openAddMatchModal()" class="btn-action blue">
-                                <span class="material-icons">add</span>
-                                Add Match
-                            </button>
-                            <button onclick="createRandomMatch()" class="btn-action purple">
-                                <span class="material-icons">casino</span>
-                                Random Match
-                            </button>
-                        </div>
-
-                        <div class="table-container">
-                            <div class="table-header">
-                                <h3 class="table-title">All Matches</h3>
-                            </div>
-                            <div class="table-scroll">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Teams</th>
-                                            <th>Odds</th>
-                                            <th>Status</th>
-                                            <th>Result</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="matchesTableBody">
-                                        <!-- Loaded dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Users Tab Content -->
-                    <div id="usersTab" class="tab-content hidden">
-                        <div class="table-container">
-                            <div class="table-header">
-                                <h3 class="table-title">All Users</h3>
-                            </div>
-                            <div class="table-scroll">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Username</th>
-                                            <th>Balance</th>
-                                            <th>Joined</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="usersTableBody">
-                                        <!-- Loaded dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Bets Tab Content -->
-                    <div id="betsTab" class="tab-content hidden">
-                        <div class="table-container">
-                            <div class="table-header">
-                                <h3 class="table-title">All Bets</h3>
-                            </div>
-                            <div class="table-scroll">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>User</th>
-                                            <th>Match</th>
-                                            <th>Pick</th>
-                                            <th>Stake</th>
-                                            <th>Payout</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="betsTableBody">
-                                        <!-- Loaded dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </main>
-
-        <!-- Add Match Modal -->
-        <div id="addMatchModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Add New Match</h3>
-                    <button onclick="closeAddMatchModal()" class="modal-close material-icons">close</button>
-                </div>
-                <div class="modal-body">
-                    <form id="addMatchForm">
-                        <div class="form-grid-2" style="margin-bottom: 16px;">
-                            <div>
-                                <label class="form-label">Team A</label>
-                                <input type="text" id="newTeamA" required placeholder="e.g. India" class="form-input"/>
-                            </div>
-                            <div>
-                                <label class="form-label">Team B</label>
-                                <input type="text" id="newTeamB" required placeholder="e.g. Australia" class="form-input"/>
-                            </div>
-                        </div>
-                        <div class="form-grid-3">
-                            <div>
-                                <label class="form-label">Odds A</label>
-                                <input type="number" id="newOddsA" step="0.01" required placeholder="1.85" class="form-input" style="text-align: center;"/>
-                            </div>
-                            <div>
-                                <label class="form-label">Draw</label>
-                                <input type="number" id="newOddsDraw" step="0.01" required placeholder="3.50" class="form-input" style="text-align: center;"/>
-                            </div>
-                            <div>
-                                <label class="form-label">Odds B</label>
-                                <input type="number" id="newOddsB" step="0.01" required placeholder="2.10" class="form-input" style="text-align: center;"/>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button onclick="closeAddMatchModal()" class="btn-secondary">Cancel</button>
-                    <button onclick="addMatch()" class="btn-primary" style="flex: 1; width: auto;">Add Match</button>
+    <!-- Dashboard -->
+    <div id="dashboardPage" class="page">
+        <div class="header">
+            <div class="header-content">
+                <h1>Stumps <span>Admin</span></h1>
+                <div class="header-actions">
+                    <a href="/" class="header-btn">View Site</a>
+                    <button class="header-btn" onclick="logout()">Logout</button>
                 </div>
             </div>
         </div>
 
-        <!-- Settle Modal -->
-        <div id="settleModal" class="modal">
-            <div class="modal-content" style="max-width: 448px;">
-                <div class="modal-header" style="border-bottom: 1px solid rgba(160, 142, 122, 0.1);">
-                    <h3 class="modal-title">Settle Match</h3>
+        <div class="container">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="totalUsers">0</div>
                 </div>
-                <div class="modal-body">
-                    <p style="font-size: 14px; color: var(--on-surface-variant); margin-bottom: 16px;">
-                        You are declaring <strong id="winnerName" class="winner-text"></strong> as the winner for:
-                    </p>
-                    <p id="settleMatchName" class="match-name"></p>
-                    <p class="settle-note">
-                        This will settle all pending bets for this match. Winners will be paid out automatically.
-                    </p>
+                <div class="stat-card">
+                    <div class="stat-label">Live Matches</div>
+                    <div class="stat-value accent" id="liveMatches">0</div>
                 </div>
-                <div class="modal-footer">
-                    <button onclick="closeSettleModal()" class="btn-secondary">Cancel</button>
-                    <button onclick="confirmSettle()" class="btn-success">Confirm</button>
+                <div class="stat-card">
+                    <div class="stat-label">Total Bets</div>
+                    <div class="stat-value" id="totalBets">0</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pending Bets</div>
+                    <div class="stat-value danger" id="pendingBets">0</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('matches')">Matches</button>
+                <button class="tab" onclick="showTab('bets')">All Bets</button>
+                <button class="tab" onclick="showTab('users')">Users</button>
+            </div>
+
+            <!-- Matches Tab -->
+            <div id="matchesTab" class="tab-content active">
+                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                    <button class="btn btn-blue" id="addMatchBtn">
+                        + Add Match
+                    </button>
+                    <button class="btn" id="randomMatchBtn" style="background: var(--purple);">
+                        🎲 Random Match
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">All Matches</div>
+                    </div>
+                    <div class="card-body">
+                        <table id="matchesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Teams</th>
+                                    <th>Odds (A/Draw/B)</th>
+                                    <th>Status</th>
+                                    <th>Result</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bets Tab -->
+            <div id="betsTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">All Bets</div>
+                    </div>
+                    <div class="card-body">
+                        <table id="betsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Match</th>
+                                    <th>Pick</th>
+                                    <th>Stake</th>
+                                    <th>Payout</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">All Users</div>
+                    </div>
+                    <div class="card-body">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Balance</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Match Modal -->
+    <div class="modal-overlay" id="addMatchModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Add New Match</div>
+            </div>
+            <div class="modal-body">
+                <form id="addMatchForm">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Team A</label>
+                            <input type="text" id="newTeamA" required placeholder="e.g. India">
+                        </div>
+                        <div class="input-group">
+                            <label>Team B</label>
+                            <input type="text" id="newTeamB" required placeholder="e.g. Australia">
+                        </div>
+                        <div class="input-group">
+                            <label>Odds Team A</label>
+                            <input type="number" id="newOddsA" step="0.01" required placeholder="1.85">
+                        </div>
+                        <div class="input-group">
+                            <label>Odds Draw</label>
+                            <input type="number" id="newOddsDraw" step="0.01" required placeholder="3.40">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Odds Team B</label>
+                        <input type="number" id="newOddsB" step="0.01" required placeholder="2.10">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddMatchModal()">Cancel</button>
+                <button class="btn" onclick="addMatch()">Add Match</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settle Confirm Modal -->
+    <div class="modal-overlay" id="settleModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Settle Match</div>
+            </div>
+            <div class="modal-body">
+                <p class="confirm-text">
+                    You are declaring <strong id="winnerName"></strong> as the winner for:
+                    <br><br>
+                    <span id="settleMatchName"></span>
+                </p>
+                <p style="font-size: 13px; color: var(--text-dim);">
+                    This will settle all pending bets for this match. Winners will be paid out automatically.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSettleModal()">Cancel</button>
+                <button class="btn btn-success" id="confirmSettleBtn">Confirm</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ============== CONFIG ==============
         const API = window.location.origin;
         let token = localStorage.getItem('adminToken');
         let currentMatchId = null;
         let currentResult = null;
         let matches = [];
 
-        // ============== INIT ==============
+        // Check auth
         async function init() {
             if (token) {
                 try {
@@ -1044,18 +651,16 @@
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (res.ok) {
-                        await showDashboard();
+                        showDashboard();
                     } else {
                         token = null;
                         localStorage.removeItem('adminToken');
                     }
-                } catch (e) {
-                    console.error('Admin init error:', e);
-                }
+                } catch (e) {}
             }
         }
 
-        // ============== AUTH ==============
+        // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
@@ -1080,59 +685,40 @@
             }
         });
 
+        // Logout
         function logout() {
             token = null;
             localStorage.removeItem('adminToken');
             document.getElementById('loginPage').classList.add('active');
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('dashboardPage').classList.add('hidden');
             document.getElementById('dashboardPage').classList.remove('active');
         }
 
+        // Show dashboard
         function showDashboard() {
             document.getElementById('loginPage').classList.remove('active');
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('dashboardPage').classList.remove('hidden');
             document.getElementById('dashboardPage').classList.add('active');
             loadAllData();
         }
 
-        // ============== NAVIGATION ==============
+        // Tab switching
         function showTab(tab) {
-            // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(t => {
-                t.classList.remove('active');
-            });
-            document.getElementById('tab-' + tab).classList.add('active');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
 
-            // Update sidebar nav
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeNav = document.getElementById('nav-' + tab);
-            if (activeNav) {
-                activeNav.classList.add('active');
-            }
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
 
-            // Show/hide content
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-            document.getElementById(tab + 'Tab').classList.remove('hidden');
-
-            // Load data
             if (tab === 'matches') loadMatches();
-            if (tab === 'users') loadUsers();
             if (tab === 'bets') loadBets();
+            if (tab === 'users') loadUsers();
         }
 
-        // ============== DATA LOADING ==============
+        // Load all data
         async function loadAllData() {
-            try {
-                await Promise.all([loadMatches(), loadUsers(), loadBets()]);
-            } catch (e) {
-                console.error('loadAllData error:', e);
-            }
+            await Promise.all([loadMatches(), loadUsers(), loadBets()]);
         }
 
+        // Load matches
         async function loadMatches() {
             try {
                 const res = await fetch(`${API}/api/admin/matches`, {
@@ -1140,52 +726,46 @@
                 });
                 if (!res.ok) throw new Error('Failed');
                 matches = await res.json();
-                renderMatches();
+                renderMatches(matches);
             } catch (e) {
                 console.error('Failed to load matches', e);
             }
         }
 
-        function renderMatches() {
-            const tbody = document.getElementById('matchesTableBody');
+        // Render matches
+        function renderMatches(matches) {
+            const tbody = document.querySelector('#matchesTable tbody');
             const liveCount = matches.filter(m => m.status === 'live').length;
             document.getElementById('liveMatches').textContent = liveCount;
 
             if (matches.length === 0) {
-                tbody.innerHTML = `
-                    <tr><td colspan="6" class="empty-state">No matches</td></tr>
-                `;
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 32px;">No matches</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = matches.map(m => {
-                const statusBadge = m.status === 'live'
-                    ? `<span class="badge live"><span class="badge-dot"></span>Live</span>`
-                    : `<span class="badge settled">Settled</span>`;
-
-                return `
-                    <tr>
-                        <td>#${m.id}</td>
-                        <td>
-                            <strong>${m.team_a}</strong> vs <strong>${m.team_b}</strong>
-                        </td>
-                        <td>${m.odds_a} / ${m.odds_draw} / ${m.odds_b}</td>
-                        <td>${statusBadge}</td>
-                        <td>${m.result || '-'}</td>
-                        <td>
-                            ${m.status === 'live' ? `
-                                <div class="cell-actions">
-                                    <button onclick="openSettleModal(${m.id}, 'A', '${m.team_a}')" class="btn-settle blue">${m.team_a}</button>
-                                    <button onclick="openSettleModal(${m.id}, 'draw', 'Draw')" class="btn-settle draw">Draw</button>
-                                    <button onclick="openSettleModal(${m.id}, 'B', '${m.team_b}')" class="btn-settle purple">${m.team_b}</button>
-                                </div>
-                            ` : '<span style="color: var(--on-surface-variant);">Settled</span>'}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = matches.map(m => `
+                <tr>
+                    <td>#${m.id}</td>
+                    <td>
+                        <strong>${m.team_a}</strong> vs <strong>${m.team_b}</strong>
+                    </td>
+                    <td>${m.odds_a} / ${m.odds_draw} / ${m.odds_b}</td>
+                    <td><span class="badge badge-${m.status}">${m.status}</span></td>
+                    <td>${m.result || '-'}</td>
+                    <td>
+                        ${m.status === 'live' ? `
+                            <div class="settle-btns">
+                                <button class="settle-btn settle-btn-a" onclick="openSettleModal(${m.id}, 'A', '${m.team_a}')">${m.team_a}</button>
+                                <button class="settle-btn settle-btn-draw" onclick="openSettleModal(${m.id}, 'draw', 'Draw')">Draw</button>
+                                <button class="settle-btn settle-btn-b" onclick="openSettleModal(${m.id}, 'B', '${m.team_b}')">${m.team_b}</button>
+                            </div>
+                        ` : '<span style="color: var(--text-dim);">Settled</span>'}
+                    </td>
+                </tr>
+            `).join('');
         }
 
+        // Load users
         async function loadUsers() {
             try {
                 const res = await fetch(`${API}/api/admin/users`, {
@@ -1199,12 +779,13 @@
             }
         }
 
+        // Render users
         function renderUsers(users) {
             document.getElementById('totalUsers').textContent = users.length;
-            const tbody = document.getElementById('usersTableBody');
+            const tbody = document.querySelector('#usersTable tbody');
 
             if (users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No users</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 32px;">No users</td></tr>';
                 return;
             }
 
@@ -1213,12 +794,13 @@
                     <td>#${u.id}</td>
                     <td>${u.name}</td>
                     <td>@${u.username}</td>
-                    <td style="font-weight: 700;">₹${u.balance.toLocaleString()}</td>
-                    <td style="color: var(--on-surface-variant);">${new Date(u.created_at).toLocaleDateString()}</td>
+                    <td>₹${u.balance}</td>
+                    <td>${new Date(u.created_at).toLocaleDateString()}</td>
                 </tr>
             `).join('');
         }
 
+        // Load bets
         async function loadBets() {
             try {
                 const res = await fetch(`${API}/api/admin/bets`, {
@@ -1232,43 +814,37 @@
             }
         }
 
+        // Render bets
         function renderBets(bets) {
             document.getElementById('totalBets').textContent = bets.length;
             document.getElementById('pendingBets').textContent = bets.filter(b => b.status === 'pending').length;
-            const tbody = document.getElementById('betsTableBody');
+            const tbody = document.querySelector('#betsTable tbody');
 
             if (bets.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No bets</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 32px;">No bets</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = bets.map(b => {
-                const badgeClass = b.status === 'won' ? 'won' :
-                                   b.status === 'lost' ? 'lost' :
-                                   'pending';
-                return `
-                    <tr>
-                        <td>#${b.id}</td>
-                        <td>${b.name}</td>
-                        <td>${b.team_a} vs ${b.team_b}</td>
-                        <td>${b.pick}</td>
-                        <td>₹${b.stake}</td>
-                        <td style="font-weight: 700;">₹${b.payout}</td>
-                        <td>
-                            <span class="badge ${badgeClass}">${b.status}</span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = bets.map(b => `
+                <tr>
+                    <td>#${b.id}</td>
+                    <td>${b.name}</td>
+                    <td>${b.team_a} vs ${b.team_b}</td>
+                    <td>${b.pick}</td>
+                    <td>₹${b.stake}</td>
+                    <td>₹${b.payout}</td>
+                    <td><span class="badge badge-${b.status}">${b.status}</span></td>
+                </tr>
+            `).join('');
         }
 
-        // ============== MATCH MANAGEMENT ==============
+        // Add match modal
         function openAddMatchModal() {
-            document.getElementById('addMatchModal').classList.add('show');
+            document.getElementById('addMatchModal').classList.add('active');
         }
 
         function closeAddMatchModal() {
-            document.getElementById('addMatchModal').classList.remove('show');
+            document.getElementById('addMatchModal').classList.remove('active');
             document.getElementById('addMatchForm').reset();
         }
 
@@ -1292,6 +868,8 @@
                 return;
             }
 
+            console.log('Creating match:', { team_a, team_b, odds_a, odds_draw, odds_b });
+
             try {
                 const res = await fetch(`${API}/api/admin/matches`, {
                     method: 'POST',
@@ -1302,17 +880,39 @@
                     body: JSON.stringify({ team_a, team_b, odds_a, odds_draw, odds_b })
                 });
                 const data = await res.json();
+                console.log('Response:', res.status, data);
 
                 if (res.ok) {
                     closeAddMatchModal();
                     loadMatches();
+                    alert('Match created!');
                 } else {
                     alert(data.error || 'Failed to add match');
                 }
             } catch (e) {
+                console.error('Error:', e);
                 alert('Network error: ' + e.message);
             }
         }
+
+        // Settle modal
+        function openSettleModal(matchId, result, winnerName) {
+            currentMatchId = matchId;
+            currentResult = result;
+            document.getElementById('winnerName').textContent = winnerName;
+            const match = matches.find(m => m.id === matchId);
+            document.getElementById('settleMatchName').textContent = `${match.team_a} vs ${match.team_b}`;
+            document.getElementById('settleModal').classList.add('active');
+        }
+
+        function closeSettleModal() {
+            document.getElementById('settleModal').classList.remove('active');
+            currentMatchId = null;
+            currentResult = null;
+        }
+
+        // Setup event listeners
+        document.getElementById('addMatchBtn').addEventListener('click', openAddMatchModal);
 
         // Random match generator
         const indianTeams = [
@@ -1329,13 +929,18 @@
         }
 
         function getRandomOdds() {
+            // Generate realistic odds between 1.5 and 4.0
             return (Math.random() * 2.5 + 1.5).toFixed(2);
         }
 
         async function createRandomMatch() {
             let teamA = getRandomTeam();
             let teamB = getRandomTeam();
-            while (teamA === teamB) teamB = getRandomTeam();
+
+            // Ensure different teams
+            while (teamA === teamB) {
+                teamB = getRandomTeam();
+            }
 
             const oddsA = parseFloat(getRandomOdds());
             const oddsDraw = parseFloat(getRandomOdds());
@@ -1348,13 +953,19 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ team_a: teamA, team_b: teamB, odds_a: oddsA, odds_draw: oddsDraw, odds_b: oddsB })
+                    body: JSON.stringify({
+                        team_a: teamA,
+                        team_b: teamB,
+                        odds_a: oddsA,
+                        odds_draw: oddsDraw,
+                        odds_b: oddsB
+                    })
                 });
                 const data = await res.json();
 
                 if (res.ok) {
                     loadMatches();
-                    alert(`Created: ${teamA} vs ${teamB}`);
+                    alert(`Created match: ${teamA} vs ${teamB}`);
                 } else {
                     alert(data.error || 'Failed to create match');
                 }
@@ -1363,23 +974,9 @@
             }
         }
 
-        // ============== SETTLE MATCH ==============
-        function openSettleModal(matchId, result, winnerName) {
-            currentMatchId = matchId;
-            currentResult = result;
-            document.getElementById('winnerName').textContent = winnerName;
-            const match = matches.find(m => m.id === matchId);
-            document.getElementById('settleMatchName').textContent = `${match.team_a} vs ${match.team_b}`;
-            document.getElementById('settleModal').classList.add('show');
-        }
+        document.getElementById('randomMatchBtn').addEventListener('click', createRandomMatch);
 
-        function closeSettleModal() {
-            document.getElementById('settleModal').classList.remove('show');
-            currentMatchId = null;
-            currentResult = null;
-        }
-
-        async function confirmSettle() {
+        document.getElementById('confirmSettleBtn').addEventListener('click', async () => {
             if (!currentMatchId || !currentResult) return;
 
             try {
@@ -1401,10 +998,10 @@
             } catch (e) {
                 alert('Network error');
             }
-        }
+        });
 
-        // ============== START ==============
-        document.addEventListener('DOMContentLoaded', init);
+        // Start
+        init();
     </script>
 </body>
 </html>

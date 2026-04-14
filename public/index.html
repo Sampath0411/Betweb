@@ -3,1348 +3,786 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Stumps | Cricket Betting</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        /* CSS Reset & Base */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #0f1419;
-            color: #dee3ea;
-            min-height: 100vh;
-            line-height: 1.5;
-        }
-        input, button { font-family: inherit; }
-        button { cursor: pointer; }
-        input:focus { outline: none; }
-
-        /* Material Icons */
-        .material-icons {
-            font-family: 'Material Icons';
-            font-weight: normal;
-            font-style: normal;
-            font-size: 24px;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            display: inline-block;
-            white-space: nowrap;
-            word-wrap: normal;
-            direction: ltr;
-            -webkit-font-feature-settings: 'liga';
-            font-feature-settings: 'liga';
-            -webkit-font-smoothing: antialiased;
-            vertical-align: middle;
-        }
-
-        /* Color Variables */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #ffc174;
-            --primary-container: #f59e0b;
-            --on-primary: #472a00;
-            --bg: #0f1419;
-            --surface: #171c21;
-            --surface-high: #1b2025;
-            --surface-higher: #252a30;
-            --surface-highest: #30353b;
-            --on-surface: #dee3ea;
-            --on-surface-variant: #d8c3ad;
-            --outline: #a08e7a;
-            --outline-variant: #534434;
-            --success: #22c55e;
-            --error: #ef4444;
+            --bg: #0a0f14;
+            --bg-elev: #141a24;
+            --text: #e8eaf6;
+            --text-dim: #6b7280;
+            --accent: #f59e0b;
+            --win: #22c55e;
+            --loss: #ef4444;
+            --border: #1f2937;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
         }
 
-        /* Layout */
-        .hidden { display: none !important; }
-        .flex { display: flex; }
-        .grid { display: grid; }
-        .block { display: block; }
-        .inline-block { display: inline-block; }
-        .flex-col { flex-direction: column; }
-        .flex-row { flex-direction: row; }
-        .items-center { align-items: center; }
-        .items-start { align-items: flex-start; }
-        .items-end { align-items: flex-end; }
-        .justify-center { justify-content: center; }
-        .justify-between { justify-content: space-between; }
-        .justify-around { justify-content: space-around; }
-        .flex-1 { flex: 1; }
-        .flex-wrap { flex-wrap: wrap; }
-        .gap-1 { gap: 4px; }
-        .gap-2 { gap: 8px; }
-        .gap-3 { gap: 12px; }
-        .gap-4 { gap: 16px; }
-        .gap-5 { gap: 20px; }
-        .gap-6 { gap: 24px; }
-        .gap-8 { gap: 32px; }
-
-        /* Spacing */
-        .p-1 { padding: 4px; }
-        .p-2 { padding: 8px; }
-        .p-3 { padding: 12px; }
-        .p-4 { padding: 16px; }
-        .p-5 { padding: 20px; }
-        .p-6 { padding: 24px; }
-        .p-8 { padding: 32px; }
-        .px-2 { padding-left: 8px; padding-right: 8px; }
-        .px-3 { padding-left: 12px; padding-right: 12px; }
-        .px-4 { padding-left: 16px; padding-right: 16px; }
-        .px-6 { padding-left: 24px; padding-right: 24px; }
-        .px-8 { padding-left: 32px; padding-right: 32px; }
-        .px-12 { padding-left: 48px; padding-right: 48px; }
-        .py-1 { padding-top: 4px; padding-bottom: 4px; }
-        .py-2 { padding-top: 8px; padding-bottom: 8px; }
-        .py-3 { padding-top: 12px; padding-bottom: 12px; }
-        .py-4 { padding-top: 16px; padding-bottom: 16px; }
-        .py-5 { padding-top: 20px; padding-bottom: 20px; }
-        .py-6 { padding-top: 24px; padding-bottom: 24px; }
-        .py-8 { padding-top: 32px; padding-bottom: 32px; }
-        .pt-2 { padding-top: 8px; }
-        .pt-4 { padding-top: 16px; }
-        .pt-6 { padding-top: 24px; }
-        .pt-8 { padding-top: 32px; }
-        .pt-16 { padding-top: 64px; }
-        .pt-20 { padding-top: 80px; }
-        .pt-24 { padding-top: 96px; }
-        .pb-2 { padding-bottom: 8px; }
-        .pb-4 { padding-bottom: 16px; }
-        .pb-6 { padding-bottom: 24px; }
-        .pb-8 { padding-bottom: 32px; }
-        .pb-12 { padding-bottom: 48px; }
-        .pb-24 { padding-bottom: 96px; }
-        .pb-28 { padding-bottom: 112px; }
-        .pl-4 { padding-left: 16px; }
-        .pl-64 { padding-left: 256px; }
-        .pr-4 { padding-right: 16px; }
-        .pr-12 { padding-right: 48px; }
-        .m-0 { margin: 0; }
-        .m-auto { margin: auto; }
-        .mx-auto { margin-left: auto; margin-right: auto; }
-        .mb-1 { margin-bottom: 4px; }
-        .mb-2 { margin-bottom: 8px; }
-        .mb-4 { margin-bottom: 16px; }
-        .mb-6 { margin-bottom: 24px; }
-        .mb-8 { margin-bottom: 32px; }
-        .mb-12 { margin-bottom: 48px; }
-        .mb-16 { margin-bottom: 64px; }
-        .mt-1 { margin-top: 4px; }
-        .mt-2 { margin-top: 8px; }
-        .mt-4 { margin-top: 16px; }
-        .mt-6 { margin-top: 24px; }
-        .mt-8 { margin-top: 32px; }
-        .mt-12 { margin-top: 48px; }
-        .mr-2 { margin-right: 8px; }
-        .mr-4 { margin-right: 16px; }
-        .ml-1 { margin-left: 4px; }
-        .ml-2 { margin-left: 8px; }
-        .ml-64 { margin-left: 256px; }
-        .-mr-20 { margin-right: -80px; }
-        .-mt-20 { margin-top: -80px; }
-
-        /* Typography */
-        .text-xs { font-size: 12px; }
-        .text-sm { font-size: 14px; }
-        .text-base { font-size: 16px; }
-        .text-lg { font-size: 18px; }
-        .text-xl { font-size: 20px; }
-        .text-2xl { font-size: 24px; }
-        .text-3xl { font-size: 30px; }
-        .text-4xl { font-size: 36px; }
-        .text-5xl { font-size: 48px; }
-        .text-6xl { font-size: 60px; }
-        .text-">xl" { font-size: 24px; }
-        .font-light { font-weight: 300; }
-        .font-normal { font-weight: 400; }
-        .font-medium { font-weight: 500; }
-        .font-semibold { font-weight: 600; }
-        .font-bold { font-weight: 700; }
-        .font-extrabold { font-weight: 800; }
-        .font-black { font-weight: 900; }
-        .uppercase { text-transform: uppercase; }
-        .capitalize { text-transform: capitalize; }
-        .tracking-tight { letter-spacing: -0.025em; }
-        .tracking-tighter { letter-spacing: -0.05em; }
-        .tracking-wide { letter-spacing: 0.025em; }
-        .tracking-wider { letter-spacing: 0.05em; }
-        .tracking-widest { letter-spacing: 0.1em; }
-        .leading-none { line-height: 1; }
-        .leading-tight { line-height: 1.25; }
-        .leading-snug { line-height: 1.375; }
-        .leading-relaxed { line-height: 1.625; }
-        .text-center { text-align: center; }
-        .text-left { text-align: left; }
-        .text-right { text-align: right; }
-        .italic { font-style: italic; }
-
-        /* Colors */
-        .text-primary { color: var(--primary); }
-        .text-on-primary { color: var(--on-primary); }
-        .text-on-surface { color: var(--on-surface); }
-        .text-on-surface-variant { color: var(--on-surface-variant); }
-        .text-outline { color: var(--outline); }
-        .text-success { color: var(--success); }
-        .text-error { color: var(--error); }
-        .bg-primary { background-color: var(--primary); }
-        .bg-surface { background-color: var(--surface); }
-        .bg-surface-high { background-color: var(--surface-high); }
-        .bg-surface-higher { background-color: var(--surface-higher); }
-        .bg-surface-highest { background-color: var(--surface-highest); }
-        .bg-background { background-color: var(--bg); }
-        .border-outline { border-color: var(--outline); }
-        .border-outline-variant { border-color: var(--outline-variant); }
-
-        /* Borders */
-        .border { border-width: 1px; border-style: solid; }
-        .border-2 { border-width: 2px; border-style: solid; }
-        .border-b { border-bottom-width: 1px; border-bottom-style: solid; }
-        .border-b-2 { border-bottom-width: 2px; border-bottom-style: solid; }
-        .border-t { border-top-width: 1px; border-top-style: solid; }
-        .border-l-4 { border-left-width: 4px; border-left-style: solid; }
-        .border-dashed { border-style: dashed; }
-        .border-none { border: none; }
-        .rounded { border-radius: 4px; }
-        .rounded-lg { border-radius: 8px; }
-        .rounded-xl { border-radius: 12px; }
-        .rounded-2xl { border-radius: 16px; }
-        .rounded-3xl { border-radius: 24px; }
-        .rounded-full { border-radius: 9999px; }
-
-        /* Width & Height */
-        .w-full { width: 100%; }
-        .w-auto { width: auto; }
-        .w-2 { width: 8px; }
-        .w-4 { width: 16px; }
-        .w-6 { width: 24px; }
-        .w-8 { width: 32px; }
-        .w-10 { width: 40px; }
-        .w-12 { width: 48px; }
-        .w-16 { width: 64px; }
-        .w-24 { width: 96px; }
-        .w-48 { width: 192px; }
-        .w-64 { width: 256px; }
-        .w-80 { width: 320px; }
-        .w-96 { width: 384px; }
-        .w-">400px" { width: 400px; }
-        .min-w-">140px" { min-width: 140px; }
-        .max-w-">440px" { max-width: 440px; }
-        .max-w-md { max-width: 448px; }
-        .max-w-lg { max-width: 512px; }
-        .max-w-2xl { max-width: 672px; }
-        .max-w-4xl { max-width: 896px; }
-        .max-w-5xl { max-width: 1024px; }
-        .max-w-6xl { max-width: 1152px; }
-        .max-w-7xl { max-width: 1280px; }
-        .h-full { height: 100%; }
-        .h-2 { height: 8px; }
-        .h-6 { height: 24px; }
-        .h-8 { height: 32px; }
-        .h-10 { height: 40px; }
-        .h-12 { height: 48px; }
-        .h-16 { height: 64px; }
-        .h-24 { height: 96px; }
-        .h-32 { height: 128px; }
-        .h-40 { height: 160px; }
-        .h-48 { height: 192px; }
-        .h-px { height: 1px; }
-        .min-h-screen { min-height: 100vh; }
-
-        /* Position */
-        .relative { position: relative; }
-        .absolute { position: absolute; }
-        .fixed { position: fixed; }
-        .sticky { position: sticky; }
-        .top-0 { top: 0; }
-        .top-1\/2 { top: 50%; }
-        .right-0 { right: 0; }
-        .right-3 { right: 12px; }
-        .right-4 { right: 16px; }
-        .right-6 { right: 24px; }
-        .bottom-0 { bottom: 0; }
-        .bottom-24 { bottom: 96px; }
-        .left-0 { left: 0; }
-        .-top-12 { top: -48px; }
-        .-right-12 { right: -48px; }
-        .-mr-20 { margin-right: -80px; }
-        .-mt-20 { margin-top: -80px; }
-        .z-30 { z-index: 30; }
-        .z-40 { z-index: 40; }
-        .z-50 { z-index: 50; }
-        .z-">60" { z-index: 60; }
-
-        /* Grid */
-        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-        .col-span-2 { grid-column: span 2 / span 2; }
-
-        /* Effects */
-        .blur-3xl { filter: blur(64px); }
-        .backdrop-blur-xl { backdrop-filter: blur(24px); }
-        .backdrop-blur-2xl { backdrop-filter: blur(40px); }
-        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-
-        /* Transforms */
-        .transform { transform: translateX(0); }
-        .-translate-y-1\/2 { transform: translateY(-50%); }
-        .scale-110 { transform: scale(1.1); }
-        .hover\:scale-105:hover { transform: scale(1.05); }
-
-        /* Overflow */
-        .overflow-hidden { overflow: hidden; }
-        .overflow-x-auto { overflow-x: auto; }
-        .overflow-y-auto { overflow-y: auto; }
-
-        /* Cursor */
-        .cursor-pointer { cursor: pointer; }
-        .cursor-not-allowed { cursor: not-allowed; }
-
-        /* Opacity */
-        .opacity-30 { opacity: 0.3; }
-        .opacity-40 { opacity: 0.4; }
-
-        /* Transitions */
-        .transition-all { transition: all 0.2s ease; }
-        .transition-colors { transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease; }
-
-        /* Space (vertical gap between children) */
-        .space-y-1 > * + * { margin-top: 4px; }
-        .space-y-3 > * + * { margin-top: 12px; }
-        .space-y-4 > * + * { margin-top: 16px; }
-        .space-y-6 > * + * { margin-top: 24px; }
-
-        /* Flex shrink */
-        .flex-shrink-0 { flex-shrink: 0; }
-
-        /* Items baseline */
-        .items-baseline { align-items: baseline; }
-
-        /* Background transparent */
-        .bg-transparent { background-color: transparent; }
-        .opacity-50 { opacity: 0.5; }
-        .opacity-60 { opacity: 0.6; }
-        .opacity-70 { opacity: 0.7; }
-        .opacity-75 { opacity: 0.75; }
-        .opacity-80 { opacity: 0.8; }
-        .hover\:opacity-100:hover { opacity: 1; }
-
-        /* Focus */
-        .focus\:ring-0:focus { box-shadow: none; }
-        .focus\:ring-2:focus { box-shadow: 0 0 0 2px rgba(255, 193, 116, 0.4); }
-
-        /* Selection */
-        .selection\:bg-primary::selection { background-color: var(--primary); }
-
-        /* Animations */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-
-        @keyframes ping {
-            75%, 100% { transform: scale(2); opacity: 0; }
-        }
-        .animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
-
-        /* Custom Components */
-        .editorial-track { letter-spacing: -0.04em; }
-        .label-track { letter-spacing: 0.08em; }
-        .signature-cta {
-            background: linear-gradient(160deg, #ffc174 0%, #f59e0b 100%);
-            color: var(--on-primary);
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Auth Page Styles */
+        /* Auth Pages */
         .auth-container {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 24px;
-            background: radial-gradient(circle at top right, #171c21 0%, #0f1419 100%);
+            padding: 20px;
         }
-        .auth-box { width: 100%; max-width: 440px; }
-        .auth-card {
-            background-color: var(--surface);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-        .auth-tabs {
-            display: flex;
-            border-bottom: 1px solid var(--outline-variant);
-        }
-        .auth-tab {
-            flex: 1;
-            padding: 16px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .auth-tab.active {
-            color: var(--primary);
-            border-bottom: 2px solid var(--primary-container);
-            background-color: rgba(37, 42, 48, 0.5);
-        }
-        .auth-tab:not(.active) {
-            color: var(--on-surface-variant);
-            opacity: 0.6;
-        }
-        .auth-tab:not(.active):hover {
-            opacity: 1;
-        }
-
-        /* Input Styles */
-        .form-input {
+        .auth-box {
             width: 100%;
-            background-color: #0a0f14;
-            border: none;
-            border-radius: 12px;
-            padding: 16px;
-            color: var(--on-surface);
-            font-size: 16px;
-            transition: box-shadow 0.2s;
+            max-width: 340px;
         }
-        .form-input::placeholder { color: var(--outline); opacity: 0.4; }
-        .form-input:focus { box-shadow: 0 0 0 2px rgba(255, 193, 116, 0.4); }
-        .form-label {
-            display: block;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--on-surface-variant);
+        .auth-box h1 {
+            font-size: 32px;
+            font-weight: 800;
             margin-bottom: 8px;
         }
-        .form-group { margin-bottom: 24px; }
+        .auth-box h1 span { color: var(--accent); }
+        .auth-box p { color: var(--text-dim); margin-bottom: 32px; font-size: 14px; }
 
-        /* Button Styles */
-        .btn-primary {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(160deg, #ffc174 0%, #f59e0b 100%);
-            color: var(--on-primary);
-            border: none;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: transform 0.1s;
-            box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.1);
-        }
-        .btn-primary:active { transform: scale(0.98); }
-
-        .btn-secondary {
-            background-color: var(--surface-higher);
-            color: var(--on-surface);
-            padding: 12px 16px;
-            border-radius: 8px;
+        .input-group { margin-bottom: 16px; }
+        .input-group label {
+            display: block;
             font-size: 12px;
             font-weight: 600;
-            border: 1px solid var(--outline-variant);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-secondary:hover { border-color: var(--primary); }
-
-        /* Navigation */
-        .sidebar {
-            display: none;
-            flex-direction: column;
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            width: 256px;
-            background-color: var(--surface);
-            border-right: 1px solid rgba(83, 68, 52, 0.15);
-            z-index: 40;
-            padding: 32px 16px;
-        }
-        .sidebar-nav-btn {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            color: var(--on-surface);
-            opacity: 0.6;
-            font-size: 10px;
-            font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            background: none;
-            border: none;
-            cursor: pointer;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+        }
+        .input-group input {
             width: 100%;
-            text-align: left;
-            transition: all 0.2s;
-            margin-bottom: 4px;
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-size: 16px;
         }
-        .sidebar-nav-btn:hover {
-            opacity: 1;
-            background-color: var(--surface-higher);
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
         }
-        .sidebar-nav-btn.active {
-            opacity: 1;
-            color: var(--primary);
-            background-color: var(--surface-high);
+        .btn {
+            width: 100%;
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 15px;
             font-weight: 700;
+            cursor: pointer;
         }
+        .btn:hover { opacity: 0.9; }
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+        .auth-switch a { color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
 
-        /* Header */
-        .app-header {
+        /* App Layout */
+        .hidden { display: none !important; }
+
+        .app {
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 15, 20, 0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+            z-index: 100;
+        }
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
-            padding: 16px 24px;
-            height: 64px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: var(--bg);
-            border-bottom: 1px solid rgba(83, 68, 52, 0.1);
-            z-index: 30;
+            max-width: 480px;
+            margin: 0 auto;
         }
+        .header h1 { font-size: 20px; font-weight: 800; }
+        .header h1 span { color: var(--accent); }
         .wallet-chip {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background-color: var(--surface);
-            border: 1px solid rgba(83, 68, 52, 0.1);
-            border-radius: 9999px;
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 20px;
             padding: 8px 16px;
             font-size: 14px;
             font-weight: 700;
         }
-        .wallet-chip .currency { color: var(--primary); }
+        .wallet-chip span { color: var(--accent); }
 
-        /* Mobile Navigation */
-        .mobile-nav {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 8px 16px 24px;
-            background-color: rgba(48, 53, 59, 0.6);
-            backdrop-filter: blur(24px);
-            border-top-left-radius: 16px;
-            border-top-right-radius: 16px;
-            z-index: 50;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        .container {
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
         }
-        .mobile-nav-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 8px;
-            color: var(--on-surface);
-            opacity: 0.8;
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .mobile-nav-btn.active {
-            background-color: var(--primary-container);
-            color: var(--bg);
-            border-radius: 12px;
-            transform: scale(1.1);
-            box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
-        }
-        .mobile-nav-btn span:last-child {
-            font-size: 10px;
+
+        .welcome { margin-bottom: 24px; }
+        .welcome h2 { font-size: 22px; font-weight: 700; }
+        .welcome p { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
+
+        .section-title {
+            font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-top: 4px;
+            color: var(--text-dim);
+            margin-bottom: 12px;
         }
 
-        /* Match Cards */
+        /* Matches */
         .match-card {
-            background-color: var(--surface);
-            border-radius: 16px;
-            padding: 24px;
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
             margin-bottom: 16px;
-            position: relative;
-            overflow: hidden;
-            transition: background-color 0.2s;
         }
-        .match-card:hover { background-color: var(--surface-high); }
-
         .live-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 12px;
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--error);
-            border-radius: 9999px;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 12px;
         }
-        .live-dot {
+        .live-badge::before {
+            content: '';
             width: 6px;
             height: 6px;
-            background-color: var(--error);
+            background: var(--accent);
             border-radius: 50%;
-            animation: pulse 1s infinite;
+            animation: blink 1s infinite;
         }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        .team-display {
+        .teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .team { text-align: center; flex: 1; }
+        .team-name { font-size: 16px; font-weight: 700; }
+        .vs { font-size: 12px; color: var(--text-dim); padding: 0 16px; }
+
+        .odds-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .odds-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .odds-btn.selected {
+            border-color: var(--accent);
+            background: rgba(245, 158, 11, 0.1);
+        }
+        .odds-btn .label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+        .odds-btn .value { font-size: 18px; font-weight: 800; color: var(--accent); }
+
+        .bet-slip {
+            display: none;
+            background: rgba(245, 158, 11, 0.05);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+        .bet-slip.active { display: block; }
+        .stake-input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text);
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .payout-preview {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .payout-preview .amount { font-size: 18px; font-weight: 800; color: var(--accent); }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-elev);
+            border-top: 1px solid var(--border);
+            display: flex;
+            padding: 8px 0;
+            z-index: 100;
+        }
+        .nav-item {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-            flex: 1;
+            gap: 4px;
+            padding: 8px;
+            color: var(--text-dim);
+            background: none;
+            border: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
         }
-        .team-avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background-color: var(--surface-higher);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        .team-name {
-            font-size: 16px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: -0.025em;
-        }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { width: 24px; height: 24px; }
 
-        .odds-btn {
-            background-color: var(--surface-higher);
-            border: 1px solid rgba(83, 68, 52, 0.1);
+        /* History */
+        .bet-item {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
+            margin-bottom: 12px;
         }
-        .odds-btn:hover {
-            background-color: var(--primary);
-            color: var(--on-primary);
+        .bet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
-        .odds-btn .odds-label {
-            font-size: 9px;
+        .bet-match { font-weight: 700; font-size: 14px; }
+        .bet-status {
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
-            opacity: 0.6;
-            margin-bottom: 4px;
+            padding: 4px 10px;
+            border-radius: 12px;
         }
-        .odds-btn .odds-value {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--primary);
-        }
-        .odds-btn:hover .odds-value { color: var(--on-primary); }
-
-        /* Bet Slip */
-        .bet-slip {
-            position: fixed;
-            bottom: 96px;
-            right: 24px;
-            width: 320px;
-            background-color: rgba(48, 53, 59, 0.9);
-            backdrop-filter: blur(40px);
-            border-radius: 16px;
-            border: 1px solid rgba(83, 68, 52, 0.2);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            z-index: 50;
-            overflow: hidden;
-        }
-        .bet-slip-header {
-            padding: 16px;
-            background-color: var(--primary);
-            color: var(--on-primary);
+        .bet-status.pending { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+        .bet-status.won { background: rgba(34, 197, 94, 0.15); color: var(--win); }
+        .bet-status.lost { background: rgba(239, 68, 68, 0.15); color: var(--loss); }
+        .bet-details { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-dim); }
+        .bet-result {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .bet-slip-body { padding: 24px; }
-        .stake-input {
-            width: 100%;
-            background-color: #0a0f14;
-            border: 1px solid rgba(83, 68, 52, 0.1);
-            border-radius: 12px;
-            padding: 16px;
-            color: var(--on-surface);
-            font-size: 24px;
-            font-weight: 700;
-            text-align: center;
-        }
-
-        /* Bet History Items */
-        .bet-item {
-            background-color: var(--surface);
-            border-radius: 16px;
-            margin-bottom: 12px;
-            overflow: hidden;
-            transition: background-color 0.2s;
-        }
-        .bet-item:hover { background-color: var(--surface-high); }
-        .bet-item-content {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        @media (min-width: 768px) {
-            .bet-item-content { flex-direction: row; align-items: center; }
-        }
-        .bet-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .bet-icon.success { background-color: rgba(34, 197, 94, 0.2); color: var(--success); }
-        .bet-icon.error { background-color: rgba(239, 68, 68, 0.2); color: var(--error); }
-        .bet-icon.pending { background-color: var(--surface-higher); color: var(--primary); }
-
-        .status-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .status-badge.won { background-color: rgba(34, 197, 94, 0.1); color: var(--success); }
-        .status-badge.lost { background-color: rgba(239, 68, 68, 0.1); color: var(--error); }
-        .status-badge.pending { background-color: rgba(255, 193, 116, 0.1); color: var(--primary); }
+        .bet-amount { font-size: 16px; font-weight: 800; }
+        .bet-amount.won { color: var(--win); }
+        .bet-amount.lost { color: var(--loss); }
 
         /* Wallet */
         .wallet-card {
-            background-color: var(--surface);
-            border-radius: 24px;
-            padding: 32px;
-            position: relative;
-            overflow: hidden;
-        }
-        .wallet-glow {
-            position: absolute;
-            top: -48px;
-            right: -48px;
-            width: 192px;
-            height: 192px;
-            background-color: rgba(255, 193, 116, 0.1);
-            border-radius: 50%;
-            filter: blur(64px);
-        }
-        .wallet-balance {
-            font-size: 60px;
-            font-weight: 900;
-            letter-spacing: -0.05em;
-        }
-
-        /* Transaction Items */
-        .transaction-item {
-            background-color: var(--surface);
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            transition: background-color 0.2s;
-        }
-        .transaction-item:hover { background-color: var(--surface-high); }
-        .tx-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Profile */
-        .profile-card {
-            background-color: var(--surface);
-            border-radius: 24px;
             padding: 32px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            position: relative;
-            overflow: hidden;
+            text-align: center;
+            margin-bottom: 24px;
         }
-        @media (min-width: 768px) {
-            .profile-card { flex-direction: row; align-items: center; }
-        }
-        .profile-avatar {
-            width: 96px;
-            height: 96px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #ffc174 0%, #f59e0b 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            font-weight: 900;
-            color: var(--on-primary);
-            box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.2);
-        }
-        .referral-box {
-            background-color: #0a0f14;
-            border: 2px dashed rgba(83, 68, 52, 0.3);
+        .wallet-label { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+        .wallet-balance { font-size: 48px; font-weight: 800; color: var(--accent); }
+
+        .wallet-log {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
+        .log-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .log-item:last-child { border-bottom: none; }
+        .log-title { font-size: 14px; font-weight: 600; }
+        .log-time { font-size: 12px; color: var(--text-dim); }
+        .log-amount { font-size: 14px; font-weight: 700; }
+        .log-amount.positive { color: var(--win); }
+        .log-amount.negative { color: var(--loss); }
 
-        /* Filter Buttons */
-        .filter-btn {
-            padding: 8px 24px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background-color: var(--surface);
-            color: var(--on-surface);
-            border: none;
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .filter-btn:hover { background-color: var(--surface-higher); }
-        .filter-btn.active {
-            background-color: var(--primary);
-            color: var(--on-primary);
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 50;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal {
-            background-color: var(--surface);
-            border-radius: 16px;
             width: 100%;
-            max-width: 480px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(83, 68, 52, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .modal-body { padding: 20px; }
-        .modal-footer {
-            padding: 20px;
-            border-top: 1px solid rgba(83, 68, 52, 0.1);
-            display: flex;
-            gap: 12px;
+            margin-top: 24px;
         }
 
-        /* Responsive */
+        .empty-state { text-align: center; padding: 48px; color: var(--text-dim); }
+
+        /* Desktop/Laptop Responsive */
         @media (min-width: 768px) {
-            .sidebar { display: flex; }
-            .mobile-nav { display: none; }
-            .app-header { left: 256px; width: calc(100% - 256px); }
-            .grid-cols-md-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .grid-cols-md-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            .grid-cols-md-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-            .md-flex { display: flex; }
-            .md-hidden { display: none; }
+            .auth-box {
+                max-width: 420px;
+            }
+            .auth-box h1 {
+                font-size: 40px;
+            }
+            .auth-box p {
+                font-size: 16px;
+            }
+            .input-group input {
+                padding: 16px 18px;
+                font-size: 17px;
+            }
+            .btn {
+                padding: 16px;
+                font-size: 16px;
+            }
+
+            .header-content {
+                max-width: 900px;
+                padding: 0 32px;
+            }
+            .container {
+                max-width: 900px;
+                padding: 32px;
+            }
+            .welcome h2 {
+                font-size: 28px;
+            }
+            .welcome p {
+                font-size: 16px;
+            }
+
+            .match-card {
+                padding: 28px;
+            }
+            .team-name {
+                font-size: 20px;
+            }
+            .vs {
+                font-size: 14px;
+            }
+            .odds-btn {
+                padding: 16px;
+            }
+            .odds-btn .value {
+                font-size: 22px;
+            }
+
+            .wallet-card {
+                padding: 48px;
+            }
+            .wallet-balance {
+                font-size: 64px;
+            }
+
+            .bet-item {
+                padding: 20px;
+            }
+            .bet-match {
+                font-size: 16px;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+            .app {
+                padding-bottom: 32px;
+            }
         }
 
-        @media (min-width: 1024px) {
-            .grid-cols-lg-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .grid-cols-lg-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            .grid-cols-lg-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        @media (min-width: 1200px) {
+            .header-content {
+                max-width: 1200px;
+            }
+            .container {
+                max-width: 1200px;
+                padding: 48px;
+            }
+
+            /* Two column layout for matches on large screens */
+            #matchesList {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+            .match-card {
+                margin-bottom: 0;
+            }
+
+            /* Side nav for desktop */
+            .app {
+                display: flex;
+                flex-direction: row;
+                padding-bottom: 0;
+            }
+            .header {
+                position: fixed;
+                width: 100%;
+                z-index: 100;
+            }
+            .sidebar-nav {
+                display: flex;
+                flex-direction: column;
+                background: var(--bg-elev);
+                border-right: 1px solid var(--border);
+                padding: 20px 16px;
+                width: 180px;
+                height: 100vh;
+                position: fixed;
+                left: 0;
+                top: 73px;
+                padding-bottom: 100px;
+            }
+            .sidebar-nav .nav-item {
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 12px;
+                padding: 16px;
+                font-size: 14px;
+                border-radius: 8px;
+            }
+            .sidebar-nav .nav-item:hover {
+                background: var(--bg);
+            }
+            .sidebar-nav .nav-item.active {
+                background: rgba(245, 158, 11, 0.1);
+            }
+
+            /* Push content to the right on desktop */
+            .view {
+                margin-left: 180px;
+                padding-top: 73px;
+                width: calc(100% - 180px);
+            }
         }
 
-        /* Utility Classes */
-        .rounded-t-2xl { border-top-left-radius: 16px; border-top-right-radius: 16px; }
-        .w-px { width: 1px; }
-        .self-end { align-self: flex-end; }
-        .tracking-">2em" { letter-spacing: 0.2em; }
-        .bg-black\/80 { background-color: rgba(0, 0, 0, 0.8); }
-        .border-white\/10 { border-color: rgba(255, 255, 255, 0.1); }
-        .hover\:underline:hover { text-decoration: underline; }
-        .hover\:bg-surface-highest:hover { background-color: var(--surface-highest); }
-        .hover\:border-primary:hover { border-color: var(--primary); }
-        .hover\:bg-primary:hover { background-color: var(--primary); }
-        .hover\:text-on-primary:hover { color: var(--on-primary); }
-        .focus\:ring-2:focus { box-shadow: 0 0 0 2px rgba(255, 193, 116, 0.4); }
+        /* Hide desktop nav on mobile */
+        .sidebar-nav {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .sidebar-nav {
+                display: flex;
+                width: 180px;
+            }
+            .view {
+                margin-left: 180px;
+                width: calc(100% - 180px);
+            }
+        }
     </style>
 </head>
-<body class="bg-background">
-
-    <!-- ==================== AUTH PAGE ==================== -->
-    <div id="authPage" style="display: block;">
+<body>
+    <!-- Auth Page -->
+    <div id="authPage">
         <div class="auth-container">
-            <main class="auth-box">
-                <!-- Brand Identity Header -->
-                <div class="text-center mb-12">
-                    <h1 class="text-5xl font-black tracking-tighter text-on-surface uppercase mb-2" style="letter-spacing: -0.04em;">
-                        Stumps<span class="text-primary" style="color: var(--primary-container);">.</span>
-                    </h1>
-                    <p class="text-on-surface-variant font-medium text-xs uppercase tracking-widest" style="letter-spacing: 0.08em;">
-                        Cricket betting, simplified.
-                    </p>
+            <div class="auth-box" id="loginBox">
+                <h1>Stumps<span>.</span></h1>
+                <p>Cricket betting, simplified.</p>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="loginUsername" required placeholder="Enter username">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="loginPassword" required placeholder="Enter password" style="width: 100%; padding-right: 40px;">
+                            <button type="button" onclick="togglePassword('loginPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-dim);">👁️</button>
+                        </div>
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 8px; margin: -10px 0 10px; cursor: pointer; font-size: 14px; color: var(--text-dim);">
+                        <input type="checkbox" id="staySignedIn" checked>
+                        Stay signed in
+                    </label>
+                    <button type="submit" class="btn">Sign In</button>
+                </form>
+                <div class="auth-switch">
+                    No account? <a onclick="showRegister()">Create one</a>
                 </div>
+            </div>
 
-                <!-- Auth Card -->
-                <div class="auth-card">
-                    <!-- Form Toggle -->
-                    <div class="auth-tabs">
-                        <button id="loginTab" class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
-                        <button id="registerTab" class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+            <div class="auth-box hidden" id="registerBox">
+                <h1>Stumps<span>.</span></h1>
+                <p>Start with ₹1000. Password: 8+ chars, uppercase, lowercase, number.</p>
+                <form id="registerForm">
+                    <div class="input-group">
+                        <label>Name</label>
+                        <input type="text" id="regName" required placeholder="Your name">
                     </div>
-
-                    <!-- Content Area -->
-                    <div class="p-8">
-                        <!-- Login Form -->
-                        <form id="loginForm" class="block">
-                            <div class="form-group">
-                                <label class="form-label">Username</label>
-                                <input type="text" id="loginUsername" required placeholder="Enter username" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Password</label>
-                                <div class="relative">
-                                    <input type="password" id="loginPassword" required placeholder="Enter password" class="form-input" style="padding-right: 48px;">
-                                    <button type="button" onclick="togglePassword('loginPassword', this)" class="absolute" style="right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--outline); cursor: pointer;">
-                                        <span class="material-icons" style="font-size: 20px;">visibility</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3 mb-6">
-                                <input type="checkbox" id="staySignedIn" checked style="width: 16px; height: 16px; accent-color: var(--primary);">
-                                <label for="staySignedIn" class="text-sm text-on-surface-variant cursor-pointer">Stay signed in for 30 days</label>
-                            </div>
-                            <button type="submit" class="btn-primary">Sign In</button>
-                        </form>
-
-                        <!-- Register Form -->
-                        <form id="registerForm" class="hidden">
-                            <div class="form-group">
-                                <label class="form-label">Name</label>
-                                <input type="text" id="regName" required placeholder="Your name" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Username</label>
-                                <input type="text" id="regUsername" required placeholder="Choose username" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Password</label>
-                                <div class="relative">
-                                    <input type="password" id="regPassword" required placeholder="Create password" class="form-input" style="padding-right: 48px;">
-                                    <button type="button" onclick="togglePassword('regPassword', this)" class="absolute" style="right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--outline); cursor: pointer;">
-                                        <span class="material-icons" style="font-size: 20px;">visibility</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Referral Code (Optional)</label>
-                                <input type="text" id="regReferralCode" placeholder="Enter friend's username" class="form-input" style="text-transform: uppercase;">
-                                <p class="text-xs text-on-surface-variant mt-2">Get ₹50 bonus when you use a referral code!</p>
-                            </div>
-                            <button type="submit" class="btn-primary">Create Account</button>
-                        </form>
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="regUsername" required placeholder="Choose username">
                     </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="regPassword" required placeholder="Create password" style="width: 100%; padding-right: 40px;">
+                            <button type="button" onclick="togglePassword('regPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-dim);">👁️</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">Create Account</button>
+                </form>
+                <div class="auth-switch">
+                    Have account? <a onclick="showLogin()">Sign in</a>
                 </div>
-
-                <!-- Support Info -->
-                <div class="mt-8 flex justify-between items-center px-2">
-                    <div class="flex gap-6">
-                        <a href="#" class="text-xs font-bold uppercase tracking-widest text-outline hover:text-on-surface transition-colors" style="color: var(--outline);">Privacy</a>
-                        <a href="#" class="text-xs font-bold uppercase tracking-widest text-outline hover:text-on-surface transition-colors" style="color: var(--outline);">Terms</a>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full" style="background-color: var(--success); animation: pulse 2s infinite;"></span>
-                        <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Server Online</span>
-                    </div>
-                </div>
-            </main>
+            </div>
         </div>
     </div>
 
-    <!-- ==================== APP PAGE ==================== -->
-    <div id="appPage" class="hidden" style="display: none;">
-        <!-- Desktop Sidebar Navigation -->
-        <aside class="sidebar" id="desktopSidebar">
-            <div class="mb-8">
-                <h1 class="text-xl font-black text-on-surface tracking-tighter" style="letter-spacing: -0.04em;">STUMPS</h1>
-                <p class="font-medium text-xs uppercase text-primary mt-1" style="letter-spacing: 0.08em; color: var(--primary);">Elite Cricket Exchange</p>
-            </div>
-            <nav>
-                <button onclick="showView('matches')" id="nav-matches" class="sidebar-nav-btn active">
-                    <span class="material-icons">sports_cricket</span>
-                    <span>Matches</span>
-                </button>
-                <button onclick="showView('bets')" id="nav-bets" class="sidebar-nav-btn">
-                    <span class="material-icons">receipt_long</span>
-                    <span>My Bets</span>
-                </button>
-                <button onclick="showView('wallet')" id="nav-wallet" class="sidebar-nav-btn">
-                    <span class="material-icons">account_balance_wallet</span>
-                    <span>Wallet</span>
-                </button>
-                <button onclick="showView('profile')" id="nav-profile" class="sidebar-nav-btn">
-                    <span class="material-icons">person</span>
-                    <span>Profile</span>
-                </button>
-            </nav>
-        </aside>
-
-        <!-- Top Header -->
-        <header class="app-header" id="appHeader">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl font-black tracking-tighter text-on-surface" style="display: none;" id="mobileLogo">
-                    Stumps<span style="color: var(--primary);">.</span>
-                </span>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="wallet-chip" id="headerWallet">
-                    <span class="material-icons text-sm" style="color: var(--primary);">account_balance_wallet</span>
-                    <span>₹<span id="headerBalance">0</span></span>
-                </div>
-                <button class="p-2 rounded-full text-on-surface" style="opacity: 0.7; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
-                    <span class="material-icons">notifications</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="pt-20 pb-28 px-6 min-h-screen" id="mainContent" style="margin-left: 0;">
-            <div class="max-w-5xl mx-auto">
-
-                <!-- ===== MATCHES VIEW ===== -->
-                <div id="matchesView" class="view-section block">
-                    <!-- Welcome Header -->
-                    <section class="mb-8">
-                        <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface uppercase mb-2" style="letter-spacing: -0.04em;">
-                            Hey, <span id="userNameDisplay">Player</span>
-                        </h1>
-                        <p class="text-on-surface-variant tracking-widest text-xs uppercase" style="opacity: 0.7; letter-spacing: 0.08em;">The match awaits your command.</p>
-                    </section>
-
-                    <!-- Live Matches Section -->
-                    <section>
-                        <div class="flex items-end justify-between mb-6">
-                            <h2 class="text-2xl font-black tracking-tight text-on-surface uppercase" style="border-left: 4px solid var(--primary); padding-left: 16px; letter-spacing: -0.04em;">Live Matches</h2>
-                        </div>
-                        <div id="matchesList">
-                            <!-- Matches loaded dynamically -->
-                        </div>
-                    </section>
-                </div>
-
-                <!-- ===== BETS VIEW ===== -->
-                <div id="betsView" class="view-section hidden">
-                    <section class="mb-8">
-                        <span class="text-xs font-bold uppercase tracking-widest mb-2 block" style="color: var(--primary); letter-spacing: 0.2em;">ACCOUNT OVERVIEW</span>
-                        <h2 class="text-5xl font-extrabold tracking-tighter text-on-surface uppercase mb-4" style="letter-spacing: -0.04em; line-height: 1;">MY BETS</h2>
-                    </section>
-
-                    <!-- Filter Chips -->
-                    <div class="flex gap-3 mb-6 overflow-x-auto pb-2" style="scrollbar-width: none; -ms-overflow-style: none;">
-                        <button onclick="filterBets('all')" class="filter-btn active" id="filter-all">All</button>
-                        <button onclick="filterBets('pending')" class="filter-btn" id="filter-pending">Pending</button>
-                        <button onclick="filterBets('settled')" class="filter-btn" id="filter-settled">Settled</button>
-                    </div>
-
-                    <!-- Bet List -->
-                    <div id="betsList">
-                        <!-- Bets loaded dynamically -->
-                    </div>
-                </div>
-
-                <!-- ===== WALLET VIEW ===== -->
-                <div id="walletView" class="view-section hidden">
-                    <!-- Wallet Hero -->
-                    <section class="flex flex-col gap-8 mb-8">
-                        <div class="flex-1 space-y-4">
-                            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface uppercase" style="line-height: 0.85; letter-spacing: -0.04em;">
-                                Your <span style="color: var(--primary-container);">Vault</span>
-                            </h1>
-                            <p class="text-on-surface-variant max-w-md font-medium leading-relaxed">Total consolidated balance available for instant wagering across all cricket markets.</p>
-                        </div>
-                        <div class="flex-shrink-0" style="max-width: 400px;">
-                            <div class="wallet-card">
-                                <div class="wallet-glow"></div>
-                                <div class="relative" style="z-index: 10;">
-                                    <span class="text-xs font-bold uppercase tracking-widest mb-4 block" style="color: var(--on-surface-variant); letter-spacing: 0.2em;">Available Balance</span>
-                                    <div class="flex items-baseline gap-2 mb-6">
-                                        <span class="text-2xl font-bold" style="color: var(--primary);">₹</span>
-                                        <span id="walletBalance" class="wallet-balance">0</span>
-                                        <span class="text-on-surface-variant font-medium">.00</span>
-                                    </div>
-                                    <button class="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-black text-xs uppercase tracking-wider transition-colors" style="background-color: var(--surface-higher); color: var(--on-surface);" onmouseover="this.style.backgroundColor='var(--surface-highest)'" onmouseout="this.style.backgroundColor='var(--surface-higher)'">
-                                        <span class="material-icons text-sm">account_balance</span>
-                                        Transaction History
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Transaction History -->
-                    <section class="space-y-6">
-                        <div class="flex items-end justify-between">
-                            <div>
-                                <h2 class="text-2xl font-black tracking-tighter uppercase" style="letter-spacing: -0.04em;">History</h2>
-                                <p class="text-xs font-bold uppercase tracking-widest mt-1" style="color: var(--on-surface-variant); letter-spacing: 0.15em;">Recent Transactions & Payouts</p>
-                            </div>
-                        </div>
-                        <div id="walletLog">
-                            <!-- Transactions loaded dynamically -->
-                        </div>
-                    </section>
-                </div>
-
-                <!-- ===== PROFILE VIEW ===== -->
-                <div id="profileView" class="view-section hidden">
-                    <!-- Profile Card -->
-                    <div class="profile-card mb-8">
-                        <div class="absolute" style="top: 0; right: 0; width: 256px; height: 256px; background-color: rgba(255, 193, 116, 0.05); border-radius: 50%; margin-right: -80px; margin-top: -80px; filter: blur(64px);"></div>
-                        <div class="profile-avatar">
-                            <span id="profileInitial" style="font-size: 40px; font-weight: 900; letter-spacing: -0.04em;">P</span>
-                        </div>
-                        <div class="flex-1 space-y-1">
-                            <h2 id="profileName" class="text-3xl font-black text-on-surface" style="letter-spacing: -0.04em;">Player</h2>
-                            <p id="profileUsername" class="text-sm" style="color: var(--outline); letter-spacing: 0.08em; text-transform: uppercase;">@username</p>
-                            <div class="pt-4 flex flex-wrap gap-6">
-                                <div>
-                                    <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--outline); letter-spacing: 0.08em;">Current Balance</p>
-                                    <p id="profileBalance" class="text-2xl font-black" style="color: var(--primary); letter-spacing: -0.04em;">₹0.00</p>
-                                </div>
-                                <div style="width: 1px; height: 40px; background-color: rgba(83, 68, 52, 0.2); align-self: flex-end; margin-bottom: 4px;"></div>
-                                <div>
-                                    <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--outline); letter-spacing: 0.08em;">Member Since</p>
-                                    <p id="memberSince" class="text-lg font-bold text-on-surface" style="letter-spacing: -0.04em;">-</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Refer & Earn -->
-                    <div class="bg-surface rounded-3xl p-8 mb-8" style="border: 1px solid rgba(83, 68, 52, 0.05);">
-                        <div class="space-y-4">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: var(--surface-higher); color: var(--primary);">
-                                <span class="material-icons">redeem</span>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-extrabold mb-2" style="letter-spacing: -0.04em;">Refer & Earn</h3>
-                                <p class="text-on-surface-variant text-sm leading-relaxed">Earn ₹50 for every friend who joins and places their first bet on Stumps.</p>
-                            </div>
-                        </div>
-                        <div class="mt-8 space-y-4">
-                            <div class="referral-box">
-                                <span id="referralCodeDisplay" class="font-mono font-bold tracking-widest text-lg" style="color: var(--primary);">YOURCODE</span>
-                                <button onclick="copyReferralCode()" class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg transition-colors" style="color: var(--primary);" onmouseover="this.style.backgroundColor='rgba(255, 193, 116, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
-                                    <span class="material-icons text-sm">content_copy</span>
-                                    Copy
-                                </button>
-                            </div>
-                            <p id="referralEarned" class="text-sm text-on-surface-variant">Total earned: <span style="color: var(--success); font-weight: 700;">₹0</span></p>
-                        </div>
-                    </div>
-
-                    <!-- Logout -->
-                    <div class="pt-4 pb-12 flex justify-center">
-                        <button onclick="logout()" class="flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase transition-all" style="background-color: rgba(239, 68, 68, 0.1); color: var(--error); border: 1px solid rgba(239, 68, 68, 0.2); letter-spacing: -0.04em;" onmouseover="this.style.backgroundColor='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.backgroundColor='rgba(239, 68, 68, 0.1)'">
-                            <span class="material-icons">logout</span>
-                            Logout
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-        </main>
-
-        <!-- Bet Slip Modal -->
-        <div id="betSlip" class="bet-slip hidden">
-            <div class="bet-slip-header">
-                <span class="font-black text-xs uppercase tracking-widest">Bet Slip (1)</span>
-                <button onclick="closeBetSlip()" class="material-icons text-sm" style="cursor: pointer;">close</button>
-            </div>
-            <div class="bet-slip-body">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <p id="betSlipMatch" class="text-xs font-black uppercase mb-1" style="color: var(--primary);">Match</p>
-                        <p id="betSlipPick" class="text-sm font-bold">Pick</p>
-                    </div>
-                    <span id="betSlipOdds" class="text-lg font-black" style="color: var(--primary);">0.00</span>
-                </div>
-                <div class="mb-6" style="background-color: #0a0f14; border: 1px solid rgba(83, 68, 52, 0.1); border-radius: 12px; padding: 16px;">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-xs font-bold uppercase tracking-widest" style="color: var(--on-surface-variant);">Stake</span>
-                        <span class="text-xs font-bold uppercase tracking-widest" style="color: var(--on-surface-variant);">INR</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="text-lg font-bold mr-2" style="color: var(--on-surface-variant);">₹</span>
-                        <input type="number" id="stakeInput" value="500" min="10" class="bg-transparent border-none text-on-surface" style="font-size: 24px; font-weight: 800; width: 100%; padding: 0;">
-                    </div>
-                </div>
-                <div class="space-y-3 mb-6">
-                    <div class="flex justify-between text-xs font-bold uppercase tracking-widest" style="opacity: 0.6;">
-                        <span>Total Stake</span>
-                        <span>₹<span id="stakeDisplay">500</span>.00</span>
-                    </div>
-                    <div class="flex justify-between text-xs font-black uppercase tracking-widest">
-                        <span>Potential Win</span>
-                        <span id="potentialWin" style="color: var(--primary);">₹0.00</span>
-                    </div>
-                </div>
-                <button onclick="placeBet()" class="btn-primary">Place Bet</button>
+    <!-- App Page -->
+    <div id="appPage" class="hidden">
+        <div class="header">
+            <div class="header-content">
+                <h1>Stumps<span>.</span></h1>
+                <div class="wallet-chip">₹<span id="headerBalance">0</span></div>
             </div>
         </div>
 
-        <!-- Mobile Bottom Navigation -->
-        <nav class="mobile-nav">
-            <button onclick="showView('matches')" id="nav-matches-mobile" class="mobile-nav-btn active">
-                <span class="material-icons">sports_cricket</span>
-                <span>Matches</span>
+        <!-- Desktop Sidebar Nav -->
+        <nav class="sidebar-nav">
+            <button class="nav-item active" onclick="navigate('dashboard')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Matches
             </button>
-            <button onclick="showView('bets')" id="nav-bets-mobile" class="mobile-nav-btn">
-                <span class="material-icons">receipt_long</span>
-                <span>My Bets</span>
+            <button class="nav-item" onclick="navigate('history')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                History
             </button>
-            <button onclick="showView('wallet')" id="nav-wallet-mobile" class="mobile-nav-btn">
-                <span class="material-icons">account_balance_wallet</span>
-                <span>Wallet</span>
+            <button class="nav-item" onclick="navigate('wallet')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
+                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
+                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
+                </svg>
+                Wallet
             </button>
-            <button onclick="showView('profile')" id="nav-profile-mobile" class="mobile-nav-btn">
-                <span class="material-icons">person</span>
-                <span>Profile</span>
+            <div style="margin-top: auto;">
+                <button class="nav-item" onclick="logout()">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </nav>
+
+        <!-- Dashboard -->
+        <div id="dashboardView" class="view">
+            <div class="container">
+                <div class="welcome">
+                    <h2 id="welcomeName">Hey there</h2>
+                    <p>Live matches available now</p>
+                </div>
+                <div class="section-title">Live Matches</div>
+                <div id="matchesList"><div class="empty-state">Loading...</div></div>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div id="historyView" class="view hidden">
+            <div class="container">
+                <div class="section-title">Your Bets</div>
+                <div id="betsList"><div class="empty-state">Loading...</div></div>
+            </div>
+        </div>
+
+        <!-- Wallet -->
+        <div id="walletView" class="view hidden">
+            <div class="container">
+                <div class="wallet-card">
+                    <div class="wallet-label">Current Balance</div>
+                    <div class="wallet-balance" id="walletBalance">₹0</div>
+                </div>
+                <div class="section-title">Transaction Log</div>
+                <div id="walletLog"><div class="empty-state">Loading...</div></div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="navigate('dashboard')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Matches
+            </button>
+            <button class="nav-item" onclick="navigate('history')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                History
+            </button>
+            <button class="nav-item" onclick="navigate('wallet')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
+                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
+                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
+                </svg>
+                Wallet
             </button>
         </nav>
     </div>
 
     <script>
-        // ============== CONFIG ==============
         const API = window.location.origin;
-        let currentUser = null;
+        console.log('API URL:', API); // Debug
         let token = localStorage.getItem('token');
+        let user = null;
         let matches = [];
-        let bets = [];
-        let currentBet = null;
+        let selectedMatch = null;
+        let selectedOdd = null;
+        let selectedOddValue = null;
 
-        // ============== INIT ==============
-        document.addEventListener('DOMContentLoaded', init);
-
+        // Initialize
         async function init() {
-            // Default: show auth
-            document.getElementById('authPage').style.display = 'block';
-            document.getElementById('appPage').style.display = 'none';
+            const staySignedIn = localStorage.getItem('staySignedIn');
+            if (token) {
+                try {
+                    const res = await fetch(`${API}/api/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.id) {
+                            user = data;
+                            showApp();
+                            return;
+                        }
+                    }
+                    // Token invalid - clear it
+                    token = null;
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('staySignedIn');
+                } catch (e) {
+                    // Network error - keep token for retry if staySignedIn
+                    console.error('Auth error:', e);
+                    if (staySignedIn !== 'true') {
+                        token = null;
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('staySignedIn');
+                    }
+                }
+            }
+            showAuth();
+        }
 
-            // Only check token if exists
-            if (!token) return;
+        // Page visibility
+        function showAuth() {
+            stopAutoRefresh();
+            document.getElementById('authPage').classList.remove('hidden');
+            document.getElementById('appPage').classList.add('hidden');
+        }
 
+        // Auto-refresh intervals
+        let autoRefreshInterval = null;
+
+        function startAutoRefresh() {
+            // Refresh matches every 10 seconds
+            autoRefreshInterval = setInterval(() => {
+                if (token && user) {
+                    loadMatches();
+                    // Also refresh user data to get updated balance
+                    refreshUserData();
+                }
+            }, 10000);
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        async function refreshUserData() {
             try {
                 const res = await fetch(`${API}/api/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-
                 if (res.ok) {
-                    currentUser = await res.json();
-                    showApp();
-                    loadAllData();
-                } else {
-                    // Token invalid, clear it
-                    localStorage.removeItem('token');
-                    token = null;
-                    // Stay on auth (already visible)
+                    const data = await res.json();
+                    if (data && data.id) {
+                        user = data;
+                        updateBalance();
+                    }
                 }
             } catch (e) {
-                // Network error, stay on auth
+                console.error('Refresh user data error:', e);
             }
-        }
-
-        // ============== AUTH ==============
-        function showAuth() {
-            document.getElementById('authPage').style.display = 'block';
-            document.getElementById('appPage').style.display = 'none';
         }
 
         function showApp() {
-            document.getElementById('authPage').style.display = 'none';
-            document.getElementById('appPage').style.display = 'block';
-            document.getElementById('mobileLogo').style.display = 'block';
-
-            // Check if desktop
-            if (window.innerWidth >= 768) {
-                document.getElementById('desktopSidebar').style.display = 'flex';
-                document.getElementById('appHeader').style.left = '256px';
-                document.getElementById('appHeader').style.width = 'calc(100% - 256px)';
-                document.getElementById('mainContent').style.marginLeft = '256px';
-                document.getElementById('mobileLogo').style.display = 'none';
-            }
-
-            updateUserDisplay();
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('appPage').classList.remove('hidden');
+            document.getElementById('welcomeName').textContent = `Hey, ${user?.name || 'there'}`;
+            updateBalance();
+            loadMatches();
+            startAutoRefresh();
         }
 
-        function switchAuthTab(tab) {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const loginTab = document.getElementById('loginTab');
-            const registerTab = document.getElementById('registerTab');
-
-            if (tab === 'login') {
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
-                loginTab.classList.add('active');
-                registerTab.classList.remove('active');
-            } else {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                registerTab.classList.add('active');
-                loginTab.classList.remove('active');
-            }
+        function showLogin() {
+            document.getElementById('loginBox').classList.remove('hidden');
+            document.getElementById('registerBox').classList.add('hidden');
         }
 
-        // Login form
+        function showRegister() {
+            document.getElementById('loginBox').classList.add('hidden');
+            document.getElementById('registerBox').classList.remove('hidden');
+        }
+
+        // Update balance
+        function updateBalance() {
+            if (!user) return;
+            document.getElementById('headerBalance').textContent = user.balance;
+            document.getElementById('walletBalance').textContent = `₹${user.balance}`;
+        }
+
+        // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = document.getElementById('loginUsername').value.trim();
+            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value;
 
             try {
@@ -1354,405 +792,363 @@
                     body: JSON.stringify({ username, password })
                 });
                 const data = await res.json();
-                if (res.ok) {
+
+                if (res.ok && data.token) {
                     token = data.token;
-                    currentUser = data.user;
-                    if (document.getElementById('staySignedIn').checked) {
+                    user = data.user;
+                    const staySignedIn = document.getElementById('staySignedIn').checked;
+                    if (staySignedIn) {
                         localStorage.setItem('token', token);
+                        localStorage.setItem('staySignedIn', 'true');
                     }
+                    showLogin(); // Reset form for next time
+                    document.getElementById('loginForm').reset();
                     showApp();
-                    loadAllData();
                 } else {
                     alert(data.error || 'Login failed');
                 }
-            } catch (e) {
-                alert('Network error');
+            } catch (err) {
+                console.error('Login error:', err);
+                alert('Error: ' + err.message);
             }
         });
 
-        // Register form
+        // Register
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('regName').value.trim();
-            const username = document.getElementById('regUsername').value.trim();
+            const username = document.getElementById('regUsername').value.trim().toLowerCase();
             const password = document.getElementById('regPassword').value;
-            const referralCode = document.getElementById('regReferralCode').value.trim();
-
-            if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
-                alert('Password must be 8+ chars with uppercase, lowercase, and number');
-                return;
-            }
 
             try {
                 const res = await fetch(`${API}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, username, password, referralCode })
+                    body: JSON.stringify({ name, username, password })
                 });
                 const data = await res.json();
+
                 if (res.ok) {
-                    token = data.token;
-                    currentUser = data.user;
-                    localStorage.setItem('token', token);
-                    showApp();
-                    loadAllData();
+                    alert('Account created! Logging you in...');
+                    // Auto login
+                    const loginRes = await fetch(`${API}/api/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const loginData = await loginRes.json();
+
+                    if (loginRes.ok && loginData.token) {
+                        token = loginData.token;
+                        user = loginData.user;
+                        localStorage.setItem('token', token);
+                        document.getElementById('registerForm').reset();
+                        showLogin();
+                        showApp();
+                    } else {
+                        alert('Account created but login failed. Please sign in manually.');
+                        showLogin();
+                    }
                 } else {
                     alert(data.error || 'Registration failed');
                 }
-            } catch (e) {
-                alert('Network error');
+            } catch (err) {
+                console.error('Signup error:', err);
+                alert('Error: ' + (err.message || 'Unknown error'));
             }
         });
 
-        function togglePassword(id, btn) {
-            const input = document.getElementById(id);
-            input.type = input.type === 'password' ? 'text' : 'password';
-            btn.querySelector('.material-icons').textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
+        // Toggle password visibility
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
         }
 
+        // Logout
         function logout() {
+            stopAutoRefresh();
             token = null;
-            currentUser = null;
+            user = null;
             localStorage.removeItem('token');
+            localStorage.removeItem('staySignedIn');
+            selectedMatch = null;
+            selectedOdd = null;
+            selectedOddValue = null;
             showAuth();
+            document.getElementById('loginForm').reset();
         }
 
-        // ============== NAVIGATION ==============
-        function showView(view) {
-            // Hide all views
-            document.querySelectorAll('.view-section').forEach(v => v.style.display = 'none');
-            document.getElementById(view + 'View').style.display = 'block';
+        // Navigation
+        function navigate(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-            // Update sidebar nav
-            document.querySelectorAll('.sidebar-nav-btn').forEach(btn => {
-                btn.classList.remove('active');
+            document.getElementById(view + 'View').classList.remove('hidden');
+
+            // Update active state on all nav items (sidebar + bottom nav)
+            const navItems = document.querySelectorAll('.nav-item');
+            const viewIndex = { dashboard: 0, history: 1, wallet: 2 }[view];
+
+            // Set active on matching items (0,3 for dashboard, 1,4 for history, 2,5 for wallet)
+            navItems.forEach((item, idx) => {
+                if (idx % 3 === viewIndex) item.classList.add('active');
             });
-            const activeNav = document.getElementById('nav-' + view);
-            if (activeNav) activeNav.classList.add('active');
 
-            // Update mobile nav
-            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeMobileNav = document.getElementById('nav-' + view + '-mobile');
-            if (activeMobileNav) activeMobileNav.classList.add('active');
-
-            closeBetSlip();
+            if (view === 'history') loadHistory();
+            if (view === 'wallet') loadWallet();
         }
 
-        // ============== DATA LOADING ==============
-        async function loadAllData() {
-            await Promise.all([loadMatches(), loadBets(), loadWallet()]);
-        }
-
+        // Load matches
         async function loadMatches() {
             try {
-                const res = await fetch(`${API}/api/matches`);
-                if (res.ok) {
-                    matches = await res.json();
-                    renderMatches();
-                }
-            } catch (e) {
-                console.error('Failed to load matches');
-            }
-        }
-
-        function renderMatches() {
-            const container = document.getElementById('matchesList');
-            const liveMatches = matches.filter(m => m.status === 'live');
-
-            if (liveMatches.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-16 text-on-surface-variant">
-                        <span class="material-icons" style="font-size: 60px; margin-bottom: 16px; opacity: 0.3;">sports_cricket</span>
-                        <p class="text-sm">No live matches available</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = liveMatches.map(match => `
-                <div class="match-card">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="live-badge">
-                            <span class="live-dot"></span>
-                            LIVE
-                        </div>
-                        <span class="text-xs font-bold uppercase tracking-widest" style="color: var(--on-surface-variant);">ODDS</span>
-                    </div>
-                    <div class="flex justify-between items-center mb-8">
-                        <div class="team-display">
-                            <div class="team-avatar">${match.team_a.charAt(0)}</div>
-                            <span class="team-name">${match.team_a}</span>
-                        </div>
-                        <div class="flex flex-col items-center px-4">
-                            <span class="text-xs font-bold uppercase tracking-widest" style="color: var(--on-surface-variant);">VS</span>
-                        </div>
-                        <div class="team-display">
-                            <div class="team-avatar">${match.team_b.charAt(0)}</div>
-                            <span class="team-name">${match.team_b}</span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3">
-                        <button onclick="openBetSlip(${match.id}, 'A', '${match.team_a}', ${match.odds_a})" class="odds-btn">
-                            <div class="odds-label">${match.team_a}</div>
-                            <div class="odds-value">${match.odds_a.toFixed(2)}</div>
-                        </button>
-                        <button onclick="openBetSlip(${match.id}, 'draw', 'Draw', ${match.odds_draw})" class="odds-btn">
-                            <div class="odds-label">Draw</div>
-                            <div class="odds-value">${match.odds_draw.toFixed(2)}</div>
-                        </button>
-                        <button onclick="openBetSlip(${match.id}, 'B', '${match.team_b}', ${match.odds_b})" class="odds-btn">
-                            <div class="odds-label">${match.team_b}</div>
-                            <div class="odds-value">${match.odds_b.toFixed(2)}</div>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function loadBets() {
-            if (!token) return;
-            try {
-                const res = await fetch(`${API}/api/my-bets`, {
+                const res = await fetch(`${API}/api/matches`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
-                    bets = await res.json();
-                    renderBets();
+                    matches = await res.json();
+                    renderMatches();
+                } else {
+                    document.getElementById('matchesList').innerHTML = '<div class="empty-state">Failed to load matches</div>';
                 }
             } catch (e) {
-                console.error('Failed to load bets');
+                document.getElementById('matchesList').innerHTML = '<div class="empty-state">Network error</div>';
             }
         }
 
-        function renderBets(filter = 'all') {
-            const container = document.getElementById('betsList');
-            let filteredBets = bets;
-
-            if (filter === 'pending') filteredBets = bets.filter(b => b.status === 'pending');
-            if (filter === 'settled') filteredBets = bets.filter(b => b.status !== 'pending');
-
-            if (filteredBets.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-16 text-on-surface-variant">
-                        <span class="material-icons" style="font-size: 60px; margin-bottom: 16px; opacity: 0.3;">receipt_long</span>
-                        <p class="text-sm">No ${filter !== 'all' ? filter + ' ' : ''}bets yet</p>
-                    </div>
-                `;
+        // Render matches
+        function renderMatches() {
+            const container = document.getElementById('matchesList');
+            if (matches.length === 0) {
+                container.innerHTML = '<div class="empty-state">No live matches</div>';
                 return;
             }
 
-            container.innerHTML = filteredBets.map(bet => {
-                const isWin = bet.status === 'won';
-                const isLoss = bet.status === 'lost';
-                const isPending = bet.status === 'pending';
-                const iconClass = isWin ? 'success' : isLoss ? 'error' : 'pending';
-                const statusBadgeClass = isWin ? 'won' : isLoss ? 'lost' : 'pending';
-                const amountColor = isWin ? 'var(--success)' : isLoss ? 'var(--error)' : 'var(--on-surface)';
-                const amountPrefix = isWin ? '+' : '';
+            container.innerHTML = matches.map(m => {
+                const isSelected = selectedMatch === m.id;
+                const pickA = isSelected && selectedOdd === 'A';
+                const pickD = isSelected && selectedOdd === 'D';
+                const pickB = isSelected && selectedOdd === 'B';
 
                 return `
-                    <div class="bet-item">
-                        <div class="bet-item-content">
-                            <div class="flex items-center gap-5" style="width: 100%;">
-                                <div class="bet-icon ${iconClass}">
-                                    <span class="material-icons">sports_cricket</span>
-                                </div>
-                                <div>
-                                    <div class="flex items-center gap-3 mb-1">
-                                        <span class="status-badge ${statusBadgeClass}">${bet.status}</span>
-                                        <span class="text-xs font-bold uppercase" style="color: var(--on-surface-variant); opacity: 0.5; letter-spacing: 0.05em;">${new Date(bet.created_at).toLocaleDateString()}</span>
-                                    </div>
-                                    <h3 class="text-lg font-bold" style="letter-spacing: -0.025em; color: var(--on-surface);">${bet.team_a} vs ${bet.team_b}</h3>
-                                    <p class="text-sm" style="color: var(--on-surface-variant);">Pick: <span style="color: var(--on-surface); font-weight: 500;">${bet.pick}</span></p>
-                                </div>
+                    <div class="match-card">
+                        <div class="live-badge">LIVE</div>
+                        <div class="teams">
+                            <div class="team"><div class="team-name">${escapeHtml(m.team_a)}</div></div>
+                            <div class="vs">VS</div>
+                            <div class="team"><div class="team-name">${escapeHtml(m.team_b)}</div></div>
+                        </div>
+                        <div class="odds-row">
+                            <div class="odds-btn ${pickA ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'A', ${m.odds_a}, '${escapeJsString(m.team_a)}')">
+                                <div class="label">${escapeHtml(m.team_a)}</div>
+                                <div class="value">${m.odds_a.toFixed(2)}</div>
                             </div>
-                            <div class="flex gap-8" style="width: 100%;">
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-bold uppercase" style="color: var(--on-surface-variant); letter-spacing: 0.05em;">Stake</span>
-                                    <span class="text-lg font-bold" style="color: var(--on-surface);">₹${bet.stake}</span>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-bold uppercase" style="color: var(--on-surface-variant); letter-spacing: 0.05em;">Odds</span>
-                                    <span class="text-lg font-bold" style="color: var(--primary);">${bet.odds.toFixed(2)}</span>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-bold uppercase" style="color: var(--on-surface-variant); letter-spacing: 0.05em;">Result</span>
-                                    <span class="text-lg font-bold" style="color: ${amountColor};">${amountPrefix}₹${bet.payout}</span>
-                                </div>
+                            <div class="odds-btn ${pickD ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'D', ${m.odds_draw}, 'Draw')">
+                                <div class="label">Draw</div>
+                                <div class="value">${m.odds_draw.toFixed(2)}</div>
+                            </div>
+                            <div class="odds-btn ${pickB ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'B', ${m.odds_b}, '${escapeJsString(m.team_b)}')">
+                                <div class="label">${escapeHtml(m.team_b)}</div>
+                                <div class="value">${m.odds_b.toFixed(2)}</div>
                             </div>
                         </div>
+                        ${isSelected ? `
+                            <div class="bet-slip active">
+                                <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--accent); margin-bottom: 12px;">
+                                    Place Bet on ${selectedOdd === 'A' ? escapeHtml(m.team_a) : selectedOdd === 'B' ? escapeHtml(m.team_b) : 'Draw'}
+                                </div>
+                                <input type="number" class="stake-input" id="stake-${m.id}" placeholder="₹ Enter stake (min 10)" min="10" max="${user.balance}">
+                                <div class="payout-preview">
+                                    <span>Potential Win:</span>
+                                    <span class="amount" id="payout-${m.id}">₹0</span>
+                                </div>
+                                <button class="btn" onclick="placeBet(${m.id})">Confirm Bet</button>
+                            </div>
+                        ` : ''}
                     </div>
                 `;
             }).join('');
+
+            // Add input listeners
+            matches.forEach(m => {
+                const input = document.getElementById(`stake-${m.id}`);
+                if (input) {
+                    input.addEventListener('input', () => {
+                        const stake = parseInt(input.value) || 0;
+                        const payout = Math.floor(stake * selectedOddValue);
+                        const payoutEl = document.getElementById(`payout-${m.id}`);
+                        if (payoutEl) payoutEl.textContent = `₹${payout}`;
+                    });
+                }
+            });
         }
 
-        function filterBets(filter) {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('filter-' + filter).classList.add('active');
-            renderBets(filter);
-        }
-
-        async function loadWallet() {
-            if (!currentUser) return;
-            document.getElementById('headerBalance').textContent = currentUser.balance.toLocaleString();
-            document.getElementById('walletBalance').textContent = currentUser.balance.toLocaleString();
-            document.getElementById('profileBalance').textContent = '₹' + currentUser.balance.toFixed(2);
-            renderWalletLog();
-        }
-
-        function renderWalletLog() {
-            const container = document.getElementById('walletLog');
-            const transactions = bets.map(b => ({
-                type: b.status === 'won' ? 'win' : b.status === 'lost' ? 'loss' : 'bet',
-                title: b.status === 'won' ? `Won bet on ${b.team_a} vs ${b.team_b}` :
-                       b.status === 'lost' ? `Lost bet on ${b.team_a} vs ${b.team_b}` :
-                       `Placed bet: ${b.team_a} vs ${b.team_b}`,
-                date: new Date(b.created_at),
-                amount: b.status === 'won' ? b.payout - b.stake : b.status === 'lost' ? -b.stake : -b.stake,
-                status: b.status === 'pending' ? 'Pending' : 'Settled'
-            })).sort((a, b) => b.date - a.date);
-
-            if (transactions.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 text-on-surface-variant">
-                        <span class="material-icons" style="font-size: 36px; margin-bottom: 8px; opacity: 0.3;">history</span>
-                        <p class="text-sm">No transactions yet</p>
-                    </div>
-                `;
-                return;
+        // Select odd
+        window.selectOdd = function(matchId, odd, value, pickName) {
+            if (selectedMatch === matchId && selectedOdd === odd) {
+                selectedMatch = null;
+                selectedOdd = null;
+                selectedOddValue = null;
+            } else {
+                selectedMatch = matchId;
+                selectedOdd = odd;
+                selectedOddValue = value;
             }
+            renderMatches();
+        };
 
-            container.innerHTML = transactions.slice(0, 10).map(t => {
-                const isPositive = t.amount > 0;
-                const icon = t.type === 'win' ? 'sports_cricket' : t.type === 'loss' ? 'receipt_long' : 'history';
-                const iconBg = isPositive ? 'rgba(34, 197, 94, 0.2)' : t.amount < 0 ? 'rgba(239, 68, 68, 0.2)' : 'var(--surface-higher)';
-                const iconColor = isPositive ? 'var(--success)' : t.amount < 0 ? 'var(--error)' : 'var(--primary)';
+        // Place bet
+        window.placeBet = async function(matchId) {
+            const input = document.getElementById(`stake-${matchId}`);
+            const stake = parseInt(input?.value);
 
-                return `
-                    <div class="transaction-item">
-                        <div class="flex items-center gap-5">
-                            <div class="tx-icon" style="background-color: ${iconBg}; color: ${iconColor};">
-                                <span class="material-icons">${icon}</span>
-                            </div>
-                            <div>
-                                <div class="text-sm font-bold" style="color: var(--on-surface);">${t.title}</div>
-                                <div class="text-xs font-medium uppercase" style="color: var(--on-surface-variant); margin-top: 4px; letter-spacing: 0.05em;">${t.date.toLocaleDateString()} • ${t.status}</div>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-lg font-black" style="color: ${isPositive ? 'var(--success)' : t.amount < 0 ? 'var(--error)' : 'var(--on-surface)'}; letter-spacing: -0.025em;">${isPositive ? '+' : ''}₹${Math.abs(t.amount).toFixed(2)}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('') + `
-                <button class="w-full py-4 border-2 rounded-2xl text-xs font-black uppercase tracking-widest transition-all" style="border-color: rgba(83, 68, 52, 0.1); color: var(--on-surface-variant);" onmouseover="this.style.borderColor='rgba(255, 193, 116, 0.2)'; this.style.color='var(--on-surface)'" onmouseout="this.style.borderColor='rgba(83, 68, 52, 0.1)'; this.style.color='var(--on-surface-variant)'">
-                    Load More History
-                </button>
-            `;
-        }
-
-        function updateUserDisplay() {
-            if (!currentUser) return;
-            document.getElementById('userNameDisplay').textContent = currentUser.name || 'Player';
-            document.getElementById('profileName').textContent = currentUser.name || 'Player';
-            document.getElementById('profileUsername').textContent = '@' + currentUser.username;
-            document.getElementById('profileInitial').textContent = (currentUser.name || currentUser.username || 'P').charAt(0).toUpperCase();
-            document.getElementById('memberSince').textContent = new Date(currentUser.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase();
-            document.getElementById('referralCodeDisplay').textContent = currentUser.username.toUpperCase();
-            document.getElementById('referralEarned').innerHTML = `Total earned: <span style="color: var(--success); font-weight: 700;">₹${currentUser.referral_earnings || 0}</span>`;
-        }
-
-        function copyReferralCode() {
-            const code = document.getElementById('referralCodeDisplay').textContent;
-            navigator.clipboard.writeText(code);
-            alert('Referral code copied: ' + code);
-        }
-
-        // ============== BETTING ==============
-        function openBetSlip(matchId, pick, pickName, odds) {
-            const match = matches.find(m => m.id === matchId);
-            if (!match) return;
-
-            currentBet = { matchId, pick, pickName, odds };
-            document.getElementById('betSlipMatch').textContent = `${match.team_a} vs ${match.team_b}`;
-            document.getElementById('betSlipPick').textContent = `${pickName} (Match Winner)`;
-            document.getElementById('betSlipOdds').textContent = odds.toFixed(2);
-            document.getElementById('betSlip').style.display = 'block';
-            updatePotentialWin();
-        }
-
-        function closeBetSlip() {
-            document.getElementById('betSlip').style.display = 'none';
-            currentBet = null;
-        }
-
-        document.getElementById('stakeInput').addEventListener('input', updatePotentialWin);
-
-        function updatePotentialWin() {
-            const stake = parseFloat(document.getElementById('stakeInput').value) || 0;
-            document.getElementById('stakeDisplay').textContent = stake;
-            if (currentBet) {
-                const potential = (stake * currentBet.odds).toFixed(2);
-                document.getElementById('potentialWin').textContent = '₹' + potential;
-            }
-        }
-
-        async function placeBet() {
-            if (!currentBet || !token) return;
-
-            const stake = parseFloat(document.getElementById('stakeInput').value);
             if (!stake || stake < 10) {
                 alert('Minimum stake is ₹10');
                 return;
             }
+            if (stake > user.balance) {
+                alert('Insufficient balance');
+                return;
+            }
+
+            const match = matches.find(m => m.id === matchId);
+            const pick = selectedOdd === 'A' ? match.team_a : selectedOdd === 'B' ? match.team_b : 'Draw';
 
             try {
-                const res = await fetch(`${API}/api/bet`, {
+                const res = await fetch(`${API}/api/bets`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({
-                        matchId: currentBet.matchId,
-                        pick: currentBet.pick,
-                        stake: stake
-                    })
+                    body: JSON.stringify({ match_id: matchId, pick, odds: selectedOddValue, stake })
                 });
-
                 const data = await res.json();
+
                 if (res.ok) {
-                    alert('Bet placed successfully!');
-                    closeBetSlip();
-                    loadAllData();
+                    // Refresh user data from server
+                    await refreshUserData();
+                    selectedMatch = null;
+                    selectedOdd = null;
+                    selectedOddValue = null;
+                    renderMatches();
+                    alert(`Bet placed! Potential win: ₹${data.payout}`);
                 } else {
                     alert(data.error || 'Failed to place bet');
                 }
             } catch (e) {
                 alert('Network error');
             }
+        };
+
+        // Load history
+        async function loadHistory() {
+            try {
+                const res = await fetch(`${API}/api/bets`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const bets = await res.json();
+                    renderHistory(bets);
+                }
+            } catch (e) {
+                document.getElementById('betsList').innerHTML = '<div class="empty-state">Failed to load</div>';
+            }
         }
 
-        // Handle window resize for responsive layout
-        window.addEventListener('resize', () => {
-            if (document.getElementById('appPage').style.display !== 'none') {
-                if (window.innerWidth >= 768) {
-                    document.getElementById('desktopSidebar').style.display = 'flex';
-                    document.getElementById('appHeader').style.left = '256px';
-                    document.getElementById('appHeader').style.width = 'calc(100% - 256px)';
-                    document.getElementById('mainContent').style.marginLeft = '256px';
-                    document.getElementById('mobileLogo').style.display = 'none';
-                } else {
-                    document.getElementById('desktopSidebar').style.display = 'none';
-                    document.getElementById('appHeader').style.left = '0';
-                    document.getElementById('appHeader').style.width = '100%';
-                    document.getElementById('mainContent').style.marginLeft = '0';
-                    document.getElementById('mobileLogo').style.display = 'block';
-                }
+        // Render history
+        function renderHistory(bets) {
+            const container = document.getElementById('betsList');
+            if (bets.length === 0) {
+                container.innerHTML = '<div class="empty-state">No bets yet</div>';
+                return;
             }
-        });
+
+            container.innerHTML = bets.map(b => `
+                <div class="bet-item">
+                    <div class="bet-header">
+                        <div class="bet-match">${escapeHtml(b.team_a)} vs ${escapeHtml(b.team_b)}</div>
+                        <div class="bet-status ${b.status}">${b.status}</div>
+                    </div>
+                    <div class="bet-details">
+                        <span>Stake: ₹${b.stake}</span>
+                        <span>Odds: ${b.odds.toFixed(2)}</span>
+                    </div>
+                    <div class="bet-result">
+                        <span>Picked: <strong>${escapeHtml(b.pick)}</strong></span>
+                        ${b.status === 'won' ? `<span class="bet-amount won">+₹${b.payout}</span>` : ''}
+                        ${b.status === 'lost' ? `<span class="bet-amount lost">-₹${b.stake}</span>` : ''}
+                        ${b.status === 'pending' ? '<span style="color: var(--text-dim); font-size: 13px;">Waiting...</span>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load wallet
+        async function loadWallet() {
+            try {
+                const [userRes, txRes] = await Promise.all([
+                    fetch(`${API}/api/me`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(`${API}/api/transactions`, { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+
+                if (userRes.ok) {
+                    const userData = await userRes.json();
+                    user = userData;
+                    updateBalance();
+                }
+
+                if (txRes.ok) {
+                    const txs = await txRes.json();
+                    renderWallet(txs);
+                }
+            } catch (e) {
+                document.getElementById('walletLog').innerHTML = '<div class="empty-state">Failed to load</div>';
+            }
+        }
+
+        // Render wallet
+        function renderWallet(txs) {
+            const container = document.getElementById('walletLog');
+            if (txs.length === 0) {
+                container.innerHTML = '<div class="empty-state">No transactions</div>';
+                return;
+            }
+
+            container.innerHTML = txs.map(t => `
+                <div class="log-item">
+                    <div class="log-info">
+                        <div class="log-title">${escapeHtml(t.description)}</div>
+                        <div class="log-time">${new Date(t.created_at).toLocaleString()}</div>
+                    </div>
+                    <div class="log-amount ${t.type === 'credit' ? 'positive' : t.type === 'debit' ? 'negative' : ''}">
+                        ${t.type === 'credit' ? '+' : t.type === 'debit' ? '-' : ''}₹${t.amount}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // HTML escape helper
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // JS string escape for onclick attributes
+        function escapeJsString(str) {
+            if (!str) return '';
+            return str.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\\n/g, '\\n').replace(/\\r/g, '\\r');
+        }
+
+        // Start
+        init();
     </script>
 </body>
 </html>
