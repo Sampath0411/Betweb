@@ -1270,6 +1270,9 @@
 
         // ============== INIT ==============
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing...');
+            console.log('authPage display:', document.getElementById('authPage').style.display);
+            console.log('appPage hidden:', document.getElementById('appPage').classList.contains('hidden'));
             init();
         });
 
