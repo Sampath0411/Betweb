@@ -174,15 +174,6 @@ const auth = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    // Check if user is banned
-    const { data: user } = await supabase
-      .from('users')
-      .select('is_banned')
-      .eq('id', decoded.id)
-      .single();
-    if (user?.is_banned) {
-      return res.status(403).json({ error: 'Account banned' });
-    }
     req.user = decoded;
     next();
   } catch (err) {
@@ -692,7 +683,7 @@ app.get('/api/admin/users', auth, adminOnly, async (req, res) => {
   try {
     const { data: users, error } = await supabase
       .from('users')
-      .select('id, name, username, balance, created_at, is_banned')
+      .select('id, name, username, balance, created_at')
       .eq('is_admin', false)
       .order('created_at', { ascending: false });
 
@@ -707,22 +698,6 @@ app.get('/api/admin/users', auth, adminOnly, async (req, res) => {
   }
 });
 
-// Ban/unban user
-app.post('/api/admin/users/:id/ban', auth, adminOnly, async (req, res) => {
-  const userId = parseInt(req.params.id);
-  const { banned } = req.body;
-
-  if (!Number.isInteger(userId) || userId <= 0) {
-    return res.status(400).json({ error: 'Invalid user ID' });
-  }
-
-  try {
-    await supabase.from('users').update({ is_banned: banned }).eq('id', userId);
-    res.json({ message: banned ? 'User banned' : 'User unbanned' });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
 
 app.get('/api/admin/bets', auth, adminOnly, async (req, res) => {
   try {
