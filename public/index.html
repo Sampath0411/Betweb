@@ -1,891 +1,443 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>Stumps | Cricket Betting</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ffc174",
+                        "primary-container": "#f59e0b",
+                        "on-primary": "#472a00",
+                        "on-primary-container": "#613b00",
+                        "secondary": "#f0bd82",
+                        "secondary-container": "#62400f",
+                        "background": "#0f1419",
+                        "on-background": "#dee3ea",
+                        "surface": "#0f1419",
+                        "on-surface": "#dee3ea",
+                        "surface-variant": "#30353b",
+                        "on-surface-variant": "#d8c3ad",
+                        "surface-container": "#1b2025",
+                        "surface-container-low": "#171c21",
+                        "surface-container-high": "#252a30",
+                        "surface-container-highest": "#30353b",
+                        "outline": "#a08e7a",
+                        "outline-variant": "#534434",
+                        "error": "#ffb4ab",
+                        "success": "#22c55e",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #0a0f14;
-            --bg-elev: #141a24;
-            --text: #e8eaf6;
-            --text-dim: #6b7280;
-            --accent: #f59e0b;
-            --win: #22c55e;
-            --loss: #ef4444;
-            --border: #1f2937;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0f1419; color: #dee3ea; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .editorial-track { letter-spacing: -0.04em; }
+        .label-track { letter-spacing: 0.08em; }
+        .glass-panel { background: rgba(48, 53, 59, 0.6); backdrop-filter: blur(12px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .signature-cta { background: linear-gradient(160deg, #ffc174 0%, #f59e0b 100%); }
 
-        /* Auth Pages */
-        .auth-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
-        .auth-box {
-            width: 100%;
-            max-width: 340px;
-        }
-        .auth-box h1 {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-        .auth-box h1 span { color: var(--accent); }
-        .auth-box p { color: var(--text-dim); margin-bottom: 32px; font-size: 14px; }
-
-        .input-group { margin-bottom: 16px; }
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            margin-bottom: 6px;
-        }
-        .input-group input {
-            width: 100%;
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 14px 16px;
-            color: var(--text);
-            font-size: 16px;
-        }
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-        .btn {
-            width: 100%;
-            background: var(--accent);
-            color: var(--bg);
-            border: none;
-            border-radius: 8px;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .btn:hover { opacity: 0.9; }
-        .auth-switch {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: var(--text-dim);
-        }
-        .auth-switch a { color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
-
-        /* App Layout */
-        .hidden { display: none !important; }
-
-        .app {
-            min-height: 100vh;
-            padding-bottom: 80px;
-        }
-        .header {
-            position: sticky;
-            top: 0;
-            background: rgba(10, 15, 20, 0.95);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 20px;
-            z-index: 100;
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-        .header h1 { font-size: 20px; font-weight: 800; }
-        .header h1 span { color: var(--accent); }
-        .wallet-chip {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 700;
-        }
-        .wallet-chip span { color: var(--accent); }
-
-        .container {
-            padding: 20px;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-
-        .welcome { margin-bottom: 24px; }
-        .welcome h2 { font-size: 22px; font-weight: 700; }
-        .welcome p { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
-
-        .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            margin-bottom: 12px;
-        }
-
-        /* Matches */
-        .match-card {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-        .live-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 12px;
-        }
-        .live-badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: var(--accent);
-            border-radius: 50%;
-            animation: blink 1s infinite;
-        }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-        .teams {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        .team { text-align: center; flex: 1; }
-        .team-name { font-size: 16px; font-weight: 700; }
-        .vs { font-size: 12px; color: var(--text-dim); padding: 0 16px; }
-
-        .odds-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-        }
-        .odds-btn {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-        }
-        .odds-btn.selected {
-            border-color: var(--accent);
-            background: rgba(245, 158, 11, 0.1);
-        }
-        .odds-btn .label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
-        .odds-btn .value { font-size: 18px; font-weight: 800; color: var(--accent); }
-
-        .bet-slip {
-            display: none;
-            background: rgba(245, 158, 11, 0.05);
-            border: 1px solid var(--accent);
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 12px;
-        }
-        .bet-slip.active { display: block; }
-        .stake-input {
-            width: 100%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            color: var(--text);
-            font-size: 20px;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-        .payout-preview {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
-        .payout-preview .amount { font-size: 18px; font-weight: 800; color: var(--accent); }
-
-        /* Bottom Nav */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-elev);
-            border-top: 1px solid var(--border);
-            display: flex;
-            padding: 4px 0;
-            z-index: 100;
-        }
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            padding: 6px 4px;
-            color: var(--text-dim);
-            background: none;
-            border: none;
-            font-size: 10px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .nav-item.active { color: var(--accent); }
-        .nav-icon { width: 20px; height: 20px; }
-
-        /* History */
-        .bet-item {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-        .bet-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .bet-match { font-weight: 700; font-size: 14px; }
-        .bet-status {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            border-radius: 12px;
-        }
-        .bet-status.pending { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
-        .bet-status.won { background: rgba(34, 197, 94, 0.15); color: var(--win); }
-        .bet-status.lost { background: rgba(239, 68, 68, 0.15); color: var(--loss); }
-        .bet-details { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-dim); }
-        .bet-result {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .bet-amount { font-size: 16px; font-weight: 800; }
-        .bet-amount.won { color: var(--win); }
-        .bet-amount.lost { color: var(--loss); }
-
-        /* Wallet */
-        .wallet-card {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 32px;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .wallet-label { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
-        .wallet-balance { font-size: 48px; font-weight: 800; color: var(--accent); }
-
-        .wallet-log {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-        }
-        .log-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .log-item:last-child { border-bottom: none; }
-        .log-title { font-size: 14px; font-weight: 600; }
-        .log-time { font-size: 12px; color: var(--text-dim); }
-        .log-amount { font-size: 14px; font-weight: 700; }
-        .log-amount.positive { color: var(--win); }
-        .log-amount.negative { color: var(--loss); }
-
-        .logout-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 24px;
-        }
-
-        /* Profile Styles */
-        .profile-card {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-        }
-        .profile-avatar {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .avatar-circle {
-            width: 80px;
-            height: 80px;
-            background: var(--border);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            margin: 0 auto;
-        }
-        .profile-info {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .profile-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border);
-        }
-        .profile-row:last-child {
-            border-bottom: none;
-        }
-        .profile-label {
-            font-size: 14px;
-            color: var(--text-dim);
-        }
-        .profile-value {
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .profile-section {
-            background: var(--bg-elev);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-        }
-        .profile-section-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        .btn-secondary {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-        .btn-secondary:hover {
-            background: var(--border);
-        }
-
-        /* Refer & Earn */
-        .refer-card {
-            background: linear-gradient(135deg, var(--bg-elev) 0%, var(--border) 100%);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-        }
-        .refer-icon {
-            font-size: 40px;
-            margin-bottom: 8px;
-        }
-        .refer-text {
-            font-size: 14px;
-            color: var(--text-dim);
-            margin-bottom: 16px;
-        }
-        .refer-code-box {
-            background: var(--bg);
-            border: 1px dashed var(--accent);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-        .refer-label {
-            font-size: 12px;
-            color: var(--text-dim);
-            display: block;
-            margin-bottom: 4px;
-        }
-        .refer-code {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--accent);
-            letter-spacing: 2px;
-            margin-bottom: 8px;
-        }
-        .btn-copy {
-            background: var(--accent);
-            color: var(--bg);
-            border: none;
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-copy:hover {
-            opacity: 0.9;
-        }
-        .refer-earned {
-            font-size: 14px;
-            color: var(--text-dim);
-        }
-        .refer-earned span {
-            color: var(--win);
-            font-weight: 700;
-        }
-
-        .empty-state { text-align: center; padding: 48px; color: var(--text-dim); }
-
-        /* Desktop/Laptop Responsive */
-        @media (min-width: 768px) {
-            .auth-box {
-                max-width: 420px;
-            }
-            .auth-box h1 {
-                font-size: 40px;
-            }
-            .auth-box p {
-                font-size: 16px;
-            }
-            .input-group input {
-                padding: 16px 18px;
-                font-size: 17px;
-            }
-            .btn {
-                padding: 16px;
-                font-size: 16px;
-            }
-
-            .header-content {
-                max-width: 900px;
-                padding: 0 32px;
-            }
-            .container {
-                max-width: 900px;
-                padding: 32px;
-            }
-            .welcome h2 {
-                font-size: 28px;
-            }
-            .welcome p {
-                font-size: 16px;
-            }
-
-            .match-card {
-                padding: 28px;
-            }
-            .team-name {
-                font-size: 20px;
-            }
-            .vs {
-                font-size: 14px;
-            }
-            .odds-btn {
-                padding: 16px;
-            }
-            .odds-btn .value {
-                font-size: 22px;
-            }
-
-            .wallet-card {
-                padding: 48px;
-            }
-            .wallet-balance {
-                font-size: 64px;
-            }
-
-            .bet-item {
-                padding: 20px;
-            }
-            .bet-match {
-                font-size: 16px;
-            }
-
-            .bottom-nav {
-                display: none;
-            }
-            .app {
-                padding-bottom: 32px;
-            }
-        }
-
-        @media (min-width: 1200px) {
-            .header-content {
-                max-width: 1200px;
-            }
-            .container {
-                max-width: 1200px;
-                padding: 48px;
-            }
-
-            /* Two column layout for matches on large screens */
-            #matchesList {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 24px;
-            }
-            .match-card {
-                margin-bottom: 0;
-            }
-
-            /* Side nav for desktop */
-            .app {
-                display: flex;
-                flex-direction: row;
-                padding-bottom: 0;
-            }
-            .header {
-                position: fixed;
-                width: 100%;
-                z-index: 100;
-            }
-            .sidebar-nav {
-                display: flex;
-                flex-direction: column;
-                background: var(--bg-elev);
-                border-right: 1px solid var(--border);
-                padding: 12px 8px;
-                width: 140px;
-                height: 100vh;
-                position: fixed;
-                left: 0;
-                top: 73px;
-                padding-bottom: 100px;
-            }
-            .sidebar-nav .nav-item {
-                flex-direction: row;
-                justify-content: flex-start;
-                gap: 6px;
-                padding: 8px 10px;
-                font-size: 12px;
-                border-radius: 6px;
-            }
-            .sidebar-nav .nav-icon {
-                width: 18px;
-                height: 18px;
-            }
-            .sidebar-nav .nav-item:hover {
-                background: var(--bg);
-            }
-            .sidebar-nav .nav-item.active {
-                background: rgba(245, 158, 11, 0.1);
-            }
-
-            /* Push content to the right on desktop */
-            .view {
-                margin-left: 140px;
-                padding-top: 73px;
-                width: calc(100% - 140px);
-            }
-        }
-
-        /* Hide desktop nav on mobile */
-        .sidebar-nav {
-            display: none;
-        }
-
-        @media (min-width: 768px) {
-            .sidebar-nav {
-                display: flex;
-                width: 140px;
-            }
-            .view {
-                margin-left: 140px;
-                width: calc(100% - 140px);
-            }
-        }
+        .animate-pulse-dot { animation: pulse-dot 1s infinite; }
     </style>
 </head>
-<body>
-    <!-- Auth Page -->
-    <div id="authPage">
-        <div class="auth-container">
-            <div class="auth-box" id="loginBox">
-                <h1>Stumps<span>.</span></h1>
-                <p>Cricket betting, simplified.</p>
-                <form id="loginForm">
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" id="loginUsername" required placeholder="Enter username">
-                    </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <div style="position: relative;">
-                            <input type="password" id="loginPassword" required placeholder="Enter password" style="width: 100%; padding-right: 40px;">
-                            <button type="button" onclick="togglePassword('loginPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-dim);">👁️</button>
-                        </div>
-                    </div>
-                    <label style="display: flex; align-items: center; gap: 8px; margin: -10px 0 10px; cursor: pointer; font-size: 14px; color: var(--text-dim);">
-                        <input type="checkbox" id="staySignedIn" checked>
-                        Stay signed in
-                    </label>
-                    <button type="submit" class="btn">Sign In</button>
-                </form>
-                <div class="auth-switch">
-                    No account? <a onclick="showRegister()">Create one</a>
-                </div>
-            </div>
+<body class="bg-background text-on-surface">
 
-            <div class="auth-box hidden" id="registerBox">
-                <h1>Stumps<span>.</span></h1>
-                <p>Start with ₹1000. Password: 8+ chars, uppercase, lowercase, number.</p>
-                <form id="registerForm">
-                    <div class="input-group">
-                        <label>Name</label>
-                        <input type="text" id="regName" required placeholder="Your name">
-                    </div>
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" id="regUsername" required placeholder="Choose username">
-                    </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <div style="position: relative;">
-                            <input type="password" id="regPassword" required placeholder="Create password" style="width: 100%; padding-right: 40px;">
-                            <button type="button" onclick="togglePassword('regPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-dim);">👁️</button>
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <label>Referral Code (Optional)</label>
-                        <input type="text" id="regReferralCode" placeholder="Enter friend's username" style="text-transform: uppercase;">
-                        <small style="color: var(--text-dim); font-size: 11px;">Get ₹50 bonus when you use a referral code!</small>
-                    </div>
-                    <button type="submit" class="btn">Create Account</button>
-                </form>
-                <div class="auth-switch">
-                    Have account? <a onclick="showLogin()">Sign in</a>
+    <!-- ==================== AUTH PAGE ==================== -->
+    <div id="authPage">
+        <div class="min-h-screen flex items-center justify-center p-6" style="background: radial-gradient(circle at top right, #171c21 0%, #0f1419 100%);">
+            <main class="w-full max-w-[440px] relative">
+                <!-- Brand Identity Header -->
+                <div class="mb-12 text-center">
+                    <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-on-surface uppercase mb-2 editorial-track">
+                        Stumps<span class="text-primary-container">.</span>
+                    </h1>
+                    <p class="text-on-surface-variant font-medium text-[10px] uppercase tracking-widest label-track">
+                        Cricket betting, simplified.
+                    </p>
                 </div>
-            </div>
+
+                <!-- Auth Card -->
+                <div class="bg-surface-container-low rounded-2xl overflow-hidden">
+                    <!-- Form Toggle -->
+                    <div class="flex border-b border-outline-variant/10">
+                        <button id="loginTab" class="flex-1 py-4 text-[11px] font-bold tracking-widest uppercase text-primary border-b-2 border-primary-container bg-surface-container-high/50 transition-all">
+                            Sign In
+                        </button>
+                        <button id="registerTab" class="flex-1 py-4 text-[11px] font-bold tracking-widest uppercase text-on-surface-variant/60 hover:text-on-surface-variant transition-all">
+                            Register
+                        </button>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="p-8 space-y-8">
+                        <!-- Login Form -->
+                        <form id="loginForm" class="space-y-6">
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Username</label>
+                                <input type="text" id="loginUsername" required placeholder="Enter username"
+                                    class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface placeholder:text-outline/40 focus:ring-2 focus:ring-primary/40 transition-all"/>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Password</label>
+                                <div class="relative">
+                                    <input type="password" id="loginPassword" required placeholder="Enter password"
+                                        class="w-full bg-surface-container-lowest border-none rounded-xl p-4 pr-12 text-on-surface placeholder:text-outline/40 focus:ring-2 focus:ring-primary/40 transition-all"/>
+                                    <button type="button" onclick="togglePassword('loginPassword', this)"
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant/60 hover:text-primary transition-colors material-symbols-outlined text-[20px]">
+                                        visibility
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" id="staySignedIn" checked
+                                    class="w-4 h-4 rounded border-outline-variant bg-surface-container-lowest text-primary focus:ring-offset-background focus:ring-primary"/>
+                                <label for="staySignedIn" class="text-[11px] font-medium text-on-surface-variant cursor-pointer">Stay signed in for 30 days</label>
+                            </div>
+                            <button type="submit" class="w-full signature-cta py-4 rounded-xl text-on-primary-container font-black tracking-widest uppercase text-sm shadow-xl shadow-primary-container/10 active:scale-[0.98] transition-transform">
+                                Sign In
+                            </button>
+                        </form>
+
+                        <!-- Register Form -->
+                        <form id="registerForm" class="space-y-4 hidden">
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Name</label>
+                                <input type="text" id="regName" required placeholder="Your name"
+                                    class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface placeholder:text-outline/40 focus:ring-2 focus:ring-primary/40 transition-all"/>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Username</label>
+                                <input type="text" id="regUsername" required placeholder="Choose username"
+                                    class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface placeholder:text-outline/40 focus:ring-2 focus:ring-primary/40 transition-all"/>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Password</label>
+                                <div class="relative">
+                                    <input type="password" id="regPassword" required placeholder="Create password"
+                                        class="w-full bg-surface-container-lowest border-none rounded-xl p-4 pr-12 text-on-surface placeholder:text-outline/40 focus:ring-2 focus:ring-primary/40 transition-all"/>
+                                    <button type="button" onclick="togglePassword('regPassword', this)"
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant/60 hover:text-primary transition-colors material-symbols-outlined text-[20px]">
+                                        visibility
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Referral Code (Optional)</label>
+                                <input type="text" id="regReferralCode" placeholder="Enter friend's username"
+                                    class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface placeholder:text-outline/40 focus:ring-2 focus:ring-primary/40 transition-all uppercase"/>
+                                <p class="text-[11px] text-on-surface-variant/70">Get ₹50 bonus when you use a referral code!</p>
+                            </div>
+                            <button type="submit" class="w-full signature-cta py-4 rounded-xl text-on-primary-container font-black tracking-widest uppercase text-sm shadow-xl shadow-primary-container/10 active:scale-[0.98] transition-transform">
+                                Create Account
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Support Info -->
+                <div class="mt-8 flex justify-between items-center px-2">
+                    <div class="flex space-x-6">
+                        <a href="#" class="text-[9px] font-bold tracking-widest uppercase text-outline-variant hover:text-on-surface transition-colors">Privacy</a>
+                        <a href="#" class="text-[9px] font-bold tracking-widest uppercase text-outline-variant hover:text-on-surface transition-colors">Terms</a>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]"></span>
+                        <span class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant">Server Online</span>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
-    <!-- App Page -->
+    <!-- ==================== APP PAGE ==================== -->
     <div id="appPage" class="hidden">
-        <div class="header">
-            <div class="header-content">
-                <h1>Stumps<span>.</span></h1>
-                <div class="wallet-chip">₹<span id="headerBalance">0</span></div>
+        <!-- Desktop Sidebar Navigation -->
+        <aside class="hidden md:flex flex-col fixed left-0 top-0 h-full bg-surface-container-low w-64 border-r border-outline-variant/15 z-40">
+            <div class="p-8">
+                <h1 class="text-xl font-black text-on-surface tracking-tighter editorial-track">STUMPS</h1>
+                <p class="font-medium text-[10px] uppercase text-primary mt-1 label-track opacity-80">Elite Cricket Exchange</p>
             </div>
-        </div>
+            <nav class="flex-1 px-4 space-y-1">
+                <button onclick="showView('matches')" id="nav-matches" class="nav-sidebar-btn flex items-center gap-4 px-4 py-3 rounded-xl text-primary bg-surface-container font-bold transition-all">
+                    <span class="material-symbols-outlined">sports_cricket</span>
+                    <span class="font-medium text-[10px] uppercase tracking-widest">Matches</span>
+                </button>
+                <button onclick="showView('bets')" id="nav-bets" class="nav-sidebar-btn flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface opacity-60 hover:opacity-100 hover:bg-surface-container-high transition-all">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span class="font-medium text-[10px] uppercase tracking-widest">My Bets</span>
+                </button>
+                <button onclick="showView('wallet')" id="nav-wallet" class="nav-sidebar-btn flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface opacity-60 hover:opacity-100 hover:bg-surface-container-high transition-all">
+                    <span class="material-symbols-outlined">account_balance_wallet</span>
+                    <span class="font-medium text-[10px] uppercase tracking-widest">Wallet</span>
+                </button>
+                <button onclick="showView('profile')" id="nav-profile" class="nav-sidebar-btn flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface opacity-60 hover:opacity-100 hover:bg-surface-container-high transition-all">
+                    <span class="material-symbols-outlined">person</span>
+                    <span class="font-medium text-[10px] uppercase tracking-widest">Profile</span>
+                </button>
+            </nav>
+        </aside>
 
-        <!-- Desktop Sidebar Nav -->
-        <nav class="sidebar-nav">
-            <button class="nav-item active" onclick="navigate('dashboard')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="7" height="7"/>
-                    <rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/>
-                    <rect x="3" y="14" width="7" height="7"/>
-                </svg>
-                Matches
-            </button>
-            <button class="nav-item" onclick="navigate('history')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
-                </svg>
-                History
-            </button>
-            <button class="nav-item" onclick="navigate('wallet')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
-                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
-                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
-                </svg>
-                Wallet
-            </button>
-            <button class="nav-item" onclick="navigate('profile')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                </svg>
-                Profile
-            </button>
-            <div style="margin-top: auto;">
-                <button class="nav-item" onclick="logout()">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/>
-                        <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                    Logout
+        <!-- Top Header -->
+        <header class="bg-background flex justify-between items-center w-full px-6 h-16 fixed top-0 md:left-64 md:w-[calc(100%-16rem)] z-30 border-b border-outline-variant/10">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl font-black tracking-tighter text-on-surface md:hidden">Stumps<span class="text-primary">.</span></span>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/10">
+                    <span class="material-symbols-outlined text-sm text-primary">account_balance_wallet</span>
+                    <span class="text-sm font-bold text-on-surface">₹<span id="headerBalance">0</span></span>
+                </div>
+                <button class="p-2 rounded-full text-on-surface opacity-70 hover:opacity-100 hover:bg-surface-container-high transition-all material-symbols-outlined">
+                    notifications
                 </button>
             </div>
-        </nav>
+        </header>
 
-        <!-- Dashboard -->
-        <div id="dashboardView" class="view">
-            <div class="container">
-                <div class="welcome">
-                    <h2 id="welcomeName">Hey there</h2>
-                    <p>Live matches available now</p>
+        <!-- Main Content -->
+        <main class="md:ml-64 pt-20 pb-28 md:pb-12 px-6 min-h-screen">
+            <div class="max-w-5xl mx-auto">
+
+                <!-- ===== MATCHES VIEW ===== -->
+                <div id="matchesView" class="view-section">
+                    <!-- Welcome Header -->
+                    <section class="mb-8">
+                        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface uppercase mb-2 editorial-track">
+                            Hey, <span id="userNameDisplay">Player</span>
+                        </h1>
+                        <p class="text-on-surface-variant tracking-widest text-xs uppercase opacity-70 label-track">The match awaits your command.</p>
+                    </section>
+
+                    <!-- Live Matches Section -->
+                    <section>
+                        <div class="flex items-end justify-between mb-6">
+                            <h2 class="text-2xl font-black tracking-tight text-on-surface uppercase border-l-4 border-primary pl-4 editorial-track">Live Matches</h2>
+                        </div>
+                        <div id="matchesList" class="space-y-4">
+                            <!-- Matches loaded dynamically -->
+                        </div>
+                    </section>
                 </div>
-                <div class="section-title">Live Matches</div>
-                <div id="matchesList"><div class="empty-state">Loading...</div></div>
-            </div>
-        </div>
 
-        <!-- History -->
-        <div id="historyView" class="view hidden">
-            <div class="container">
-                <div class="section-title">Your Bets</div>
-                <div id="betsList"><div class="empty-state">Loading...</div></div>
-            </div>
-        </div>
+                <!-- ===== BETS VIEW ===== -->
+                <div id="betsView" class="view-section hidden">
+                    <section class="mb-8">
+                        <span class="text-[10px] font-bold tracking-[0.2em] text-primary uppercase mb-2 block label-track">ACCOUNT OVERVIEW</span>
+                        <h2 class="text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface uppercase mb-4 editorial-track leading-none">MY BETS</h2>
+                    </section>
 
-        <!-- Wallet -->
-        <div id="walletView" class="view hidden">
-            <div class="container">
-                <div class="wallet-card">
-                    <div class="wallet-label">Current Balance</div>
-                    <div class="wallet-balance" id="walletBalance">₹0</div>
-                </div>
-                <div class="section-title">Transaction Log</div>
-                <div id="walletLog"><div class="empty-state">Loading...</div></div>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
-        </div>
-
-        <!-- Profile -->
-        <div id="profileView" class="view hidden">
-            <div class="container">
-                <div class="section-title">My Profile</div>
-                <div class="profile-card">
-                    <div class="profile-avatar">
-                        <div class="avatar-circle" id="profileAvatar">👤</div>
+                    <!-- Filter Chips -->
+                    <div class="flex gap-3 mb-6 overflow-x-auto pb-2 no-scrollbar">
+                        <button onclick="filterBets('all')" class="bet-filter-btn active px-6 py-2 bg-primary text-on-primary font-bold rounded-full text-xs uppercase tracking-widest transition-all" data-filter="all">All</button>
+                        <button onclick="filterBets('pending')" class="bet-filter-btn px-6 py-2 bg-surface-container-low text-on-surface font-bold rounded-full text-xs uppercase tracking-widest hover:bg-surface-container-high transition-all" data-filter="pending">Pending</button>
+                        <button onclick="filterBets('settled')" class="bet-filter-btn px-6 py-2 bg-surface-container-low text-on-surface font-bold rounded-full text-xs uppercase tracking-widest hover:bg-surface-container-high transition-all" data-filter="settled">Settled</button>
                     </div>
-                    <div class="profile-info">
-                        <div class="profile-row">
-                            <span class="profile-label">Name</span>
-                            <span class="profile-value" id="profileName">-</span>
-                        </div>
-                        <div class="profile-row">
-                            <span class="profile-label">Username</span>
-                            <span class="profile-value" id="profileUsername">-</span>
-                        </div>
-                        <div class="profile-row">
-                            <span class="profile-label">Balance</span>
-                            <span class="profile-value" id="profileBalance">₹0</span>
-                        </div>
-                        <div class="profile-row">
-                            <span class="profile-label">Member Since</span>
-                            <span class="profile-value" id="profileDate">-</span>
-                        </div>
+
+                    <!-- Bet List -->
+                    <div id="betsList" class="space-y-3">
+                        <!-- Bets loaded dynamically -->
                     </div>
                 </div>
 
-                <div class="section-title" style="margin-top: 24px;">Refer & Earn</div>
+                <!-- ===== WALLET VIEW ===== -->
+                <div id="walletView" class="view-section hidden">
+                    <!-- Wallet Hero -->
+                    <section class="flex flex-col lg:flex-row gap-8 mb-8">
+                        <div class="flex-1 space-y-4">
+                            <h1 class="text-5xl md:text-6xl font-extrabold tracking-tighter text-on-surface leading-[0.85] uppercase editorial-track">
+                                Your <span class="text-primary-container">Vault</span>
+                            </h1>
+                            <p class="text-on-surface-variant max-w-md font-medium leading-relaxed">
+                                Total consolidated balance available for instant wagering across all cricket markets.
+                            </p>
+                        </div>
+                        <div class="flex-shrink-0 lg:w-[400px]">
+                            <div class="bg-surface-container-low rounded-3xl p-8 relative overflow-hidden group">
+                                <div class="absolute -top-12 -right-12 w-48 h-48 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all"></div>
+                                <div class="relative z-10">
+                                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-on-surface-variant mb-4 block label-track">Available Balance</span>
+                                    <div class="flex items-baseline gap-2 mb-6">
+                                        <span class="text-2xl font-bold text-primary">₹</span>
+                                        <span id="walletBalance" class="text-6xl font-black tracking-tighter text-on-surface editorial-track">0</span>
+                                        <span class="text-on-surface-variant font-medium">.00</span>
+                                    </div>
+                                    <button class="flex items-center justify-center gap-2 bg-surface-container-high text-on-surface font-black text-[11px] uppercase tracking-wider py-4 rounded-xl hover:bg-surface-variant transition-colors w-full">
+                                        <span class="material-symbols-outlined text-sm">account_balance</span>
+                                        Transaction History
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-                <div class="refer-card">
-                    <div class="refer-icon">🎁</div>
-                    <div class="refer-text">Earn ₹50 for every friend who joins!</div>
-                    <div class="refer-code-box">
-                        <span class="refer-label">Your Referral Code:</span>
-                        <div class="refer-code" id="referralCode">-</div>
-                        <button class="btn-copy" onclick="copyReferralCode()">Copy</button>
+                    <!-- Transaction History -->
+                    <section class="space-y-6">
+                        <div class="flex items-end justify-between">
+                            <div>
+                                <h2 class="text-2xl font-black tracking-tighter uppercase editorial-track">History</h2>
+                                <p class="text-[10px] font-bold tracking-[0.15em] uppercase text-on-surface-variant mt-1 label-track">Recent Transactions & Payouts</p>
+                            </div>
+                        </div>
+                        <div id="walletLog" class="space-y-3">
+                            <!-- Transactions loaded dynamically -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ===== PROFILE VIEW ===== -->
+                <div id="profileView" class="view-section hidden">
+                    <!-- Profile Card -->
+                    <div class="relative overflow-hidden rounded-3xl bg-surface-container-low p-8 flex flex-col md:flex-row md:items-center gap-8 mb-8">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                        <div class="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-2xl shadow-primary-container/20">
+                            <span id="profileInitial" class="text-4xl font-black text-on-primary-container editorial-track">P</span>
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <h2 id="profileName" class="text-3xl font-black editorial-track text-on-surface">Player</h2>
+                            <p id="profileUsername" class="text-sm text-outline label-track uppercase">@username</p>
+                            <div class="pt-4 flex flex-wrap gap-6">
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-widest text-outline mb-1 label-track">Current Balance</p>
+                                    <p id="profileBalance" class="text-2xl font-black text-primary editorial-track">₹0.00</p>
+                                </div>
+                                <div class="w-px h-10 bg-outline-variant/20 self-end mb-1"></div>
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-widest text-outline mb-1 label-track">Member Since</p>
+                                    <p id="memberSince" class="text-lg font-bold text-on-surface editorial-track">-</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="refer-earned">Total Earned: <span id="referralEarnings">₹0</span></div>
+
+                    <!-- Refer & Earn -->
+                    <div class="bg-surface-container-low rounded-3xl p-8 mb-8 border border-outline-variant/5">
+                        <div class="space-y-4">
+                            <div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+                                <span class="material-symbols-outlined filled">redeem</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-extrabold editorial-track mb-2">Refer & Earn</h3>
+                                <p class="text-on-surface-variant text-sm leading-relaxed">Earn ₹50 for every friend who joins and places their first bet on Stumps.</p>
+                            </div>
+                        </div>
+                        <div class="mt-8 space-y-4">
+                            <div class="p-4 rounded-xl border-2 border-dashed border-outline-variant/30 flex items-center justify-between bg-surface-container-lowest">
+                                <span id="referralCodeDisplay" class="font-mono text-primary font-bold tracking-widest text-lg">YOURCODE</span>
+                                <button onclick="copyReferralCode()" class="flex items-center gap-2 text-xs font-bold uppercase text-primary tracking-widest hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined text-sm">content_copy</span>
+                                    Copy
+                                </button>
+                            </div>
+                            <p id="referralEarned" class="text-sm text-on-surface-variant">Total earned: <span class="text-success font-bold">₹0</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Logout -->
+                    <div class="pt-4 pb-12 flex justify-center">
+                        <button onclick="logout()" class="flex items-center gap-3 px-12 py-5 rounded-2xl bg-error/10 text-error border border-error/20 font-black editorial-track uppercase transition-all hover:bg-error/20 active:scale-95">
+                            <span class="material-symbols-outlined">logout</span>
+                            Logout
+                        </button>
+                    </div>
                 </div>
 
-                <div class="section-title" style="margin-top: 24px;">Settings</div>
+            </div>
+        </main>
 
-                <div class="profile-section">
-                    <div class="profile-section-title">Change Password</div>
-                    <form id="changePasswordForm">
-                        <div class="input-group" style="margin-bottom: 12px;">
-                            <input type="password" id="currentPassword" placeholder="Current password" required>
-                        </div>
-                        <div class="input-group" style="margin-bottom: 12px;">
-                            <input type="password" id="newPassword" placeholder="New password (8+ chars)" required>
-                        </div>
-                        <div class="input-group" style="margin-bottom: 12px;">
-                            <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
-                        </div>
-                        <button type="submit" class="btn btn-secondary">Update Password</button>
-                    </form>
+        <!-- Bet Slip Modal (Hidden by default) -->
+        <div id="betSlip" class="fixed bottom-24 right-6 w-80 bg-surface-container-highest/90 backdrop-blur-2xl rounded-2xl shadow-2xl z-50 border border-outline-variant/20 overflow-hidden hidden">
+            <div class="p-4 bg-primary text-on-primary-container flex justify-between items-center">
+                <span class="font-black text-xs uppercase tracking-widest">Bet Slip (1)</span>
+                <button onclick="closeBetSlip()" class="material-symbols-outlined text-sm hover:opacity-70">close</button>
+            </div>
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p id="betSlipMatch" class="text-xs font-black uppercase text-primary mb-1">Match</p>
+                        <p id="betSlipPick" class="text-sm font-bold">Pick</p>
+                    </div>
+                    <span id="betSlipOdds" class="text-lg font-black text-primary">0.00</span>
                 </div>
-
-                <button class="logout-btn" onclick="logout()" style="margin-top: 32px;">Logout</button>
+                <div class="bg-surface-container-lowest rounded-xl p-4 mb-6 border border-outline-variant/10">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Stake</span>
+                        <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">INR</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-lg font-bold text-on-surface-variant mr-2">₹</span>
+                        <input type="number" id="stakeInput" value="500" min="10"
+                            class="bg-transparent border-none focus:ring-0 text-2xl font-black text-on-surface w-full p-0"/>
+                    </div>
+                </div>
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest opacity-60">
+                        <span>Total Stake</span>
+                        <span>₹<span id="stakeDisplay">500</span>.00</span>
+                    </div>
+                    <div class="flex justify-between text-xs font-black uppercase tracking-widest">
+                        <span>Potential Win</span>
+                        <span id="potentialWin" class="text-primary">₹0.00</span>
+                    </div>
+                </div>
+                <button onclick="placeBet()" class="w-full py-4 rounded-xl signature-cta text-on-primary-container font-black tracking-widest text-xs uppercase hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary-container/20">
+                    Place Bet
+                </button>
             </div>
         </div>
 
-        <!-- Bottom Nav -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" onclick="navigate('dashboard')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="7" height="7"/>
-                    <rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/>
-                    <rect x="3" y="14" width="7" height="7"/>
-                </svg>
-                Matches
+        <!-- Mobile Bottom Navigation -->
+        <nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-2 bg-surface-container-highest/60 backdrop-blur-xl rounded-t-2xl z-50 shadow-2xl">
+            <button onclick="showView('matches')" id="nav-matches-mobile" class="nav-mobile-btn flex flex-col items-center justify-center text-on-surface p-2 opacity-80 transition-transform">
+                <span class="material-symbols-outlined mb-1">sports_cricket</span>
+                <span class="font-bold text-[10px] tracking-widest uppercase">Matches</span>
             </button>
-            <button class="nav-item" onclick="navigate('history')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
-                </svg>
-                History
+            <button onclick="showView('bets')" id="nav-bets-mobile" class="nav-mobile-btn flex flex-col items-center justify-center text-on-surface p-2 opacity-80 transition-transform">
+                <span class="material-symbols-outlined mb-1">receipt_long</span>
+                <span class="font-bold text-[10px] tracking-widest uppercase">My Bets</span>
             </button>
-            <button class="nav-item" onclick="navigate('wallet')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
-                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
-                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
-                </svg>
-                Wallet
+            <button onclick="showView('wallet')" id="nav-wallet-mobile" class="nav-mobile-btn flex flex-col items-center justify-center text-on-surface p-2 opacity-80 transition-transform">
+                <span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+                <span class="font-bold text-[10px] tracking-widest uppercase">Wallet</span>
             </button>
-            <button class="nav-item" onclick="navigate('profile')">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                </svg>
-                Profile
+            <button onclick="showView('profile')" id="nav-profile-mobile" class="nav-mobile-btn flex flex-col items-center justify-center text-on-surface p-2 opacity-80 transition-transform">
+                <span class="material-symbols-outlined mb-1">person</span>
+                <span class="font-bold text-[10px] tracking-widest uppercase">Profile</span>
             </button>
         </nav>
     </div>
 
     <script>
+        // ============== CONFIG ==============
         const API = window.location.origin;
-        console.log('API URL:', API); // Debug
+        let currentUser = null;
         let token = localStorage.getItem('token');
-        let user = null;
         let matches = [];
-        let selectedMatch = null;
-        let selectedOdd = null;
-        let selectedOddValue = null;
+        let bets = [];
+        let currentBet = null;
 
-        // Initialize
+        // ============== INIT ==============
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+
         async function init() {
             if (token) {
                 try {
@@ -893,124 +445,55 @@
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (res.ok) {
-                        const data = await res.json();
-                        if (data && data.id) {
-                            user = data;
-                            showApp();
-                            return;
-                        }
+                        currentUser = await res.json();
+                        showApp();
+                        loadAllData();
+                    } else {
+                        showAuth();
                     }
-                    // Token invalid - clear it
-                    token = null;
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('staySignedIn');
                 } catch (e) {
-                    console.error('Auth error:', e);
-                    // On network error, still try to show app with cached token
-                    // but clear if verification fails
-                    token = null;
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('staySignedIn');
+                    showAuth();
                 }
+            } else {
+                showAuth();
             }
-            showAuth();
         }
 
-        // Page visibility
+        // ============== AUTH ==============
         function showAuth() {
-            stopAutoRefresh();
             document.getElementById('authPage').classList.remove('hidden');
             document.getElementById('appPage').classList.add('hidden');
         }
 
-        // Auto-refresh intervals
-        let autoRefreshInterval = null;
-
-        function startAutoRefresh() {
-            // Refresh matches every 10 seconds
-            autoRefreshInterval = setInterval(() => {
-                if (token && user) {
-                    loadMatches();
-                    // Also refresh user data to get updated balance
-                    refreshUserData();
-                }
-            }, 10000);
-        }
-
-        function stopAutoRefresh() {
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshInterval = null;
-            }
-        }
-
-        async function refreshUserData() {
-            try {
-                const res = await fetch(`${API}/api/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.id) {
-                        user = data;
-                        updateBalance();
-                    }
-                }
-            } catch (e) {
-                console.error('Refresh user data error:', e);
-            }
-        }
-
-        async function showApp() {
-            // Ensure we have user data
-            if (!user || !user.name) {
-                try {
-                    const res = await fetch(`${API}/api/me`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (res.ok) {
-                        user = await res.json();
-                    }
-                } catch (e) {
-                    console.error('Failed to load user:', e);
-                }
-            }
-
-            // If still no user, show auth
-            if (!user || !user.id) {
-                showAuth();
-                return;
-            }
-
+        function showApp() {
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('appPage').classList.remove('hidden');
-            document.getElementById('welcomeName').textContent = `Hey, ${user.name}`;
-            updateBalance();
-            loadMatches();
-            startAutoRefresh();
+            updateUserDisplay();
         }
 
-        function showLogin() {
-            document.getElementById('loginBox').classList.remove('hidden');
-            document.getElementById('registerBox').classList.add('hidden');
-        }
+        // Tab switching for auth
+        document.getElementById('loginTab').addEventListener('click', () => {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginTab').classList.add('border-b-2', 'border-primary-container', 'text-primary', 'bg-surface-container-high/50');
+            document.getElementById('loginTab').classList.remove('text-on-surface-variant/60');
+            document.getElementById('registerTab').classList.remove('border-b-2', 'border-primary-container', 'text-primary', 'bg-surface-container-high/50');
+            document.getElementById('registerTab').classList.add('text-on-surface-variant/60');
+        });
 
-        function showRegister() {
-            document.getElementById('loginBox').classList.add('hidden');
-            document.getElementById('registerBox').classList.remove('hidden');
-        }
+        document.getElementById('registerTab').addEventListener('click', () => {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('registerTab').classList.add('border-b-2', 'border-primary-container', 'text-primary', 'bg-surface-container-high/50');
+            document.getElementById('registerTab').classList.remove('text-on-surface-variant/60');
+            document.getElementById('loginTab').classList.remove('border-b-2', 'border-primary-container', 'text-primary', 'bg-surface-container-high/50');
+            document.getElementById('loginTab').classList.add('text-on-surface-variant/60');
+        });
 
-        // Update balance
-        function updateBalance() {
-            if (!user) return;
-            document.getElementById('headerBalance').textContent = user.balance;
-            document.getElementById('walletBalance').textContent = `₹${user.balance}`;
-        }
-
-        // Login
+        // Login form
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+            const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
 
             try {
@@ -1020,441 +503,408 @@
                     body: JSON.stringify({ username, password })
                 });
                 const data = await res.json();
-
-                if (res.ok && data.token) {
+                if (res.ok) {
                     token = data.token;
-                    user = data.user;
-                    const staySignedIn = document.getElementById('staySignedIn').checked;
-                    if (staySignedIn) {
+                    currentUser = data.user;
+                    if (document.getElementById('staySignedIn').checked) {
                         localStorage.setItem('token', token);
-                        localStorage.setItem('staySignedIn', 'true');
                     }
-                    showLogin(); // Reset form for next time
-                    document.getElementById('loginForm').reset();
                     showApp();
+                    loadAllData();
                 } else {
                     alert(data.error || 'Login failed');
                 }
-            } catch (err) {
-                console.error('Login error:', err);
-                alert('Error: ' + err.message);
+            } catch (e) {
+                alert('Network error');
             }
         });
 
-        // Register
+        // Register form
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('regName').value.trim();
-            const username = document.getElementById('regUsername').value.trim().toLowerCase();
+            const username = document.getElementById('regUsername').value.trim();
             const password = document.getElementById('regPassword').value;
-            const referralCode = document.getElementById('regReferralCode')?.value?.trim();
+            const referralCode = document.getElementById('regReferralCode').value.trim();
+
+            if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+                alert('Password must be 8+ chars with uppercase, lowercase, and number');
+                return;
+            }
 
             try {
                 const res = await fetch(`${API}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, username, password, referral_code: referralCode })
+                    body: JSON.stringify({ name, username, password, referralCode })
                 });
                 const data = await res.json();
-
                 if (res.ok) {
-                    alert('Account created! Logging you in...');
-                    // Auto login
-                    const loginRes = await fetch(`${API}/api/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
-                    });
-                    const loginData = await loginRes.json();
-
-                    if (loginRes.ok && loginData.token) {
-                        token = loginData.token;
-                        user = loginData.user;
-                        localStorage.setItem('token', token);
-                        document.getElementById('registerForm').reset();
-                        showLogin();
-                        showApp();
-                    } else {
-                        alert('Account created but login failed. Please sign in manually.');
-                        showLogin();
-                    }
+                    token = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('token', token);
+                    showApp();
+                    loadAllData();
                 } else {
                     alert(data.error || 'Registration failed');
                 }
-            } catch (err) {
-                console.error('Signup error:', err);
-                alert('Error: ' + (err.message || 'Unknown error'));
+            } catch (e) {
+                alert('Network error');
             }
         });
 
-        // Toggle password visibility
-        function togglePassword(inputId, btn) {
-            const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                btn.textContent = '🙈';
-            } else {
-                input.type = 'password';
-                btn.textContent = '👁️';
-            }
+        function togglePassword(id, btn) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+            btn.textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
         }
 
-        // Logout
         function logout() {
-            stopAutoRefresh();
             token = null;
-            user = null;
+            currentUser = null;
             localStorage.removeItem('token');
-            localStorage.removeItem('staySignedIn');
-            selectedMatch = null;
-            selectedOdd = null;
-            selectedOddValue = null;
             showAuth();
-            document.getElementById('loginForm').reset();
         }
 
-        // Navigation
-        function navigate(view) {
-            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
+        // ============== NAVIGATION ==============
+        function showView(view) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden'));
             document.getElementById(view + 'View').classList.remove('hidden');
 
-            // Update active state on all nav items (sidebar + bottom nav)
-            const navItems = document.querySelectorAll('.nav-item');
-            const viewIndex = { dashboard: 0, history: 1, wallet: 2, profile: 3 }[view];
-
-            // Set active on matching items
-            navItems.forEach((item, idx) => {
-                if (idx % 4 === viewIndex) item.classList.add('active');
+            // Update sidebar nav
+            document.querySelectorAll('.nav-sidebar-btn').forEach(btn => {
+                btn.classList.remove('text-primary', 'bg-surface-container', 'font-bold');
+                btn.classList.add('text-on-surface', 'opacity-60');
             });
+            const activeNav = document.getElementById('nav-' + view);
+            if (activeNav) {
+                activeNav.classList.remove('text-on-surface', 'opacity-60');
+                activeNav.classList.add('text-primary', 'bg-surface-container', 'font-bold');
+            }
 
-            if (view === 'history') loadHistory();
-            if (view === 'wallet') loadWallet();
-            if (view === 'profile') loadProfile();
+            // Update mobile nav
+            document.querySelectorAll('.nav-mobile-btn').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-on-primary', 'rounded-xl', 'scale-110', 'shadow-lg');
+                btn.classList.add('text-on-surface', 'opacity-80');
+            });
+            const activeMobileNav = document.getElementById('nav-' + view + '-mobile');
+            if (activeMobileNav) {
+                activeMobileNav.classList.remove('text-on-surface', 'opacity-80');
+                activeMobileNav.classList.add('bg-primary', 'text-on-primary', 'rounded-xl', 'scale-110', 'shadow-lg');
+            }
+
+            // Close bet slip when changing views
+            closeBetSlip();
         }
 
-        // Load matches
+        // ============== DATA LOADING ==============
+        async function loadAllData() {
+            await Promise.all([loadMatches(), loadBets(), loadWallet()]);
+        }
+
         async function loadMatches() {
             try {
-                const res = await fetch(`${API}/api/matches`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await fetch(`${API}/api/matches`);
                 if (res.ok) {
                     matches = await res.json();
                     renderMatches();
-                } else {
-                    document.getElementById('matchesList').innerHTML = '<div class="empty-state">Failed to load matches</div>';
                 }
             } catch (e) {
-                document.getElementById('matchesList').innerHTML = '<div class="empty-state">Network error</div>';
+                console.error('Failed to load matches');
             }
         }
 
-        // Render matches
         function renderMatches() {
             const container = document.getElementById('matchesList');
-            if (matches.length === 0) {
-                container.innerHTML = '<div class="empty-state">No live matches</div>';
+            const liveMatches = matches.filter(m => m.status === 'live');
+
+            if (liveMatches.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 text-on-surface-variant">
+                        <span class="material-symbols-outlined text-6xl mb-4 opacity-30">sports_cricket</span>
+                        <p class="text-sm">No live matches available</p>
+                    </div>
+                `;
                 return;
             }
 
-            container.innerHTML = matches.map(m => {
-                const isSelected = selectedMatch === m.id;
-                const pickA = isSelected && selectedOdd === 'A';
-                const pickD = isSelected && selectedOdd === 'D';
-                const pickB = isSelected && selectedOdd === 'B';
+            container.innerHTML = liveMatches.map(match => `
+                <div class="bg-surface-container-low rounded-2xl p-6 relative overflow-hidden transition-all hover:bg-surface-container group">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-2 bg-error/10 text-error px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                            <span class="w-1.5 h-1.5 bg-error rounded-full animate-pulse-dot"></span>
+                            LIVE
+                        </div>
+                        <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">ODDS</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-8">
+                        <div class="flex flex-col items-center gap-3 flex-1">
+                            <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-2xl font-bold text-primary">
+                                ${match.team_a.charAt(0)}
+                            </div>
+                            <span class="font-bold text-lg uppercase tracking-tight">${match.team_a}</span>
+                        </div>
+                        <div class="flex flex-col items-center px-4">
+                            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">VS</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-3 flex-1">
+                            <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-2xl font-bold text-primary">
+                                ${match.team_b.charAt(0)}
+                            </div>
+                            <span class="font-bold text-lg uppercase tracking-tight">${match.team_b}</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="openBetSlip(${match.id}, 'A', '${match.team_a}', ${match.odds_a})"
+                            class="odds-btn bg-surface-container-highest hover:bg-primary hover:text-on-primary py-4 rounded-xl flex flex-col items-center transition-all border border-outline-variant/10 group-hover:border-outline-variant/30">
+                            <span class="text-[9px] uppercase font-bold opacity-60 mb-1">${match.team_a}</span>
+                            <span class="text-xl font-black">${match.odds_a.toFixed(2)}</span>
+                        </button>
+                        <button onclick="openBetSlip(${match.id}, 'draw', 'Draw', ${match.odds_draw})"
+                            class="odds-btn bg-surface-container-highest hover:bg-primary hover:text-on-primary py-4 rounded-xl flex flex-col items-center transition-all border border-outline-variant/10 group-hover:border-outline-variant/30">
+                            <span class="text-[9px] uppercase font-bold opacity-60 mb-1">Draw</span>
+                            <span class="text-xl font-black">${match.odds_draw.toFixed(2)}</span>
+                        </button>
+                        <button onclick="openBetSlip(${match.id}, 'B', '${match.team_b}', ${match.odds_b})"
+                            class="odds-btn bg-surface-container-highest hover:bg-primary hover:text-on-primary py-4 rounded-xl flex flex-col items-center transition-all border border-outline-variant/10 group-hover:border-outline-variant/30">
+                            <span class="text-[9px] uppercase font-bold opacity-60 mb-1">${match.team_b}</span>
+                            <span class="text-xl font-black">${match.odds_b.toFixed(2)}</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadBets() {
+            if (!token) return;
+            try {
+                const res = await fetch(`${API}/api/my-bets`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    bets = await res.json();
+                    renderBets();
+                }
+            } catch (e) {
+                console.error('Failed to load bets');
+            }
+        }
+
+        function renderBets(filter = 'all') {
+            const container = document.getElementById('betsList');
+            let filteredBets = bets;
+
+            if (filter === 'pending') filteredBets = bets.filter(b => b.status === 'pending');
+            if (filter === 'settled') filteredBets = bets.filter(b => b.status !== 'pending');
+
+            if (filteredBets.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 text-on-surface-variant">
+                        <span class="material-symbols-outlined text-6xl mb-4 opacity-30">receipt_long</span>
+                        <p class="text-sm">No ${filter !== 'all' ? filter + ' ' : ''}bets yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredBets.map(bet => {
+                const isWin = bet.status === 'won';
+                const isLoss = bet.status === 'lost';
+                const isPending = bet.status === 'pending';
+                const gradientClass = isWin ? 'bg-gradient-to-r from-success/10 to-transparent' : isLoss ? 'bg-gradient-to-r from-error/10 to-transparent' : '';
+                const statusColor = isWin ? 'text-success bg-success/10' : isLoss ? 'text-error bg-error/10' : 'text-primary bg-primary/10';
+                const amountColor = isWin ? 'text-success' : isLoss ? 'text-error' : 'text-on-surface';
 
                 return `
-                    <div class="match-card">
-                        <div class="live-badge">LIVE</div>
-                        <div class="teams">
-                            <div class="team"><div class="team-name">${escapeHtml(m.team_a)}</div></div>
-                            <div class="vs">VS</div>
-                            <div class="team"><div class="team-name">${escapeHtml(m.team_b)}</div></div>
-                        </div>
-                        <div class="odds-row">
-                            <div class="odds-btn ${pickA ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'A', ${m.odds_a}, '${escapeJsString(m.team_a)}')">
-                                <div class="label">${escapeHtml(m.team_a)}</div>
-                                <div class="value">${m.odds_a.toFixed(2)}</div>
-                            </div>
-                            <div class="odds-btn ${pickD ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'D', ${m.odds_draw}, 'Draw')">
-                                <div class="label">Draw</div>
-                                <div class="value">${m.odds_draw.toFixed(2)}</div>
-                            </div>
-                            <div class="odds-btn ${pickB ? 'selected' : ''}" onclick="selectOdd(${m.id}, 'B', ${m.odds_b}, '${escapeJsString(m.team_b)}')">
-                                <div class="label">${escapeHtml(m.team_b)}</div>
-                                <div class="value">${m.odds_b.toFixed(2)}</div>
-                            </div>
-                        </div>
-                        ${isSelected ? `
-                            <div class="bet-slip active">
-                                <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--accent); margin-bottom: 12px;">
-                                    Place Bet on ${selectedOdd === 'A' ? escapeHtml(m.team_a) : selectedOdd === 'B' ? escapeHtml(m.team_b) : 'Draw'}
+                    <div class="group bg-surface-container-low hover:bg-surface-container transition-all duration-300 rounded-2xl p-1 overflow-hidden">
+                        <div class="${gradientClass} flex flex-col md:flex-row items-center justify-between p-6 gap-6">
+                            <div class="flex items-center gap-5 w-full md:w-auto">
+                                <div class="w-12 h-12 rounded-2xl ${isWin ? 'bg-success/20 text-success' : isLoss ? 'bg-error/20 text-error' : 'bg-surface-container-high text-primary'} flex items-center justify-center">
+                                    <span class="material-symbols-outlined">sports_cricket</span>
                                 </div>
-                                <input type="number" class="stake-input" id="stake-${m.id}" placeholder="₹ Enter stake (min 10)" min="10" max="${user.balance}">
-                                <div class="payout-preview">
-                                    <span>Potential Win:</span>
-                                    <span class="amount" id="payout-${m.id}">₹0</span>
+                                <div>
+                                    <div class="flex items-center gap-3 mb-1">
+                                        <span class="text-[10px] font-bold tracking-widest ${statusColor} px-2 py-0.5 rounded uppercase">${bet.status}</span>
+                                        <span class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase opacity-50">${new Date(bet.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                    <h3 class="text-lg font-bold tracking-tight text-on-surface">${bet.team_a} vs ${bet.team_b}</h3>
+                                    <p class="text-sm text-on-surface-variant">Pick: <span class="text-on-surface font-medium">${bet.pick}</span></p>
                                 </div>
-                                <button class="btn" onclick="placeBet(${m.id})">Confirm Bet</button>
                             </div>
-                        ` : ''}
+                            <div class="flex gap-8 w-full md:w-auto">
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase">Stake</span>
+                                    <span class="text-lg font-bold text-on-surface">₹${bet.stake}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase">Odds</span>
+                                    <span class="text-lg font-bold text-primary">${bet.odds.toFixed(2)}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase">Result</span>
+                                    <span class="text-lg font-bold ${amountColor}">${isWin ? '+' : ''}₹${bet.payout}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `;
             }).join('');
-
-            // Add input listeners
-            matches.forEach(m => {
-                const input = document.getElementById(`stake-${m.id}`);
-                if (input) {
-                    input.addEventListener('input', () => {
-                        const stake = parseInt(input.value) || 0;
-                        const payout = Math.floor(stake * selectedOddValue);
-                        const payoutEl = document.getElementById(`payout-${m.id}`);
-                        if (payoutEl) payoutEl.textContent = `₹${payout}`;
-                    });
-                }
-            });
         }
 
-        // Select odd
-        window.selectOdd = function(matchId, odd, value, pickName) {
-            if (selectedMatch === matchId && selectedOdd === odd) {
-                selectedMatch = null;
-                selectedOdd = null;
-                selectedOddValue = null;
-            } else {
-                selectedMatch = matchId;
-                selectedOdd = odd;
-                selectedOddValue = value;
+        function filterBets(filter) {
+            document.querySelectorAll('.bet-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-on-primary');
+                btn.classList.add('bg-surface-container-low', 'text-on-surface');
+            });
+            document.querySelector(`[data-filter="${filter}"]`).classList.remove('bg-surface-container-low', 'text-on-surface');
+            document.querySelector(`[data-filter="${filter}"]`).classList.add('bg-primary', 'text-on-primary');
+            renderBets(filter);
+        }
+
+        async function loadWallet() {
+            if (!currentUser) return;
+            document.getElementById('headerBalance').textContent = currentUser.balance.toLocaleString();
+            document.getElementById('walletBalance').textContent = currentUser.balance.toLocaleString();
+            document.getElementById('profileBalance').textContent = '₹' + currentUser.balance.toFixed(2);
+
+            // Load transactions from wallet history if available
+            renderWalletLog();
+        }
+
+        function renderWalletLog() {
+            const container = document.getElementById('walletLog');
+
+            // Use bets as transaction history
+            const transactions = bets.map(b => ({
+                type: b.status === 'won' ? 'win' : b.status === 'lost' ? 'loss' : 'bet',
+                title: b.status === 'won' ? `Won bet on ${b.team_a} vs ${b.team_b}` :
+                       b.status === 'lost' ? `Lost bet on ${b.team_a} vs ${b.team_b}` :
+                       `Placed bet: ${b.team_a} vs ${b.team_b}`,
+                date: new Date(b.created_at),
+                amount: b.status === 'won' ? b.payout - b.stake : b.status === 'lost' ? -b.stake : -b.stake,
+                status: b.status === 'pending' ? 'Pending' : 'Settled'
+            })).sort((a, b) => b.date - a.date);
+
+            if (transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-on-surface-variant">
+                        <span class="material-symbols-outlined text-4xl mb-2 opacity-30">history</span>
+                        <p class="text-sm">No transactions yet</p>
+                    </div>
+                `;
+                return;
             }
-            renderMatches();
-        };
 
-        // Place bet
-        window.placeBet = async function(matchId) {
-            const input = document.getElementById(`stake-${matchId}`);
-            const stake = parseInt(input?.value);
+            container.innerHTML = transactions.slice(0, 10).map(t => {
+                const isPositive = t.amount > 0;
+                const icon = t.type === 'win' ? 'sports_cricket' : t.type === 'loss' ? 'receipt_long' : 'history';
+                const iconBg = isPositive ? 'bg-success/10 text-success' : t.amount < 0 ? 'bg-error/10 text-error' : 'bg-surface-container-high text-primary';
 
+                return `
+                    <div class="group bg-surface-container-low hover:bg-surface-container transition-colors p-5 rounded-2xl flex items-center justify-between">
+                        <div class="flex items-center gap-5">
+                            <div class="w-12 h-12 rounded-xl ${iconBg} flex items-center justify-center">
+                                <span class="material-symbols-outlined">${icon}</span>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-on-surface">${t.title}</div>
+                                <div class="text-[10px] font-medium text-on-surface-variant uppercase tracking-wider mt-1">${t.date.toLocaleDateString()} • ${t.status}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-black ${isPositive ? 'text-success' : t.amount < 0 ? 'text-error' : 'text-on-surface'} tracking-tight">${isPositive ? '+' : ''}₹${Math.abs(t.amount).toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('') + `
+                <button class="w-full py-4 border-2 border-outline-variant/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant hover:border-primary/20 hover:text-on-surface transition-all">
+                    Load More History
+                </button>
+            `;
+        }
+
+        function updateUserDisplay() {
+            if (!currentUser) return;
+            document.getElementById('userNameDisplay').textContent = currentUser.name || 'Player';
+            document.getElementById('profileName').textContent = currentUser.name || 'Player';
+            document.getElementById('profileUsername').textContent = '@' + currentUser.username;
+            document.getElementById('profileInitial').textContent = (currentUser.name || currentUser.username || 'P').charAt(0).toUpperCase();
+            document.getElementById('memberSince').textContent = new Date(currentUser.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase();
+            document.getElementById('referralCodeDisplay').textContent = currentUser.username.toUpperCase();
+            document.getElementById('referralEarned').innerHTML = `Total earned: <span class="text-success font-bold">₹${currentUser.referral_earnings || 0}</span>`;
+        }
+
+        function copyReferralCode() {
+            const code = document.getElementById('referralCodeDisplay').textContent;
+            navigator.clipboard.writeText(code);
+            alert('Referral code copied: ' + code);
+        }
+
+        // ============== BETTING ==============
+        function openBetSlip(matchId, pick, pickName, odds) {
+            const match = matches.find(m => m.id === matchId);
+            if (!match) return;
+
+            currentBet = { matchId, pick, pickName, odds };
+            document.getElementById('betSlipMatch').textContent = `${match.team_a} vs ${match.team_b}`;
+            document.getElementById('betSlipPick').textContent = `${pickName} (Match Winner)`;
+            document.getElementById('betSlipOdds').textContent = odds.toFixed(2);
+            document.getElementById('betSlip').classList.remove('hidden');
+            updatePotentialWin();
+        }
+
+        function closeBetSlip() {
+            document.getElementById('betSlip').classList.add('hidden');
+            currentBet = null;
+        }
+
+        document.getElementById('stakeInput').addEventListener('input', updatePotentialWin);
+
+        function updatePotentialWin() {
+            const stake = parseFloat(document.getElementById('stakeInput').value) || 0;
+            document.getElementById('stakeDisplay').textContent = stake;
+            if (currentBet) {
+                const potential = (stake * currentBet.odds).toFixed(2);
+                document.getElementById('potentialWin').textContent = '₹' + potential;
+            }
+        }
+
+        async function placeBet() {
+            if (!currentBet || !token) return;
+
+            const stake = parseFloat(document.getElementById('stakeInput').value);
             if (!stake || stake < 10) {
                 alert('Minimum stake is ₹10');
                 return;
             }
-            if (stake > user.balance) {
-                alert('Insufficient balance');
-                return;
-            }
-
-            const match = matches.find(m => m.id === matchId);
-            const pick = selectedOdd === 'A' ? match.team_a : selectedOdd === 'B' ? match.team_b : 'Draw';
 
             try {
-                const res = await fetch(`${API}/api/bets`, {
+                const res = await fetch(`${API}/api/bet`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ match_id: matchId, pick, odds: selectedOddValue, stake })
+                    body: JSON.stringify({
+                        matchId: currentBet.matchId,
+                        pick: currentBet.pick,
+                        stake: stake
+                    })
                 });
-                const data = await res.json();
 
+                const data = await res.json();
                 if (res.ok) {
-                    // Refresh user data from server
-                    await refreshUserData();
-                    selectedMatch = null;
-                    selectedOdd = null;
-                    selectedOddValue = null;
-                    renderMatches();
-                    alert(`Bet placed! Potential win: ₹${data.payout}`);
+                    alert('Bet placed successfully!');
+                    closeBetSlip();
+                    loadAllData();
                 } else {
                     alert(data.error || 'Failed to place bet');
                 }
             } catch (e) {
                 alert('Network error');
             }
-        };
-
-        // Load history
-        async function loadHistory() {
-            try {
-                const res = await fetch(`${API}/api/bets`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const bets = await res.json();
-                    renderHistory(bets);
-                }
-            } catch (e) {
-                document.getElementById('betsList').innerHTML = '<div class="empty-state">Failed to load</div>';
-            }
         }
-
-        // Render history
-        function renderHistory(bets) {
-            const container = document.getElementById('betsList');
-            if (bets.length === 0) {
-                container.innerHTML = '<div class="empty-state">No bets yet</div>';
-                return;
-            }
-
-            container.innerHTML = bets.map(b => `
-                <div class="bet-item">
-                    <div class="bet-header">
-                        <div class="bet-match">${escapeHtml(b.team_a)} vs ${escapeHtml(b.team_b)}</div>
-                        <div class="bet-status ${b.status}">${b.status}</div>
-                    </div>
-                    <div class="bet-details">
-                        <span>Stake: ₹${b.stake}</span>
-                        <span>Odds: ${b.odds.toFixed(2)}</span>
-                    </div>
-                    <div class="bet-result">
-                        <span>Picked: <strong>${escapeHtml(b.pick)}</strong></span>
-                        ${b.status === 'won' ? `<span class="bet-amount won">+₹${b.payout}</span>` : ''}
-                        ${b.status === 'lost' ? `<span class="bet-amount lost">-₹${b.stake}</span>` : ''}
-                        ${b.status === 'pending' ? '<span style="color: var(--text-dim); font-size: 13px;">Waiting...</span>' : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Load wallet
-        async function loadWallet() {
-            try {
-                const [userRes, txRes] = await Promise.all([
-                    fetch(`${API}/api/me`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                    fetch(`${API}/api/transactions`, { headers: { 'Authorization': `Bearer ${token}` } })
-                ]);
-
-                if (userRes.ok) {
-                    const userData = await userRes.json();
-                    user = userData;
-                    updateBalance();
-                }
-
-                if (txRes.ok) {
-                    const txs = await txRes.json();
-                    renderWallet(txs);
-                }
-            } catch (e) {
-                document.getElementById('walletLog').innerHTML = '<div class="empty-state">Failed to load</div>';
-            }
-        }
-
-        // Render wallet
-        function renderWallet(txs) {
-            const container = document.getElementById('walletLog');
-            if (txs.length === 0) {
-                container.innerHTML = '<div class="empty-state">No transactions</div>';
-                return;
-            }
-
-            container.innerHTML = txs.map(t => `
-                <div class="log-item">
-                    <div class="log-info">
-                        <div class="log-title">${escapeHtml(t.description)}</div>
-                        <div class="log-time">${new Date(t.created_at).toLocaleString()}</div>
-                    </div>
-                    <div class="log-amount ${t.type === 'credit' ? 'positive' : t.type === 'debit' ? 'negative' : ''}">
-                        ${t.type === 'credit' ? '+' : t.type === 'debit' ? '-' : ''}₹${t.amount}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // HTML escape helper
-        function escapeHtml(str) {
-            if (!str) return '';
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        // JS string escape for onclick attributes
-        function escapeJsString(str) {
-            if (!str) return '';
-            return str.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\\n/g, '\\n').replace(/\\r/g, '\\r');
-        }
-
-        // Load profile
-        async function loadProfile() {
-            if (!user) return;
-            document.getElementById('profileName').textContent = user.name || '-';
-            document.getElementById('profileUsername').textContent = '@' + (user.username || '-');
-            document.getElementById('profileBalance').textContent = '₹' + (user.balance || 0);
-            document.getElementById('profileAvatar').textContent = (user.name || '?').charAt(0).toUpperCase();
-
-            // Generate referral code from username
-            const refCode = user.username?.toUpperCase() || '-';
-            document.getElementById('referralCode').textContent = refCode;
-
-            // Get user data from API
-            try {
-                const res = await fetch(`${API}/api/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    document.getElementById('profileDate').textContent = data.created_at
-                        ? new Date(data.created_at).toLocaleDateString()
-                        : '-';
-                    // Load referral earnings
-                    document.getElementById('referralEarnings').textContent = '₹' + (data.referral_earnings || 0);
-                }
-            } catch (e) {
-                document.getElementById('profileDate').textContent = '-';
-            }
-        }
-
-        // Copy referral code
-        function copyReferralCode() {
-            const code = document.getElementById('referralCode').textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                alert('Referral code copied!');
-            });
-        }
-
-        // Change password form
-        document.getElementById('changePasswordForm')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const current = document.getElementById('currentPassword').value;
-            const newPass = document.getElementById('newPassword').value;
-            const confirm = document.getElementById('confirmPassword').value;
-
-            if (newPass !== confirm) {
-                alert('New passwords do not match');
-                return;
-            }
-            if (newPass.length < 8) {
-                alert('Password must be at least 8 characters');
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API}/api/change-password`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ current, new: newPass })
-                });
-
-                if (res.ok) {
-                    alert('Password updated successfully');
-                    document.getElementById('changePasswordForm').reset();
-                } else {
-                    const data = await res.json();
-                    alert(data.error || 'Failed to update password');
-                }
-            } catch (err) {
-                alert('Network error');
-            }
-        });
-
-        // Start
-        init();
     </script>
 </body>
 </html>
