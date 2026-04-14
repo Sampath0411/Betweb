@@ -1,63 +1,54 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stumps | Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Cache bust -->
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#ffc174",
-                        "primary-container": "#f59e0b",
-                        "on-primary": "#472a00",
-                        "on-primary-container": "#613b00",
-                        "secondary": "#f0bd82",
-                        "secondary-container": "#62400f",
-                        "background": "#0f1419",
-                        "on-background": "#dee3ea",
-                        "surface": "#0f1419",
-                        "on-surface": "#dee3ea",
-                        "surface-variant": "#30353b",
-                        "on-surface-variant": "#d8c3ad",
-                        "surface-container": "#1b2025",
-                        "surface-container-low": "#171c21",
-                        "surface-container-high": "#252a30",
-                        "surface-container-highest": "#30353b",
-                        "outline": "#a08e7a",
-                        "outline-variant": "#534434",
-                        "error": "#ffb4ab",
-                        "success": "#22c55e",
-                        "blue": "#3b82f6",
-                        "purple": "#8b5cf6",
-                    },
-                    fontFamily: {
-                        sans: ["Inter", "sans-serif"],
-                    },
-                },
-            },
-        }
-    </script>
     <style>
+        :root {
+            --primary: #ffc174;
+            --primary-container: #f59e0b;
+            --on-primary: #472a00;
+            --on-primary-container: #613b00;
+            --secondary: #f0bd82;
+            --secondary-container: #62400f;
+            --bg: #0f1419;
+            --background: #0f1419;
+            --on-background: #dee3ea;
+            --surface: #0f1419;
+            --on-surface: #dee3ea;
+            --surface-variant: #30353b;
+            --on-surface-variant: #d8c3ad;
+            --surface-container: #1b2025;
+            --surface-container-low: #171c21;
+            --surface-container-lowest: #14191e;
+            --surface-container-high: #252a30;
+            --surface-container-highest: #30353b;
+            --outline: #a08e7a;
+            --outline-variant: #534434;
+            --error: #ffb4ab;
+            --success: #22c55e;
+            --blue: #3b82f6;
+            --purple: #8b5cf6;
+        }
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { -webkit-tap-highlight-color: transparent; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #0f1419;
-            color: #dee3ea;
+            background-color: var(--bg);
+            color: var(--on-surface);
             min-height: 100vh;
             line-height: 1.5;
         }
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined';
+
+        .material-icons {
+            font-family: 'Material Icons';
             font-weight: normal;
             font-style: normal;
             font-size: 24px;
@@ -68,21 +59,24 @@
             white-space: nowrap;
             word-wrap: normal;
             direction: ltr;
-            font-feature-settings: 'liga';
             -webkit-font-feature-settings: 'liga';
             -webkit-font-smoothing: antialiased;
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
         }
+
         .editorial-track { letter-spacing: -0.04em; }
         .label-track { letter-spacing: 0.08em; }
-        .signature-cta { background: linear-gradient(160deg, #ffc174 0%, #f59e0b 100%); }
 
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
         }
         .animate-pulse-dot { animation: pulse-dot 1s infinite; }
+
+        @keyframes ping {
+            75%, 100% { transform: scale(2); opacity: 0; }
+        }
+        .animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
 
         input, button { font-family: inherit; }
         button { cursor: pointer; border: none; background: none; }
@@ -91,36 +85,668 @@
         .hidden { display: none !important; }
         .page { display: none; min-height: 100vh; }
         .page.active { display: block; }
+
+        /* Auth Page Styles */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: radial-gradient(circle at top right, var(--surface-container-low) 0%, var(--bg) 100%);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .auth-header {
+            margin-bottom: 48px;
+            text-align: center;
+        }
+
+        .auth-title {
+            font-size: 2.25rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: var(--on-surface);
+        }
+
+        .auth-title span { color: var(--primary-container); }
+
+        .auth-subtitle {
+            color: var(--on-surface-variant);
+            font-weight: 500;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .auth-form-container {
+            background-color: var(--surface-container-low);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--on-surface-variant);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            background-color: var(--surface-container-lowest);
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            color: var(--on-surface);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input::placeholder { color: var(--outline); opacity: 0.4; }
+        .form-input:focus { box-shadow: 0 0 0 2px rgba(255, 193, 116, 0.4); }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(160deg, var(--primary) 0%, var(--primary-container) 100%);
+            color: var(--on-primary-container);
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-size: 14px;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
+            transition: transform 0.15s ease;
+        }
+
+        .btn-primary:active { transform: scale(0.98); }
+
+        /* Dashboard Layout */
+        .dashboard-layout { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            display: none;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background-color: var(--surface-container-low);
+            width: 256px;
+            border-right: 1px solid rgba(160, 142, 122, 0.15);
+            z-index: 40;
+        }
+
+        .sidebar-header { padding: 24px; }
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--on-surface);
+            letter-spacing: -0.04em;
+        }
+        .sidebar-subtitle {
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: 4px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 0 16px;
+            margin-top: 24px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--on-surface);
+            opacity: 0.6;
+            background: transparent;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .nav-btn:hover {
+            opacity: 1;
+            background-color: var(--surface-container-high);
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+            background-color: var(--surface-container);
+            font-weight: 700;
+            opacity: 1;
+        }
+
+        .nav-btn + .nav-btn { margin-top: 4px; }
+
+        .main-area {
+            flex: 1;
+            margin-left: 0;
+        }
+
+        .top-header {
+            background-color: var(--bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 24px;
+            height: 64px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 30;
+            border-bottom: 1px solid rgba(160, 142, 122, 0.1);
+        }
+
+        .header-brand { display: flex; align-items: center; gap: 8px; }
+        .header-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--on-surface);
+            letter-spacing: -0.04em;
+        }
+        .header-title span { color: var(--primary); }
+        .header-title-desktop { display: none; }
+
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+
+        .wallet-info {
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-right: 16px;
+        }
+
+        .wallet-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: var(--on-surface-variant);
+            text-transform: uppercase;
+        }
+
+        .wallet-amount {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: var(--surface-container-high);
+            color: var(--on-surface);
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover { background-color: var(--surface-container); }
+        .btn-logout .material-icons { font-size: 18px; }
+
+        .main-content {
+            padding-top: 80px;
+            padding-bottom: 32px;
+            padding-left: 24px;
+            padding-right: 24px;
+            min-height: 100vh;
+        }
+
+        .content-wrapper { max-width: 1280px; margin: 0 auto; }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background-color: var(--surface-container-low);
+            padding: 24px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 128px;
+        }
+
+        .stat-card.pending { border-left: 4px solid var(--primary); }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .stat-icon { color: var(--primary); opacity: 0.4; }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin-top: 8px;
+        }
+
+        .stat-value.error { color: var(--error); }
+
+        .stat-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .stat-status {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .stat-status.success { color: var(--success); }
+        .stat-status.error { color: var(--error); }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pulse-wrapper {
+            position: relative;
+            display: inline-flex;
+            height: 8px;
+            width: 8px;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            display: inline-flex;
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+            background-color: var(--success);
+            opacity: 0.75;
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        .pulse-dot {
+            position: relative;
+            display: inline-flex;
+            border-radius: 50%;
+            height: 8px;
+            width: 8px;
+            background-color: var(--success);
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            border-bottom: 1px solid rgba(160, 142, 122, 0.15);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding-bottom: 16px;
+            margin-bottom: -16px;
+            color: var(--on-surface);
+            opacity: 0.6;
+            transition: all 0.2s ease;
+            background: transparent;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn:hover { opacity: 1; }
+
+        .tab-btn.active {
+            color: var(--primary);
+            opacity: 1;
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content { display: block; }
+        .tab-content.hidden { display: none; }
+
+        /* Action Buttons */
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: white;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-action:hover { opacity: 0.9; }
+        .btn-action.blue { background-color: var(--blue); }
+        .btn-action.purple { background-color: var(--purple); }
+
+        /* Table Styles */
+        .table-container {
+            background-color: var(--surface-container-low);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(160, 142, 122, 0.1);
+        }
+
+        .table-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(160, 142, 122, 0.1);
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .table-scroll { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--on-surface-variant);
+            border-bottom: 1px solid rgba(160, 142, 122, 0.1);
+        }
+
+        td {
+            padding: 16px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(160, 142, 122, 0.05);
+        }
+
+        tr:hover { background-color: rgba(37, 42, 48, 0.5); }
+
+        .cell-actions { display: flex; gap: 8px; }
+
+        .btn-settle {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: white;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-settle:hover { opacity: 0.9; }
+        .btn-settle.blue { background-color: var(--blue); }
+        .btn-settle.purple { background-color: var(--purple); }
+        .btn-settle.draw {
+            background-color: var(--surface-container-high);
+            border: 1px solid var(--outline-variant);
+            color: var(--on-surface);
+        }
+        .btn-settle.draw:hover { background-color: var(--surface-container); }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge.live {
+            background-color: rgba(255, 193, 116, 0.1);
+            color: var(--primary);
+        }
+
+        .badge.settled {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .badge.won {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .badge.lost {
+            background-color: rgba(255, 180, 171, 0.1);
+            color: var(--error);
+        }
+
+        .badge.pending {
+            background-color: rgba(255, 193, 116, 0.1);
+            color: var(--primary);
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: currentColor;
+            animation: pulse-dot 1s infinite;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 16px;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background-color: var(--surface-container-low);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 512px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(160, 142, 122, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            color: var(--on-surface-variant);
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .modal-close:hover { color: var(--on-surface); }
+
+        .modal-body { padding: 24px; }
+
+        .modal-footer {
+            padding: 24px;
+            border-top: 1px solid rgba(160, 142, 122, 0.1);
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 12px;
+            background-color: var(--surface-container-high);
+            color: var(--on-surface);
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover { background-color: var(--surface-container); }
+
+        .btn-success {
+            flex: 1;
+            padding: 12px;
+            background-color: var(--success);
+            color: white;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-success:hover { opacity: 0.9; }
+
+        .winner-text { color: var(--primary); font-weight: 700; }
+        .match-name { font-size: 18px; font-weight: 700; margin: 16px 0; }
+        .settle-note {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+            opacity: 0.7;
+        }
+
+        .empty-state {
+            padding: 32px;
+            text-align: center;
+            color: var(--on-surface-variant);
+        }
+
+        /* Responsive */
+        @media (min-width: 640px) {
+            .form-grid-2 { grid-template-columns: repeat(2, 1fr); }
+            .form-grid-3 { grid-template-columns: repeat(3, 1fr); }
+            .wallet-info { display: flex; }
+        }
+
+        @media (min-width: 768px) {
+            .sidebar { display: flex; }
+            .main-area { margin-left: 256px; }
+            .top-header { left: 256px; width: calc(100% - 256px); }
+            .header-title { display: none; }
+            .header-title-desktop { display: block; font-size: 20px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
     </style>
 </head>
-<body class="bg-background text-on-surface">
+<body>
 
     <!-- ==================== LOGIN PAGE ==================== -->
     <div id="loginPage" class="page active">
-        <div class="min-h-screen flex items-center justify-center p-6" style="background: radial-gradient(circle at top right, #171c21 0%, #0f1419 100%);">
-            <main class="w-full max-w-[440px]">
-                <div class="mb-12 text-center">
-                    <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-on-surface uppercase mb-2 editorial-track">
-                        Stumps<span class="text-primary-container">.</span>
+        <div class="auth-container">
+            <main class="auth-card">
+                <div class="auth-header">
+                    <h1 class="auth-title editorial-track">
+                        Stumps<span>.</span>
                     </h1>
-                    <p class="text-on-surface-variant font-medium text-[10px] uppercase tracking-widest label-track">
+                    <p class="auth-subtitle label-track">
                         Admin Portal for Match Management
                     </p>
                 </div>
 
-                <div class="bg-surface-container-low rounded-2xl p-8">
-                    <form id="loginForm" class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Username</label>
-                            <input type="text" id="username" required placeholder="admin"
-                                class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface placeholder:text-outline/40 focus:ring-2 focus:ring-primary/40 transition-all"/>
+                <div class="auth-form-container">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" id="username" required placeholder="admin" class="form-input"/>
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Password</label>
-                            <input type="password" id="password" required placeholder="••••••"
-                                class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface placeholder:text-outline/40 focus:ring-2 focus:ring-primary/40 transition-all"/>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" id="password" required placeholder="••••••" class="form-input"/>
                         </div>
-                        <button type="submit" class="w-full signature-cta py-4 rounded-xl text-on-primary-container font-black tracking-widest uppercase text-sm shadow-xl shadow-primary-container/10 active:scale-[0.98] transition-transform">
+                        <button type="submit" class="btn-primary">
                             Sign In
                         </button>
                     </form>
@@ -132,273 +758,264 @@
     <!-- ==================== DASHBOARD PAGE ==================== -->
     <div id="dashboardPage" class="page hidden">
         <!-- Desktop Sidebar -->
-        <aside class="hidden md:flex flex-col fixed left-0 top-0 h-full bg-surface-container-low w-64 border-r border-outline-variant/15 z-40">
-            <div class="p-6">
-                <h1 class="text-xl font-black text-on-surface tracking-tighter editorial-track">STUMPS</h1>
-                <p class="font-medium text-[10px] uppercase text-primary mt-1 label-track">Elite Cricket Exchange</p>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">STUMPS</h1>
+                <p class="sidebar-subtitle">Elite Cricket Exchange</p>
             </div>
-            <nav class="flex-1 px-4 space-y-1 mt-6">
-                <button onclick="showTab('matches')" id="nav-matches" class="nav-sidebar-btn flex items-center gap-3 px-4 py-3 rounded-xl text-primary bg-surface-container font-bold transition-all w-full text-left">
-                    <span class="material-symbols-outlined">settings</span>
-                    <span class="font-medium text-[10px] uppercase tracking-widest">Admin Control</span>
+            <nav class="sidebar-nav">
+                <button onclick="showTab('matches')" id="nav-matches" class="nav-btn active">
+                    <span class="material-icons">settings</span>
+                    <span>Admin Control</span>
                 </button>
-                <button onclick="showTab('bets')" id="nav-bets" class="nav-sidebar-btn flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface opacity-60 hover:opacity-100 hover:bg-surface-container-high transition-all w-full text-left">
-                    <span class="material-symbols-outlined">receipt_long</span>
-                    <span class="font-medium text-[10px] uppercase tracking-widest">All Bets</span>
+                <button onclick="showTab('bets')" id="nav-bets" class="nav-btn">
+                    <span class="material-icons">receipt_long</span>
+                    <span>All Bets</span>
                 </button>
-                <button onclick="showTab('users')" id="nav-users" class="nav-sidebar-btn flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface opacity-60 hover:opacity-100 hover:bg-surface-container-high transition-all w-full text-left">
-                    <span class="material-symbols-outlined">group</span>
-                    <span class="font-medium text-[10px] uppercase tracking-widest">Users</span>
+                <button onclick="showTab('users')" id="nav-users" class="nav-btn">
+                    <span class="material-icons">group</span>
+                    <span>Users</span>
                 </button>
             </nav>
         </aside>
 
         <!-- Top Header -->
-        <header class="bg-background flex justify-between items-center w-full px-6 h-16 fixed top-0 md:left-64 md:w-[calc(100%-16rem)] z-30 border-b border-outline-variant/10">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl font-black tracking-tighter text-on-surface md:hidden">Stumps<span class="text-primary">.</span></span>
-                <span class="hidden md:block text-xl font-black tracking-tighter text-on-surface">Command <span class="text-primary italic">Center</span></span>
+        <header class="top-header">
+            <div class="header-brand">
+                <span class="header-title editorial-track">Stumps<span class="text-primary">.</span></span>
+                <span class="header-title-desktop editorial-track">Command <span style="color: var(--primary); font-style: italic;">Center</span></span>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="hidden sm:flex flex-col items-end mr-4">
-                    <span class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase">Admin Wallet</span>
-                    <span class="text-primary font-bold">₹1,250</span>
+            <div class="header-actions">
+                <div class="wallet-info">
+                    <span class="wallet-label">Admin Wallet</span>
+                    <span class="wallet-amount">₹1,250</span>
                 </div>
-                <button onclick="logout()" class="flex items-center gap-2 px-4 py-2 bg-surface-container-high hover:bg-surface-container text-on-surface rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all">
-                    <span class="material-symbols-outlined text-sm">logout</span>
+                <button onclick="logout()" class="btn-logout">
+                    <span class="material-icons">logout</span>
                     Logout
                 </button>
             </div>
         </header>
 
         <!-- Main Content -->
-        <main class="md:ml-64 pt-20 pb-8 px-6 min-h-screen">
-            <div class="max-w-7xl mx-auto space-y-8">
+        <main class="main-area">
+            <div class="main-content">
+                <div class="content-wrapper">
 
-                <!-- Stats Bento Grid -->
-                <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-surface-container-low p-6 rounded-2xl flex flex-col justify-between h-32">
-                        <div class="flex justify-between items-start">
-                            <span class="font-bold text-[10px] tracking-widest text-primary uppercase">Total Users</span>
-                            <span class="material-symbols-outlined text-primary/40">group</span>
+                    <!-- Stats Bento Grid -->
+                    <section class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Total Users</span>
+                                <span class="material-icons stat-icon">group</span>
+                            </div>
+                            <div>
+                                <p id="totalUsers" class="stat-value">0</p>
+                                <p class="stat-status success" style="display: flex; align-items: center; gap: 4px;">
+                                    <span class="material-icons" style="font-size: 14px;">trending_up</span> Active
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p id="totalUsers" class="text-4xl font-extrabold tracking-tighter">0</p>
-                            <p class="text-[10px] text-success font-bold uppercase tracking-widest flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">trending_up</span> Active
-                            </p>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Live Matches</span>
+                                <span class="material-icons stat-icon">sensors</span>
+                            </div>
+                            <div>
+                                <p id="liveMatches" class="stat-value">0</p>
+                                <p class="stat-status success">
+                                    <span class="live-indicator">
+                                        <span class="pulse-wrapper">
+                                            <span class="pulse-ring"></span>
+                                            <span class="pulse-dot"></span>
+                                        </span>
+                                        Live Now
+                                    </span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="bg-surface-container-low p-6 rounded-2xl flex flex-col justify-between h-32">
-                        <div class="flex justify-between items-start">
-                            <span class="font-bold text-[10px] tracking-widest text-primary uppercase">Live Matches</span>
-                            <span class="material-symbols-outlined text-primary/40">sensors</span>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Total Bets</span>
+                                <span class="material-icons stat-icon">receipt_long</span>
+                            </div>
+                            <div>
+                                <p id="totalBets" class="stat-value">0</p>
+                                <p class="stat-status" style="color: var(--primary);">All Time</p>
+                            </div>
                         </div>
-                        <div>
-                            <p id="liveMatches" class="text-4xl font-extrabold tracking-tighter">0</p>
-                            <p class="text-[10px] text-success font-bold uppercase tracking-widest flex items-center gap-2">
-                                <span class="relative flex h-2 w-2">
-                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
-                                </span>
-                                Live Now
-                            </p>
+                        <div class="stat-card pending">
+                            <div class="stat-header">
+                                <span class="stat-label">Pending Bets</span>
+                                <span class="material-icons stat-icon">hourglass_empty</span>
+                            </div>
+                            <div>
+                                <p id="pendingBets" class="stat-value error">0</p>
+                                <p class="stat-status error">Awaiting Settlement</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="bg-surface-container-low p-6 rounded-2xl flex flex-col justify-between h-32">
-                        <div class="flex justify-between items-start">
-                            <span class="font-bold text-[10px] tracking-widest text-primary uppercase">Total Bets</span>
-                            <span class="material-symbols-outlined text-primary/40">receipt_long</span>
-                        </div>
-                        <div>
-                            <p id="totalBets" class="text-4xl font-extrabold tracking-tighter">0</p>
-                            <p class="text-[10px] text-primary font-bold uppercase tracking-widest">All Time</p>
-                        </div>
-                    </div>
-                    <div class="bg-surface-container-low p-6 rounded-2xl flex flex-col justify-between h-32 border-l-4 border-primary">
-                        <div class="flex justify-between items-start">
-                            <span class="font-bold text-[10px] tracking-widest text-primary uppercase">Pending Bets</span>
-                            <span class="material-symbols-outlined text-primary/40">hourglass_empty</span>
-                        </div>
-                        <div>
-                            <p id="pendingBets" class="text-4xl font-extrabold tracking-tighter text-error">0</p>
-                            <p class="text-[10px] text-error font-bold uppercase tracking-widest">Awaiting Settlement</p>
-                        </div>
-                    </div>
-                </section>
+                    </section>
 
-                <!-- Tab Navigation -->
-                <section class="flex items-center gap-8 border-b border-outline-variant/15 pb-4">
-                    <button onclick="showTab('matches')" id="tab-matches" class="tab-btn text-primary font-bold border-b-2 border-primary pb-4 text-[10px] uppercase tracking-widest transition-all">Matches</button>
-                    <button onclick="showTab('users')" id="tab-users" class="tab-btn text-on-surface opacity-60 hover:opacity-100 font-bold pb-4 text-[10px] uppercase tracking-widest transition-all">Users</button>
-                    <button onclick="showTab('bets')" id="tab-bets" class="tab-btn text-on-surface opacity-60 hover:opacity-100 font-bold pb-4 text-[10px] uppercase tracking-widest transition-all">Global Bets</button>
-                </section>
+                    <!-- Tab Navigation -->
+                    <section class="tab-nav">
+                        <button onclick="showTab('matches')" id="tab-matches" class="tab-btn active">Matches</button>
+                        <button onclick="showTab('users')" id="tab-users" class="tab-btn">Users</button>
+                        <button onclick="showTab('bets')" id="tab-bets" class="tab-btn">Global Bets</button>
+                    </section>
 
-                <!-- Matches Tab Content -->
-                <div id="matchesTab" class="tab-content">
-                    <div class="flex gap-3 mb-6">
-                        <button onclick="openAddMatchModal()" class="flex items-center gap-2 px-4 py-3 bg-blue text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all">
-                            <span class="material-symbols-outlined">add</span>
-                            Add Match
-                        </button>
-                        <button onclick="createRandomMatch()" class="flex items-center gap-2 px-4 py-3 bg-purple text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all">
-                            <span class="material-symbols-outlined">casino</span>
-                            Random Match
-                        </button>
+                    <!-- Matches Tab Content -->
+                    <div id="matchesTab" class="tab-content">
+                        <div class="action-bar">
+                            <button onclick="openAddMatchModal()" class="btn-action blue">
+                                <span class="material-icons">add</span>
+                                Add Match
+                            </button>
+                            <button onclick="createRandomMatch()" class="btn-action purple">
+                                <span class="material-icons">casino</span>
+                                Random Match
+                            </button>
+                        </div>
+
+                        <div class="table-container">
+                            <div class="table-header">
+                                <h3 class="table-title">All Matches</h3>
+                            </div>
+                            <div class="table-scroll">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Teams</th>
+                                            <th>Odds</th>
+                                            <th>Status</th>
+                                            <th>Result</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="matchesTableBody">
+                                        <!-- Loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/10">
-                        <div class="p-6 border-b border-outline-variant/10">
-                            <h3 class="text-lg font-bold tracking-tight">All Matches</h3>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="text-left border-b border-outline-variant/10">
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">ID</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Teams</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Odds</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Status</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Result</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="matchesTableBody" class="text-sm">
-                                    <!-- Loaded dynamically -->
-                                </tbody>
-                            </table>
+                    <!-- Users Tab Content -->
+                    <div id="usersTab" class="tab-content hidden">
+                        <div class="table-container">
+                            <div class="table-header">
+                                <h3 class="table-title">All Users</h3>
+                            </div>
+                            <div class="table-scroll">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Username</th>
+                                            <th>Balance</th>
+                                            <th>Joined</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <!-- Loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Bets Tab Content -->
+                    <div id="betsTab" class="tab-content hidden">
+                        <div class="table-container">
+                            <div class="table-header">
+                                <h3 class="table-title">All Bets</h3>
+                            </div>
+                            <div class="table-scroll">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>User</th>
+                                            <th>Match</th>
+                                            <th>Pick</th>
+                                            <th>Stake</th>
+                                            <th>Payout</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="betsTableBody">
+                                        <!-- Loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-
-                <!-- Users Tab Content -->
-                <div id="usersTab" class="tab-content hidden">
-                    <div class="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/10">
-                        <div class="p-6 border-b border-outline-variant/10">
-                            <h3 class="text-lg font-bold tracking-tight">All Users</h3>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="text-left border-b border-outline-variant/10">
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">ID</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Name</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Username</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Balance</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Joined</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="usersTableBody" class="text-sm">
-                                    <!-- Loaded dynamically -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bets Tab Content -->
-                <div id="betsTab" class="tab-content hidden">
-                    <div class="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/10">
-                        <div class="p-6 border-b border-outline-variant/10">
-                            <h3 class="text-lg font-bold tracking-tight">All Bets</h3>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="text-left border-b border-outline-variant/10">
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">ID</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">User</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Match</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Pick</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Stake</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Payout</th>
-                                        <th class="p-4 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="betsTableBody" class="text-sm">
-                                    <!-- Loaded dynamically -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </main>
 
         <!-- Add Match Modal -->
-        <div id="addMatchModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4">
-            <div class="bg-surface-container-low rounded-2xl w-full max-w-lg overflow-hidden">
-                <div class="p-6 border-b border-outline-variant/10 flex justify-between items-center">
-                    <h3 class="text-lg font-bold">Add New Match</h3>
-                    <button onclick="closeAddMatchModal()" class="material-symbols-outlined text-on-surface-variant hover:text-on-surface">close</button>
+        <div id="addMatchModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Add New Match</h3>
+                    <button onclick="closeAddMatchModal()" class="modal-close material-icons">close</button>
                 </div>
-                <div class="p-6">
-                    <form id="addMatchForm" class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Team A</label>
-                                <input type="text" id="newTeamA" required placeholder="e.g. India"
-                                    class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface focus:ring-2 focus:ring-primary/40"/>
+                <div class="modal-body">
+                    <form id="addMatchForm">
+                        <div class="form-grid-2" style="margin-bottom: 16px;">
+                            <div>
+                                <label class="form-label">Team A</label>
+                                <input type="text" id="newTeamA" required placeholder="e.g. India" class="form-input"/>
                             </div>
-                            <div class="space-y-2">
-                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Team B</label>
-                                <input type="text" id="newTeamB" required placeholder="e.g. Australia"
-                                    class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface focus:ring-2 focus:ring-primary/40"/>
+                            <div>
+                                <label class="form-label">Team B</label>
+                                <input type="text" id="newTeamB" required placeholder="e.g. Australia" class="form-input"/>
                             </div>
                         </div>
-                        <div class="grid grid-cols-3 gap-4">
-                            <div class="space-y-2">
-                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Odds A</label>
-                                <input type="number" id="newOddsA" step="0.01" required placeholder="1.85"
-                                    class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface focus:ring-2 focus:ring-primary/40 text-center"/>
+                        <div class="form-grid-3">
+                            <div>
+                                <label class="form-label">Odds A</label>
+                                <input type="number" id="newOddsA" step="0.01" required placeholder="1.85" class="form-input" style="text-align: center;"/>
                             </div>
-                            <div class="space-y-2">
-                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Draw</label>
-                                <input type="number" id="newOddsDraw" step="0.01" required placeholder="3.50"
-                                    class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface focus:ring-2 focus:ring-primary/40 text-center"/>
+                            <div>
+                                <label class="form-label">Draw</label>
+                                <input type="number" id="newOddsDraw" step="0.01" required placeholder="3.50" class="form-input" style="text-align: center;"/>
                             </div>
-                            <div class="space-y-2">
-                                <label class="block text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Odds B</label>
-                                <input type="number" id="newOddsB" step="0.01" required placeholder="2.10"
-                                    class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface focus:ring-2 focus:ring-primary/40 text-center"/>
+                            <div>
+                                <label class="form-label">Odds B</label>
+                                <input type="number" id="newOddsB" step="0.01" required placeholder="2.10" class="form-input" style="text-align: center;"/>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="p-6 border-t border-outline-variant/10 flex gap-3">
-                    <button onclick="closeAddMatchModal()" class="flex-1 py-3 bg-surface-container-high text-on-surface rounded-xl font-bold text-[11px] uppercase tracking-widest hover:bg-surface-container transition-all">
-                        Cancel
-                    </button>
-                    <button onclick="addMatch()" class="flex-1 py-3 signature-cta text-on-primary-container rounded-xl font-bold text-[11px] uppercase tracking-widest hover:opacity-90 transition-all">
-                        Add Match
-                    </button>
+                <div class="modal-footer">
+                    <button onclick="closeAddMatchModal()" class="btn-secondary">Cancel</button>
+                    <button onclick="addMatch()" class="btn-primary" style="flex: 1; width: auto;">Add Match</button>
                 </div>
             </div>
         </div>
 
         <!-- Settle Modal -->
-        <div id="settleModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4">
-            <div class="bg-surface-container-low rounded-2xl w-full max-w-md overflow-hidden">
-                <div class="p-6 border-b border-outline-variant/10">
-                    <h3 class="text-lg font-bold">Settle Match</h3>
+        <div id="settleModal" class="modal">
+            <div class="modal-content" style="max-width: 448px;">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(160, 142, 122, 0.1);">
+                    <h3 class="modal-title">Settle Match</h3>
                 </div>
-                <div class="p-6">
-                    <p class="text-sm text-on-surface-variant mb-4">
-                        You are declaring <strong id="winnerName" class="text-primary"></strong> as the winner for:
+                <div class="modal-body">
+                    <p style="font-size: 14px; color: var(--on-surface-variant); margin-bottom: 16px;">
+                        You are declaring <strong id="winnerName" class="winner-text"></strong> as the winner for:
                     </p>
-                    <p id="settleMatchName" class="text-lg font-bold mb-4"></p>
-                    <p class="text-xs text-on-surface-variant/70">
+                    <p id="settleMatchName" class="match-name"></p>
+                    <p class="settle-note">
                         This will settle all pending bets for this match. Winners will be paid out automatically.
                     </p>
                 </div>
-                <div class="p-6 border-t border-outline-variant/10 flex gap-3">
-                    <button onclick="closeSettleModal()" class="flex-1 py-3 bg-surface-container-high text-on-surface rounded-xl font-bold text-[11px] uppercase tracking-widest hover:bg-surface-container transition-all">
-                        Cancel
-                    </button>
-                    <button onclick="confirmSettle()" class="flex-1 py-3 bg-success text-white rounded-xl font-bold text-[11px] uppercase tracking-widest hover:opacity-90 transition-all">
-                        Confirm
-                    </button>
+                <div class="modal-footer">
+                    <button onclick="closeSettleModal()" class="btn-secondary">Cancel</button>
+                    <button onclick="confirmSettle()" class="btn-success">Confirm</button>
                 </div>
             </div>
         </div>
@@ -460,7 +1077,9 @@
             token = null;
             localStorage.removeItem('adminToken');
             document.getElementById('loginPage').classList.add('active');
+            document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('dashboardPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.remove('active');
         }
 
         function showDashboard() {
@@ -475,21 +1094,17 @@
         function showTab(tab) {
             // Update tab buttons
             document.querySelectorAll('.tab-btn').forEach(t => {
-                t.classList.remove('text-primary', 'border-b-2', 'border-primary');
-                t.classList.add('text-on-surface', 'opacity-60');
+                t.classList.remove('active');
             });
-            document.getElementById('tab-' + tab).classList.remove('text-on-surface', 'opacity-60');
-            document.getElementById('tab-' + tab).classList.add('text-primary', 'border-b-2', 'border-primary');
+            document.getElementById('tab-' + tab).classList.add('active');
 
             // Update sidebar nav
-            document.querySelectorAll('.nav-sidebar-btn').forEach(btn => {
-                btn.classList.remove('text-primary', 'bg-surface-container', 'font-bold');
-                btn.classList.add('text-on-surface', 'opacity-60');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
             const activeNav = document.getElementById('nav-' + tab);
             if (activeNav) {
-                activeNav.classList.remove('text-on-surface', 'opacity-60');
-                activeNav.classList.add('text-primary', 'bg-surface-container', 'font-bold');
+                activeNav.classList.add('active');
             }
 
             // Show/hide content
@@ -531,33 +1146,33 @@
 
             if (matches.length === 0) {
                 tbody.innerHTML = `
-                    <tr><td colspan="6" class="p-8 text-center text-on-surface-variant">No matches</td></tr>
+                    <tr><td colspan="6" class="empty-state">No matches</td></tr>
                 `;
                 return;
             }
 
             tbody.innerHTML = matches.map(m => {
                 const statusBadge = m.status === 'live'
-                    ? `<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-primary/10 text-primary"><span class="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span>Live</span>`
-                    : `<span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-success/10 text-success">Settled</span>`;
+                    ? `<span class="badge live"><span class="badge-dot"></span>Live</span>`
+                    : `<span class="badge settled">Settled</span>`;
 
                 return `
-                    <tr class="border-b border-outline-variant/5 hover:bg-surface-container-high/50 transition-colors">
-                        <td class="p-4">#${m.id}</td>
-                        <td class="p-4">
+                    <tr>
+                        <td>#${m.id}</td>
+                        <td>
                             <strong>${m.team_a}</strong> vs <strong>${m.team_b}</strong>
                         </td>
-                        <td class="p-4">${m.odds_a} / ${m.odds_draw} / ${m.odds_b}</td>
-                        <td class="p-4">${statusBadge}</td>
-                        <td class="p-4">${m.result || '-'}</td>
-                        <td class="p-4">
+                        <td>${m.odds_a} / ${m.odds_draw} / ${m.odds_b}</td>
+                        <td>${statusBadge}</td>
+                        <td>${m.result || '-'}</td>
+                        <td>
                             ${m.status === 'live' ? `
-                                <div class="flex gap-2">
-                                    <button onclick="openSettleModal(${m.id}, 'A', '${m.team_a}')" class="px-3 py-1.5 bg-blue text-white rounded-lg text-[10px] font-bold uppercase hover:opacity-90">${m.team_a}</button>
-                                    <button onclick="openSettleModal(${m.id}, 'draw', 'Draw')" class="px-3 py-1.5 bg-surface-container-high border border-outline-variant text-on-surface rounded-lg text-[10px] font-bold uppercase hover:bg-surface-container">Draw</button>
-                                    <button onclick="openSettleModal(${m.id}, 'B', '${m.team_b}')" class="px-3 py-1.5 bg-purple text-white rounded-lg text-[10px] font-bold uppercase hover:opacity-90">${m.team_b}</button>
+                                <div class="cell-actions">
+                                    <button onclick="openSettleModal(${m.id}, 'A', '${m.team_a}')" class="btn-settle blue">${m.team_a}</button>
+                                    <button onclick="openSettleModal(${m.id}, 'draw', 'Draw')" class="btn-settle draw">Draw</button>
+                                    <button onclick="openSettleModal(${m.id}, 'B', '${m.team_b}')" class="btn-settle purple">${m.team_b}</button>
                                 </div>
-                            ` : '<span class="text-on-surface-variant">Settled</span>'}
+                            ` : '<span style="color: var(--on-surface-variant);">Settled</span>'}
                         </td>
                     </tr>
                 `;
@@ -582,17 +1197,17 @@
             const tbody = document.getElementById('usersTableBody');
 
             if (users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-on-surface-variant">No users</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No users</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = users.map(u => `
-                <tr class="border-b border-outline-variant/5 hover:bg-surface-container-high/50 transition-colors">
-                    <td class="p-4">#${u.id}</td>
-                    <td class="p-4">${u.name}</td>
-                    <td class="p-4">@${u.username}</td>
-                    <td class="p-4 font-bold">₹${u.balance.toLocaleString()}</td>
-                    <td class="p-4 text-on-surface-variant">${new Date(u.created_at).toLocaleDateString()}</td>
+                <tr>
+                    <td>#${u.id}</td>
+                    <td>${u.name}</td>
+                    <td>@${u.username}</td>
+                    <td style="font-weight: 700;">₹${u.balance.toLocaleString()}</td>
+                    <td style="color: var(--on-surface-variant);">${new Date(u.created_at).toLocaleDateString()}</td>
                 </tr>
             `).join('');
         }
@@ -616,24 +1231,24 @@
             const tbody = document.getElementById('betsTableBody');
 
             if (bets.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-on-surface-variant">No bets</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No bets</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = bets.map(b => {
-                const statusClass = b.status === 'won' ? 'bg-success/10 text-success' :
-                                   b.status === 'lost' ? 'bg-error/10 text-error' :
-                                   'bg-primary/10 text-primary';
+                const badgeClass = b.status === 'won' ? 'won' :
+                                   b.status === 'lost' ? 'lost' :
+                                   'pending';
                 return `
-                    <tr class="border-b border-outline-variant/5 hover:bg-surface-container-high/50 transition-colors">
-                        <td class="p-4">#${b.id}</td>
-                        <td class="p-4">${b.name}</td>
-                        <td class="p-4">${b.team_a} vs ${b.team_b}</td>
-                        <td class="p-4">${b.pick}</td>
-                        <td class="p-4">₹${b.stake}</td>
-                        <td class="p-4 font-bold">₹${b.payout}</td>
-                        <td class="p-4">
-                            <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${statusClass}">${b.status}</span>
+                    <tr>
+                        <td>#${b.id}</td>
+                        <td>${b.name}</td>
+                        <td>${b.team_a} vs ${b.team_b}</td>
+                        <td>${b.pick}</td>
+                        <td>₹${b.stake}</td>
+                        <td style="font-weight: 700;">₹${b.payout}</td>
+                        <td>
+                            <span class="badge ${badgeClass}">${b.status}</span>
                         </td>
                     </tr>
                 `;
@@ -642,13 +1257,11 @@
 
         // ============== MATCH MANAGEMENT ==============
         function openAddMatchModal() {
-            document.getElementById('addMatchModal').classList.remove('hidden');
-            document.getElementById('addMatchModal').classList.add('flex');
+            document.getElementById('addMatchModal').classList.add('show');
         }
 
         function closeAddMatchModal() {
-            document.getElementById('addMatchModal').classList.add('hidden');
-            document.getElementById('addMatchModal').classList.remove('flex');
+            document.getElementById('addMatchModal').classList.remove('show');
             document.getElementById('addMatchForm').reset();
         }
 
@@ -750,13 +1363,11 @@
             document.getElementById('winnerName').textContent = winnerName;
             const match = matches.find(m => m.id === matchId);
             document.getElementById('settleMatchName').textContent = `${match.team_a} vs ${match.team_b}`;
-            document.getElementById('settleModal').classList.remove('hidden');
-            document.getElementById('settleModal').classList.add('flex');
+            document.getElementById('settleModal').classList.add('show');
         }
 
         function closeSettleModal() {
-            document.getElementById('settleModal').classList.add('hidden');
-            document.getElementById('settleModal').classList.remove('flex');
+            document.getElementById('settleModal').classList.remove('show');
             currentMatchId = null;
             currentResult = null;
         }
