@@ -917,7 +917,7 @@
 <body class="bg-background">
 
     <!-- ==================== AUTH PAGE ==================== -->
-    <div id="authPage">
+    <div id="authPage" style="display: block;">
         <div class="auth-container">
             <main class="auth-box">
                 <!-- Brand Identity Header -->
@@ -1269,12 +1269,7 @@
         let currentBet = null;
 
         // ============== INIT ==============
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing...');
-            console.log('authPage display:', document.getElementById('authPage').style.display);
-            console.log('appPage hidden:', document.getElementById('appPage').classList.contains('hidden'));
-            init();
-        });
+        document.addEventListener('DOMContentLoaded', init);
 
         async function init() {
             if (token) {
