@@ -546,6 +546,12 @@ app.delete('/api/admin/matches/:id', auth, adminOnly, (req, res) => {
   });
 });
 
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ error: 'Server error', message: err.message });
+});
+
 // Export for Vercel serverless
 if (process.env.VERCEL) {
   module.exports = app;
