@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
@@ -10,6 +10,11 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Supabase setup
+const SUPABASE_URL = 'https://lowdwzvaxxkmhylkgmko.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_BGZBc6Mkpc7E07Xu3XMn3w__GHCxoEN';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Security: JWT secret from env, fallback only for dev
 const JWT_SECRET = process.env.JWT_SECRET || require('crypto').randomBytes(64).toString('hex');
@@ -66,23 +71,10 @@ const betLimiter = rateLimit({
   message: { error: 'Too many bets, slow down' },
 });
 
-// Database setup with busy timeout for concurrency
-// Use /tmp for Vercel serverless (only writable location), local file for dev
-const DB_PATH = process.env.VERCEL ? '/tmp/database.sqlite' : './database.sqlite';
-const db = new sqlite3.Database(DB_PATH);
-db.run('PRAGMA busy_timeout = 5000');
-db.run('PRAGMA foreign_keys = ON');
-console.log('Database path:', DB_PATH);
-
-// Health check endpoint for Vercel
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date().toISOString() });
-});
-
 // Input sanitization
 const sanitize = (str) => {
   if (typeof str !== 'string') return '';
-  return str.replace(/[<>"'&]/g, '').trim().slice(0, 100);
+  return str.replace(/[<>'&]/g, '').trim().slice(0, 100);
 };
 
 const validateUsername = (username) => /^[a-zA-Z0-9_]{3,20}$/.test(username);
@@ -91,77 +83,53 @@ const validatePassword = (password) => password.length >= 8 && /[A-Z]/.test(pass
 const validateOdds = (n) => typeof n === 'number' && n > 1 && n < 100;
 const validateStake = (n) => Number.isInteger(n) && n >= 10 && n <= 100000;
 
-db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    balance INTEGER DEFAULT 1000 CHECK(balance >= 0),
-    is_admin INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
+// Initialize database tables and seed data
+async function initDatabase() {
+  try {
+    // Check if admin exists
+    const { data: adminExists } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', 'admin')
+      .single();
 
-  db.run(`CREATE TABLE IF NOT EXISTS matches (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    team_a TEXT NOT NULL,
-    team_b TEXT NOT NULL,
-    odds_a REAL NOT NULL CHECK(odds_a > 1),
-    odds_draw REAL NOT NULL CHECK(odds_draw > 1),
-    odds_b REAL NOT NULL CHECK(odds_b > 1),
-    status TEXT DEFAULT 'live',
-    result TEXT CHECK(result IN ('A', 'draw', 'B')),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    settled_at DATETIME
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS bets (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    match_id INTEGER NOT NULL,
-    pick TEXT NOT NULL,
-    odds REAL NOT NULL,
-    stake INTEGER NOT NULL CHECK(stake > 0),
-    payout INTEGER NOT NULL,
-    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'won', 'lost')),
-    settled_at DATETIME,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (match_id) REFERENCES matches(id)
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS transactions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    type TEXT NOT NULL CHECK(type IN ('credit', 'debit', 'loss')),
-    amount INTEGER NOT NULL CHECK(amount >= 0),
-    description TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-  )`);
-
-  // Seed admin with secure password hash
-  db.get("SELECT * FROM users WHERE username = 'admin'", async (err, row) => {
-    if (!row) {
+    if (!adminExists) {
       const hashed = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123ChangeMe!', SALT_ROUNDS);
-      db.run(`INSERT INTO users (name, username, password, is_admin, balance) VALUES (?, ?, ?, 1, 0)`,
-        ['Admin', 'admin', hashed]);
+      await supabase.from('users').insert({
+        name: 'Admin',
+        username: 'admin',
+        password: hashed,
+        is_admin: true,
+        balance: 0
+      });
+      console.log('Admin user created');
     }
-  });
 
-  db.get("SELECT COUNT(*) as count FROM matches WHERE status = 'live'", (err, row) => {
-    if (row.count === 0) {
+    // Check if matches exist
+    const { data: matchesCount } = await supabase
+      .from('matches')
+      .select('id', { count: 'exact' })
+      .eq('status', 'live');
+
+    if (!matchesCount || matchesCount.length === 0) {
       const matches = [
-        ['India', 'Australia', 1.85, 3.40, 2.10],
-        ['Mumbai Indians', 'Chennai Super Kings', 1.90, 3.20, 1.95],
-        ['Royal Challengers Bangalore', 'Rajasthan Royals', 2.05, 3.30, 1.80],
-        ['Delhi Capitals', 'Kolkata Knight Riders', 1.75, 3.50, 2.30],
-        ['Punjab Kings', 'Gujarat Titans', 2.20, 3.10, 1.75]
+        { team_a: 'India', team_b: 'Australia', odds_a: 1.85, odds_draw: 3.40, odds_b: 2.10 },
+        { team_a: 'Mumbai Indians', team_b: 'Chennai Super Kings', odds_a: 1.90, odds_draw: 3.20, odds_b: 1.95 },
+        { team_a: 'Royal Challengers Bangalore', team_b: 'Rajasthan Royals', odds_a: 2.05, odds_draw: 3.30, odds_b: 1.80 },
+        { team_a: 'Delhi Capitals', team_b: 'Kolkata Knight Riders', odds_a: 1.75, odds_draw: 3.50, odds_b: 2.30 },
+        { team_a: 'Punjab Kings', team_b: 'Gujarat Titans', odds_a: 2.20, odds_draw: 3.10, odds_b: 1.75 }
       ];
-      const stmt = db.prepare(`INSERT INTO matches (team_a, team_b, odds_a, odds_draw, odds_b) VALUES (?, ?, ?, ?, ?)`);
-      matches.forEach(m => stmt.run(m));
-      stmt.finalize();
+      await supabase.from('matches').insert(matches);
+      console.log('Seed matches created');
     }
-  });
+  } catch (err) {
+    console.error('Database init error:', err);
+  }
+}
+
+// Health check endpoint for Vercel
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
 // Middleware
@@ -189,7 +157,6 @@ app.post('/api/register', authLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Missing fields' });
   }
 
-  // Validation
   if (!validateName(name)) {
     return res.status(400).json({ error: 'Name: 2-50 chars, alphanumeric only' });
   }
@@ -200,31 +167,39 @@ app.post('/api/register', authLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Password: 8+ chars, uppercase, lowercase, number required' });
   }
 
-  // Sanitize
   name = sanitize(name);
   username = username.toLowerCase();
 
   try {
     const hashed = await bcrypt.hash(password, SALT_ROUNDS);
-    db.run(`INSERT INTO users (name, username, password) VALUES (?, ?, ?)`,
-      [name, username, hashed],
-      function(err) {
-        if (err) {
-          if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'Username taken' });
-          return res.status(500).json({ error: 'Database error' });
-        }
-        const userId = this.lastID;
-        db.run(`INSERT INTO transactions (user_id, type, amount, description) VALUES (?, 'credit', 1000, 'Welcome bonus')`,
-          [userId]);
-        res.json({ message: 'Registered', userId });
-      }
-    );
+
+    const { data: newUser, error } = await supabase
+      .from('users')
+      .insert({ name, username, password: hashed, balance: 1000 })
+      .select()
+      .single();
+
+    if (error) {
+      if (error.message.includes('unique')) return res.status(400).json({ error: 'Username taken' });
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    // Add welcome transaction
+    await supabase.from('transactions').insert({
+      user_id: newUser.id,
+      type: 'credit',
+      amount: 1000,
+      description: 'Welcome bonus'
+    });
+
+    res.json({ message: 'Registered', userId: newUser.id });
   } catch (err) {
+    console.error('Register error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-app.post('/api/login', authLimiter, (req, res) => {
+app.post('/api/login', authLimiter, async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Missing credentials' });
@@ -232,15 +207,20 @@ app.post('/api/login', authLimiter, (req, res) => {
 
   const sanitizedUsername = username.toLowerCase().trim();
 
-  db.get(`SELECT * FROM users WHERE username = ?`, [sanitizedUsername], async (err, user) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+  try {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', sanitizedUsername)
+      .single();
+
+    if (error || !user) return res.status(400).json({ error: 'Invalid credentials' });
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(400).json({ error: 'Invalid credentials' });
 
     const token = jwt.sign(
-      { id: user.id, username: user.username, isAdmin: user.is_admin === 1 },
+      { id: user.id, username: user.username, isAdmin: user.is_admin },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -252,41 +232,65 @@ app.post('/api/login', authLimiter, (req, res) => {
         name: user.name,
         username: user.username,
         balance: user.balance,
-        isAdmin: user.is_admin === 1
+        isAdmin: user.is_admin
       }
     });
-  });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Protected routes
 app.use('/api', apiLimiter);
 
-app.get('/api/me', auth, (req, res) => {
-  db.get(`SELECT id, name, username, balance FROM users WHERE id = ?`, [req.user.id], (err, user) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    if (!user) return res.status(404).json({ error: 'User not found' });
+app.get('/api/me', auth, async (req, res) => {
+  try {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, name, username, balance')
+      .eq('id', req.user.id)
+      .single();
+
+    if (error || !user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
-  });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
-app.get('/api/matches', auth, (req, res) => {
-  db.all(`SELECT * FROM matches WHERE status = 'live' ORDER BY created_at DESC`, (err, rows) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json(rows);
-  });
+app.get('/api/matches', auth, async (req, res) => {
+  try {
+    const { data: matches, error } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('status', 'live')
+      .order('created_at', { ascending: false });
+
+    if (error) return res.status(500).json({ error: 'Database error' });
+    res.json(matches || []);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-app.get('/api/admin/matches', auth, adminOnly, (req, res) => {
-  db.all(`SELECT * FROM matches ORDER BY created_at DESC`, (err, rows) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json(rows);
-  });
+app.get('/api/admin/matches', auth, adminOnly, async (req, res) => {
+  try {
+    const { data: matches, error } = await supabase
+      .from('matches')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) return res.status(500).json({ error: 'Database error' });
+    res.json(matches || []);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-app.post('/api/admin/matches', auth, adminOnly, (req, res) => {
+app.post('/api/admin/matches', auth, adminOnly, async (req, res) => {
   let { team_a, team_b, odds_a, odds_draw, odds_b } = req.body;
 
-  // Validation
   if (!team_a || !team_b || !odds_a || !odds_draw || !odds_b) {
     return res.status(400).json({ error: 'Missing fields' });
   }
@@ -302,17 +306,22 @@ app.post('/api/admin/matches', auth, adminOnly, (req, res) => {
   team_a = sanitize(team_a);
   team_b = sanitize(team_b);
 
-  db.run(`INSERT INTO matches (team_a, team_b, odds_a, odds_draw, odds_b) VALUES (?, ?, ?, ?, ?)`,
-    [team_a, team_b, odds_a, odds_draw, odds_b],
-    function(err) {
-      if (err) return res.status(500).json({ error: 'Database error' });
-      res.json({ id: this.lastID });
-    }
-  );
+  try {
+    const { data, error } = await supabase
+      .from('matches')
+      .insert({ team_a, team_b, odds_a, odds_draw, odds_b })
+      .select()
+      .single();
+
+    if (error) return res.status(500).json({ error: 'Database error' });
+    res.json({ id: data.id });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-// Settle match with transaction safety
-app.post('/api/admin/matches/:id/settle', auth, adminOnly, (req, res) => {
+// Settle match
+app.post('/api/admin/matches/:id/settle', auth, adminOnly, async (req, res) => {
   const { result } = req.body;
   const matchId = parseInt(req.params.id);
 
@@ -324,89 +333,72 @@ app.post('/api/admin/matches/:id/settle', auth, adminOnly, (req, res) => {
     return res.status(400).json({ error: 'Invalid match ID' });
   }
 
-  db.run('BEGIN TRANSACTION');
+  try {
+    // Get match
+    const { data: match, error: matchError } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('id', matchId)
+      .single();
 
-  db.get(`SELECT * FROM matches WHERE id = ?`, [matchId], (err, match) => {
-    if (err) {
-      db.run('ROLLBACK');
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!match) {
-      db.run('ROLLBACK');
-      return res.status(404).json({ error: 'Match not found' });
-    }
-    if (match.status !== 'live') {
-      db.run('ROLLBACK');
-      return res.status(400).json({ error: 'Match already settled' });
-    }
+    if (matchError || !match) return res.status(404).json({ error: 'Match not found' });
+    if (match.status !== 'live') return res.status(400).json({ error: 'Match already settled' });
 
-    db.run(`UPDATE matches SET status = 'settled', result = ?, settled_at = CURRENT_TIMESTAMP WHERE id = ?`,
-      [result, matchId],
-      (err) => {
-        if (err) {
-          db.run('ROLLBACK');
-          return res.status(500).json({ error: 'Database error' });
-        }
+    // Update match
+    await supabase
+      .from('matches')
+      .update({ status: 'settled', result, settled_at: new Date().toISOString() })
+      .eq('id', matchId);
 
-        db.all(`SELECT * FROM bets WHERE match_id = ? AND status = 'pending'`, [matchId], (err, bets) => {
-          if (err) {
-            db.run('ROLLBACK');
-            return res.status(500).json({ error: 'Database error' });
-          }
+    // Get pending bets
+    const { data: bets } = await supabase
+      .from('bets')
+      .select('*')
+      .eq('match_id', matchId)
+      .eq('status', 'pending');
 
-          let completed = 0;
-          const total = bets.length;
+    let processed = 0;
+    if (bets && bets.length > 0) {
+      for (const bet of bets) {
+        let won = false;
+        if (result === 'A' && bet.pick === match.team_a) won = true;
+        else if (result === 'B' && bet.pick === match.team_b) won = true;
+        else if (result === 'draw' && bet.pick === 'Draw') won = true;
 
-          if (total === 0) {
-            db.run('COMMIT');
-            return res.json({ message: 'Match settled', result });
-          }
-
-          bets.forEach(bet => {
-            let won = false;
-            if (result === 'A' && bet.pick === match.team_a) won = true;
-            else if (result === 'B' && bet.pick === match.team_b) won = true;
-            else if (result === 'draw' && bet.pick === 'Draw') won = true;
-
-            if (won) {
-              db.run(`UPDATE bets SET status = 'won', settled_at = CURRENT_TIMESTAMP WHERE id = ?`, [bet.id], (err) => {
-                if (err) console.error('Bet update error:', err);
-              });
-              db.run(`UPDATE users SET balance = balance + ? WHERE id = ?`, [bet.payout, bet.user_id], (err) => {
-                if (err) console.error('User balance update error:', err);
-              });
-              db.run(`INSERT INTO transactions (user_id, type, amount, description) VALUES (?, 'credit', ?, ?)`,
-                [bet.user_id, bet.payout, `Won bet on ${match.team_a} vs ${match.team_b}`], (err) => {
-                if (err) console.error('Transaction log error:', err);
-              });
-            } else {
-              db.run(`UPDATE bets SET status = 'lost', settled_at = CURRENT_TIMESTAMP WHERE id = ?`, [bet.id], (err) => {
-                if (err) console.error('Bet update error:', err);
-              });
-              db.run(`INSERT INTO transactions (user_id, type, amount, description) VALUES (?, 'loss', 0, ?)`,
-                [bet.user_id, `Lost bet on ${match.team_a} vs ${match.team_b}`], (err) => {
-                if (err) console.error('Transaction log error:', err);
-              });
-            }
-
-            completed++;
-            if (completed === total) {
-              db.run('COMMIT');
-              res.json({ message: 'Match settled', result, betsProcessed: total });
-            }
+        if (won) {
+          await supabase.from('bets').update({ status: 'won', settled_at: new Date().toISOString() }).eq('id', bet.id);
+          await supabase.rpc('increment_balance', { user_id: bet.user_id, amount: bet.payout });
+          await supabase.from('transactions').insert({
+            user_id: bet.user_id,
+            type: 'credit',
+            amount: bet.payout,
+            description: `Won bet on ${match.team_a} vs ${match.team_b}`
           });
-        });
+        } else {
+          await supabase.from('bets').update({ status: 'lost', settled_at: new Date().toISOString() }).eq('id', bet.id);
+          await supabase.from('transactions').insert({
+            user_id: bet.user_id,
+            type: 'loss',
+            amount: 0,
+            description: `Lost bet on ${match.team_a} vs ${match.team_b}`
+          });
+        }
+        processed++;
       }
-    );
-  });
+    }
+
+    res.json({ message: 'Match settled', result, betsProcessed: processed });
+  } catch (err) {
+    console.error('Settle error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-// Place bet with transaction safety and race condition protection
-app.post('/api/bets', betLimiter, auth, (req, res) => {
+// Place bet
+app.post('/api/bets', betLimiter, auth, async (req, res) => {
   let { match_id, pick, odds, stake } = req.body;
   const userId = req.user.id;
 
-  // Validation
   if (!match_id || !pick || !odds || !stake) {
     return res.status(400).json({ error: 'Missing fields' });
   }
@@ -429,128 +421,133 @@ app.post('/api/bets', betLimiter, auth, (req, res) => {
 
   pick = sanitize(pick);
 
-  db.run('BEGIN IMMEDIATE TRANSACTION');
+  try {
+    // Get user balance
+    const { data: user } = await supabase
+      .from('users')
+      .select('balance')
+      .eq('id', userId)
+      .single();
 
-  // Lock user row to prevent race conditions
-  db.get(`SELECT balance FROM users WHERE id = ?`, [userId], (err, user) => {
-    if (err) {
-      db.run('ROLLBACK');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (user.balance < stake) return res.status(400).json({ error: 'Insufficient balance' });
+
+    // Get match
+    const { data: match } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('id', match_id)
+      .eq('status', 'live')
+      .single();
+
+    if (!match) return res.status(400).json({ error: 'Match not available' });
+
+    if (pick !== match.team_a && pick !== match.team_b && pick !== 'Draw') {
+      return res.status(400).json({ error: 'Invalid pick for this match' });
+    }
+
+    const payout = Math.floor(stake * odds);
+
+    // Insert bet
+    const { data: bet } = await supabase
+      .from('bets')
+      .insert({ user_id: userId, match_id, pick, odds, stake, payout })
+      .select()
+      .single();
+
+    // Update balance
+    await supabase.from('users').update({ balance: user.balance - stake }).eq('id', userId);
+
+    // Log transaction
+    await supabase.from('transactions').insert({
+      user_id: userId,
+      type: 'debit',
+      amount: stake,
+      description: `Bet on ${match.team_a} vs ${match.team_b}`
+    });
+
+    res.json({ betId: bet.id, payout, message: 'Bet placed' });
+  } catch (err) {
+    console.error('Place bet error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/bets', auth, async (req, res) => {
+  try {
+    const { data: bets, error } = await supabase
+      .from('bets')
+      .select('*, matches(team_a, team_b, result)')
+      .eq('user_id', req.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) return res.status(500).json({ error: 'Database error' });
+    res.json(bets || []);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/transactions', auth, async (req, res) => {
+  try {
+    const { data: txs, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', req.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) return res.status(500).json({ error: 'Database error' });
+    res.json(txs || []);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/admin/users', auth, adminOnly, async (req, res) => {
+  try {
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('id, name, username, balance, created_at')
+      .eq('is_admin', false)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Users query error:', error);
       return res.status(500).json({ error: 'Database error' });
     }
-    if (!user) {
-      db.run('ROLLBACK');
-      return res.status(404).json({ error: 'User not found' });
-    }
-    if (user.balance < stake) {
-      db.run('ROLLBACK');
-      return res.status(400).json({ error: 'Insufficient balance' });
-    }
-
-    db.get(`SELECT * FROM matches WHERE id = ? AND status = 'live'`, [match_id], (err, match) => {
-      if (err) {
-        db.run('ROLLBACK');
-        return res.status(500).json({ error: 'Database error' });
-      }
-      if (!match) {
-        db.run('ROLLBACK');
-        return res.status(400).json({ error: 'Match not available' });
-      }
-
-      // Validate pick matches the match
-      if (pick !== match.team_a && pick !== match.team_b && pick !== 'Draw') {
-        db.run('ROLLBACK');
-        return res.status(400).json({ error: 'Invalid pick for this match' });
-      }
-
-      const payout = Math.floor(stake * odds);
-
-      // Insert bet
-      db.run(`INSERT INTO bets (user_id, match_id, pick, odds, stake, payout) VALUES (?, ?, ?, ?, ?, ?)`,
-        [userId, match_id, pick, odds, stake, payout],
-        function(err) {
-          if (err) {
-            db.run('ROLLBACK');
-            return res.status(500).json({ error: 'Failed to place bet' });
-          }
-
-          const betId = this.lastID;
-
-          // Deduct stake
-          db.run(`UPDATE users SET balance = balance - ? WHERE id = ?`, [stake, userId], (err) => {
-            if (err) {
-              db.run('ROLLBACK');
-              return res.status(500).json({ error: 'Failed to update balance' });
-            }
-
-            // Log transaction
-            db.run(`INSERT INTO transactions (user_id, type, amount, description) VALUES (?, 'debit', ?, ?)`,
-              [userId, stake, `Bet on ${match.team_a} vs ${match.team_b}`], (err) => {
-              if (err) {
-                db.run('ROLLBACK');
-                return res.status(500).json({ error: 'Failed to log transaction' });
-              }
-
-              db.run('COMMIT');
-              res.json({ betId, payout, message: 'Bet placed' });
-            }
-            );
-          });
-        }
-      );
-    });
-  });
+    res.json(users || []);
+  } catch (err) {
+    console.error('Users fetch error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-app.get('/api/bets', auth, (req, res) => {
-  db.all(`
-    SELECT bets.*, matches.team_a, matches.team_b, matches.result as match_result
-    FROM bets
-    JOIN matches ON bets.match_id = matches.id
-    WHERE bets.user_id = ?
-    ORDER BY bets.created_at DESC
-  `, [req.user.id], (err, rows) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json(rows);
-  });
+app.get('/api/admin/bets', auth, adminOnly, async (req, res) => {
+  try {
+    const { data: bets, error } = await supabase
+      .from('bets')
+      .select('*, users(username, name), matches(team_a, team_b)')
+      .order('created_at', { ascending: false });
+
+    if (error) return res.status(500).json({ error: 'Database error' });
+    res.json(bets || []);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-app.get('/api/transactions', auth, (req, res) => {
-  db.all(`SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC`, [req.user.id], (err, rows) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json(rows);
-  });
-});
-
-app.get('/api/admin/users', auth, adminOnly, (req, res) => {
-  db.all(`SELECT id, name, username, balance, created_at FROM users WHERE is_admin = 0`, (err, rows) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json(rows);
-  });
-});
-
-app.get('/api/admin/bets', auth, adminOnly, (req, res) => {
-  db.all(`
-    SELECT bets.*, users.username, users.name, matches.team_a, matches.team_b
-    FROM bets
-    JOIN users ON bets.user_id = users.id
-    JOIN matches ON bets.match_id = matches.id
-    ORDER BY bets.created_at DESC
-  `, (err, rows) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json(rows);
-  });
-});
-
-app.delete('/api/admin/matches/:id', auth, adminOnly, (req, res) => {
+app.delete('/api/admin/matches/:id', auth, adminOnly, async (req, res) => {
   const matchId = parseInt(req.params.id);
   if (!Number.isInteger(matchId) || matchId <= 0) {
     return res.status(400).json({ error: 'Invalid match ID' });
   }
 
-  db.run(`DELETE FROM matches WHERE id = ?`, [matchId], (err) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
+  try {
+    await supabase.from('matches').delete().eq('id', matchId);
     res.json({ message: 'Match deleted' });
-  });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Error handler
