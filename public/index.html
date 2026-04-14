@@ -1269,12 +1269,13 @@
         let currentBet = null;
 
         // ============== INIT ==============
+        // Show auth immediately before any async
+        document.getElementById('authPage').style.display = 'block';
+        document.getElementById('appPage').style.display = 'none';
+
         document.addEventListener('DOMContentLoaded', init);
 
         async function init() {
-            // Always show auth first, only switch to app if token valid
-            showAuth();
-
             if (token) {
                 try {
                     const res = await fetch(`${API}/api/me`, {
