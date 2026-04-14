@@ -507,8 +507,15 @@
                     </div>
                     <div class="input-group">
                         <label>Password</label>
-                        <input type="password" id="loginPassword" required placeholder="Enter password">
+                        <div style="position: relative;">
+                            <input type="password" id="loginPassword" required placeholder="Enter password" style="width: 100%; padding-right: 40px;">
+                            <button type="button" onclick="togglePassword('loginPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-dim);">👁️</button>
+                        </div>
                     </div>
+                    <label style="display: flex; align-items: center; gap: 8px; margin: -10px 0 10px; cursor: pointer; font-size: 14px; color: var(--text-dim);">
+                        <input type="checkbox" id="staySignedIn" checked>
+                        Stay signed in
+                    </label>
                     <button type="submit" class="btn">Sign In</button>
                 </form>
                 <div class="auth-switch">
@@ -530,7 +537,10 @@
                     </div>
                     <div class="input-group">
                         <label>Password</label>
-                        <input type="password" id="regPassword" required placeholder="Create password">
+                        <div style="position: relative;">
+                            <input type="password" id="regPassword" required placeholder="Create password" style="width: 100%; padding-right: 40px;">
+                            <button type="button" onclick="togglePassword('regPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-dim);">👁️</button>
+                        </div>
                     </div>
                     <button type="submit" class="btn">Create Account</button>
                 </form>
@@ -662,7 +672,8 @@
 
         // Initialize
         async function init() {
-            if (token) {
+            const staySignedIn = localStorage.getItem('staySignedIn');
+            if (token && staySignedIn === 'true') {
                 try {
                     const res = await fetch(`${API}/api/me`, {
                         headers: { 'Authorization': `Bearer ${token}` }
@@ -675,11 +686,19 @@
                             return;
                         }
                     }
+                    // Token invalid - clear it
+                    token = null;
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('staySignedIn');
                 } catch (e) {
+                    // Network error - keep token for retry
                     console.error('Auth error:', e);
                 }
+            } else {
+                // Clear token if not staying signed in
                 token = null;
                 localStorage.removeItem('token');
+                localStorage.removeItem('staySignedIn');
             }
             showAuth();
         }
@@ -732,7 +751,11 @@
                 if (res.ok && data.token) {
                     token = data.token;
                     user = data.user;
-                    localStorage.setItem('token', token);
+                    const staySignedIn = document.getElementById('staySignedIn').checked;
+                    if (staySignedIn) {
+                        localStorage.setItem('token', token);
+                        localStorage.setItem('staySignedIn', 'true');
+                    }
                     showLogin(); // Reset form for next time
                     document.getElementById('loginForm').reset();
                     showApp();
@@ -790,11 +813,24 @@
             }
         });
 
+        // Toggle password visibility
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
         // Logout
         function logout() {
             token = null;
             user = null;
             localStorage.removeItem('token');
+            localStorage.removeItem('staySignedIn');
             selectedMatch = null;
             selectedOdd = null;
             selectedOddValue = null;
