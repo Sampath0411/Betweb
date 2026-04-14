@@ -447,24 +447,26 @@
             }
             .sidebar-nav {
                 display: flex;
-                flex-direction: column;
+                flex-direction: row;
+                justify-content: center;
                 background: var(--bg-elev);
-                border-right: 1px solid var(--border);
-                padding: 20px 16px;
-                width: 180px;
-                height: 100vh;
+                border-bottom: 1px solid var(--border);
+                padding: 12px 24px;
+                width: 100%;
                 position: fixed;
                 left: 0;
                 top: 73px;
-                padding-bottom: 100px;
+                z-index: 90;
+                gap: 8px;
             }
             .sidebar-nav .nav-item {
                 flex-direction: row;
-                justify-content: flex-start;
-                gap: 12px;
-                padding: 16px;
+                justify-content: center;
+                gap: 8px;
+                padding: 12px 24px;
                 font-size: 14px;
                 border-radius: 8px;
+                width: auto;
             }
             .sidebar-nav .nav-item:hover {
                 background: var(--bg);
@@ -473,11 +475,11 @@
                 background: rgba(245, 158, 11, 0.1);
             }
 
-            /* Push content to the right on desktop */
+            /* Content below top nav */
             .view {
-                margin-left: 180px;
-                padding-top: 73px;
-                width: calc(100% - 180px);
+                margin-left: 0;
+                padding-top: 140px;
+                width: 100%;
             }
         }
 
@@ -489,11 +491,11 @@
         @media (min-width: 768px) {
             .sidebar-nav {
                 display: flex;
-                width: 180px;
+                width: 100%;
             }
             .view {
-                margin-left: 180px;
-                width: calc(100% - 180px);
+                margin-left: 0;
+                width: 100%;
             }
         }
     </style>
@@ -565,7 +567,7 @@
             </div>
         </div>
 
-        <!-- Desktop Sidebar Nav -->
+        <!-- Desktop Top Nav -->
         <nav class="sidebar-nav">
             <button class="nav-item active" onclick="navigate('dashboard')">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -591,16 +593,13 @@
                 </svg>
                 Wallet
             </button>
-            <div style="margin-top: auto;">
-                <button class="nav-item" onclick="logout()">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/>
-                        <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                    Logout
-                </button>
-            </div>
+            <button class="nav-item" onclick="navigate('profile')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Profile
+            </button>
         </nav>
 
         <!-- Dashboard -->
@@ -636,6 +635,32 @@
             </div>
         </div>
 
+        <!-- Profile -->
+        <div id="profileView" class="view hidden">
+            <div class="container">
+                <div class="wallet-card">
+                    <div class="wallet-label">Username</div>
+                    <div class="wallet-balance" id="profileUsername">-</div>
+                </div>
+                <div class="wallet-card">
+                    <div class="wallet-label">Full Name</div>
+                    <div class="wallet-balance" style="font-size: 24px;" id="profileName">-</div>
+                </div>
+                <div class="wallet-card">
+                    <div class="wallet-label">Member Since</div>
+                    <div class="wallet-balance" style="font-size: 24px;" id="profileJoinDate">-</div>
+                </div>
+                <div class="section-title">Referral Code</div>
+                <div class="referral-card" style="background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                        <code id="referralCodeDisplay" style="background: var(--bg); padding: 12px 16px; border-radius: 8px; font-family: monospace; font-size: 18px; color: var(--accent); flex: 1; text-align: center;">-</code>
+                        <button onclick="copyReferralCode()" style="background: var(--accent); color: var(--bg); border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap;">Copy</button>
+                    </div>
+                    <p style="color: var(--text-dim); font-size: 13px; margin-top: 12px; text-align: center;">Share your code. Both get ₹50 when they join!</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Bottom Nav -->
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="navigate('dashboard')">
@@ -661,6 +686,13 @@
                     <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
                 </svg>
                 Wallet
+            </button>
+            <button class="nav-item" onclick="navigate('profile')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Profile
             </button>
         </nav>
     </div>
@@ -893,15 +925,16 @@
 
             // Update active state on all nav items (sidebar + bottom nav)
             const navItems = document.querySelectorAll('.nav-item');
-            const viewIndex = { dashboard: 0, history: 1, wallet: 2 }[view];
+            const viewIndex = { dashboard: 0, history: 1, wallet: 2, profile: 3 }[view];
 
-            // Set active on matching items (0,3 for dashboard, 1,4 for history, 2,5 for wallet)
+            // Set active on matching items (0,4 for dashboard, 1,5 for history, 2,6 for wallet, 3,7 for profile)
             navItems.forEach((item, idx) => {
-                if (idx % 3 === viewIndex) item.classList.add('active');
+                if (idx % 4 === viewIndex) item.classList.add('active');
             });
 
             if (view === 'history') loadHistory();
             if (view === 'wallet') loadWallet();
+            if (view === 'profile') loadProfile();
         }
 
         // Load matches
@@ -1110,6 +1143,32 @@
             } catch (e) {
                 document.getElementById('walletLog').innerHTML = '<div class="empty-state">Failed to load</div>';
             }
+        }
+
+        // Load profile data
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API}/api/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const userData = await res.json();
+                    document.getElementById('profileUsername').textContent = userData.username || '-';
+                    document.getElementById('profileName').textContent = userData.name || '-';
+                    document.getElementById('referralCodeDisplay').textContent = userData.username || '-';
+                    document.getElementById('profileJoinDate').textContent = new Date(userData.created_at).toLocaleDateString();
+                }
+            } catch (e) {
+                console.error('Failed to load profile');
+            }
+        }
+
+        // Copy referral code
+        function copyReferralCode() {
+            const code = document.getElementById('referralCodeDisplay').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Referral code copied!');
+            });
         }
 
         // Render wallet
