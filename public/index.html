@@ -736,7 +736,8 @@
                     alert(data.error || 'Login failed');
                 }
             } catch (err) {
-                alert('Network error. Is server running?');
+                console.error('Login error:', err);
+                alert('Error: ' + err.message);
             }
         });
 
@@ -780,7 +781,8 @@
                     alert(data.error || 'Registration failed');
                 }
             } catch (err) {
-                alert('Network error. Is server running?');
+                console.error('Signup error:', err);
+                alert('Error: ' + err.message);
             }
         });
 
