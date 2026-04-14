@@ -1269,26 +1269,33 @@
         let currentBet = null;
 
         // ============== INIT ==============
-        // Show auth immediately before any async
-        document.getElementById('authPage').style.display = 'block';
-        document.getElementById('appPage').style.display = 'none';
-
         document.addEventListener('DOMContentLoaded', init);
 
         async function init() {
-            if (token) {
-                try {
-                    const res = await fetch(`${API}/api/me`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (res.ok) {
-                        currentUser = await res.json();
-                        showApp();
-                        loadAllData();
-                    }
-                } catch (e) {
-                    // Stay on auth page
+            // Default: show auth
+            document.getElementById('authPage').style.display = 'block';
+            document.getElementById('appPage').style.display = 'none';
+
+            // Only check token if exists
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${API}/api/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    currentUser = await res.json();
+                    showApp();
+                    loadAllData();
+                } else {
+                    // Token invalid, clear it
+                    localStorage.removeItem('token');
+                    token = null;
+                    // Stay on auth (already visible)
                 }
+            } catch (e) {
+                // Network error, stay on auth
             }
         }
 
