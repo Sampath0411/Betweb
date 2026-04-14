@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 // Supabase setup
 const SUPABASE_URL = 'https://lowdwzvaxxkmhylkgmko.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_BGZBc6Mkpc7E07Xu3XMn3w__GHCxoEN';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Security: JWT secret from env, fallback only for dev
