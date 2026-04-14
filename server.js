@@ -106,26 +106,6 @@ async function initDatabase() {
       console.log('Admin user created');
     }
 
-    // Check if matches exist
-    const { data: matchesCount } = await supabase
-      .from('matches')
-      .select('id', { count: 'exact' })
-      .eq('status', 'live');
-
-    if (!matchesCount || matchesCount.length === 0) {
-      const expiresAt = new Date(Date.now() + 60000).toISOString();
-      const matches = [
-        { team_a: 'India', team_b: 'Australia', odds_a: 1.85, odds_draw: 3.40, odds_b: 2.10, status: 'live', expires_at: expiresAt },
-        { team_a: 'Mumbai Indians', team_b: 'Chennai Super Kings', odds_a: 1.90, odds_draw: 3.20, odds_b: 1.95, status: 'live', expires_at: expiresAt },
-        { team_a: 'Royal Challengers Bangalore', team_b: 'Rajasthan Royals', odds_a: 2.05, odds_draw: 3.30, odds_b: 1.80, status: 'live', expires_at: expiresAt },
-        { team_a: 'Delhi Capitals', team_b: 'Kolkata Knight Riders', odds_a: 1.75, odds_draw: 3.50, odds_b: 2.30, status: 'live', expires_at: expiresAt },
-        { team_a: 'Punjab Kings', team_b: 'Gujarat Titans', odds_a: 2.20, odds_draw: 3.10, odds_b: 1.75, status: 'live', expires_at: expiresAt }
-      ];
-      await supabase.from('matches').insert(matches);
-      console.log('Seed matches created');
-      // Schedule auto-settle
-      setTimeout(() => autoSettleMatches(matches.map((m, i) => ({ ...m, id: i + 1 }))), 60000);
-    }
   } catch (err) {
     console.error('Database init error:', err);
   }
@@ -158,7 +138,6 @@ function getRandomOdds() {
 
 async function createAutoMatches() {
   try {
-    const expiresAt = new Date(Date.now() + 60000).toISOString(); // 1 minute from now
     const matches = [];
     for (let i = 0; i < 5; i++) {
       const [teamA, teamB] = getRandomTeams();
@@ -170,114 +149,18 @@ async function createAutoMatches() {
         odds_draw: odds.odds_draw,
         odds_b: odds.odds_b,
         status: 'live',
-        created_at: new Date().toISOString(),
-        expires_at: expiresAt
+        created_at: new Date().toISOString()
       });
     }
     const { data, error } = await supabase.from('matches').insert(matches).select();
     if (error) throw error;
-    console.log('Auto-created 5 matches:', data.map(m => `${m.team_a} vs ${m.team_b}`));
-    // Schedule auto-settle in 1 minute
-    setTimeout(() => autoSettleMatches(data), 60000);
+    console.log('Created 5 matches:', data.map(m => `${m.team_a} vs ${m.team_b}`));
   } catch (err) {
-    console.error('Auto-create matches error:', err);
+    console.error('Create matches error:', err);
   }
 }
 
-async function autoSettleMatches(matches) {
-  try {
-    for (const match of matches) {
-      const results = ['a', 'draw', 'b'];
-      const result = results[Math.floor(Math.random() * results.length)];
-      // Settle match and payout
-      await settleMatchWithPayout(match.id, result);
-    }
-    console.log('Auto-settled 5 matches');
-    // Create new matches after settling
-    setTimeout(createAutoMatches, 5000);
-  } catch (err) {
-    console.error('Auto-settle error:', err);
-  }
-}
 
-async function settleMatchWithPayout(matchId, result) {
-  try {
-    // Get match details first
-    const { data: match } = await supabase
-      .from('matches')
-      .select('*')
-      .eq('id', matchId)
-      .single();
-    if (!match) return;
-    // Update match result
-    await supabase
-      .from('matches')
-      .update({ status: 'settled', result: result })
-      .eq('id', matchId);
-    // Get all bets for this match
-    const { data: bets } = await supabase
-      .from('bets')
-      .select('*')
-      .eq('match_id', matchId)
-      .eq('status', 'pending');
-    if (!bets || bets.length === 0) return;
-    // Map result to team name or "Draw"
-    const resultName = result === 'a' ? match.team_a : result === 'b' ? match.team_b : 'Draw';
-    // Process each bet
-    for (const bet of bets) {
-      const won = bet.pick === resultName;
-      const payout = won ? bet.stake * bet.odds : 0;
-      // Update bet status
-      await supabase
-        .from('bets')
-        .update({
-          status: won ? 'won' : 'lost',
-          payout: won ? payout : 0
-        })
-        .eq('id', bet.id);
-      // Credit winner
-      if (won) {
-        const { data: user } = await supabase
-          .from('users')
-          .select('balance')
-          .eq('id', bet.user_id)
-          .single();
-        if (user) {
-          await supabase
-            .from('users')
-            .update({ balance: user.balance + payout })
-            .eq('id', bet.user_id);
-          // Add transaction
-          await supabase.from('transactions').insert({
-            user_id: bet.user_id,
-            type: 'credit',
-            amount: payout - bet.stake,
-            description: `Won bet on match #${matchId} (${result})`,
-            created_at: new Date().toISOString()
-          });
-        }
-      }
-    }
-  } catch (err) {
-    console.error('Settle match error:', err);
-  }
-}
-
-// Check matches every 30 seconds
-setInterval(async () => {
-  try {
-    const { data: liveMatches } = await supabase
-      .from('matches')
-      .select('id')
-      .eq('status', 'live');
-    if (!liveMatches || liveMatches.length === 0) {
-      console.log('No live matches - auto-creating...');
-      await createAutoMatches();
-    }
-  } catch (err) {
-    console.error('Match check error:', err);
-  }
-}, 30000);
 
 // Health check endpoint for Vercel
 app.get('/api/health', (req, res) => {
@@ -874,15 +757,6 @@ app.use((err, req, res, next) => {
 // Initialize and start
 async function startServer() {
   await initDatabase();
-  // Check if matches exist, if not create auto matches
-  const { data: liveMatches } = await supabase
-    .from('matches')
-    .select('id')
-    .eq('status', 'live');
-  if (!liveMatches || liveMatches.length === 0) {
-    console.log('No live matches on startup - creating auto matches...');
-    await createAutoMatches();
-  }
 }
 
 // Export for Vercel serverless
