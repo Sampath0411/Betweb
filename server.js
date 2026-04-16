@@ -853,6 +853,74 @@ app.post('/api/admin/bets/settle-all', auth, adminOnly, async (req, res) => {
   }
 });
 
+// Aviator game endpoints
+app.post("/api/game/bet", auth, async (req, res) => {
+  const { amount } = req.body;
+  const userId = req.user.id;
+
+  if (!amount || amount <= 0 || amount > 10000) {
+    return res.status(400).json({ error: "Invalid bet amount" });
+  }
+
+  try {
+    const { data: user } = await supabase
+      .from("users")
+      .select("balance")
+      .eq("id", userId)
+      .single();
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+    if (user.balance < amount) return res.status(400).json({ error: "Insufficient balance" });
+
+    const newBalance = user.balance - amount;
+    await supabase.from("users").update({ balance: newBalance }).eq("id", userId);
+    await supabase.from("transactions").insert({
+      user_id: userId,
+      type: "debit",
+      amount: amount,
+      description: "Aviator bet placed"
+    });
+
+    res.json({ message: "Bet placed", newBalance });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.post("/api/game/cashout", auth, async (req, res) => {
+  const { stake, multiplier } = req.body;
+  const userId = req.user.id;
+
+  if (!stake || !multiplier || multiplier < 1) {
+    return res.status(400).json({ error: "Invalid cashout" });
+  }
+
+  const winAmount = Math.floor(stake * multiplier);
+  const profit = winAmount - stake;
+
+  try {
+    const { data: user } = await supabase
+      .from("users")
+      .select("balance")
+      .eq("id", userId)
+      .single();
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const newBalance = user.balance + winAmount;
+    await supabase.from("users").update({ balance: newBalance }).eq("id", userId);
+    await supabase.from("transactions").insert({
+      user_id: userId,
+      type: "credit",
+      amount: winAmount,
+      description: `Aviator cashout @ ${multiplier.toFixed(2)}x`
+    });
+
+    res.json({ message: "Cashout successful", winAmount, profit, newBalance });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
 app.delete('/api/admin/matches/:id', auth, adminOnly, async (req, res) => {
   const matchId = parseInt(req.params.id);
   if (!Number.isInteger(matchId) || matchId <= 0) {

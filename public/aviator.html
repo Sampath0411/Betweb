@@ -544,24 +544,44 @@
                 return;
             }
 
-            betAmount = amount;
-            hasBet = true;
-            hasCashedOut = false;
+            // Call API to place bet
+            try {
+                const res = await fetch(`${API}/api/game/bet`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ amount })
+                });
 
-            // Deduct balance
-            user.balance -= amount;
-            updateBalance();
+                if (!res.ok) {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to place bet');
+                    return;
+                }
 
-            // Update UI
-            document.getElementById('activeBetAmount').textContent = `₹${betAmount}`;
-            document.getElementById('potentialWin').textContent = `₹${Math.floor(betAmount * 1.00)}`;
-            document.getElementById('activeBet').style.display = 'flex';
-            document.getElementById('actionBtn').textContent = 'Cash Out';
-            document.getElementById('actionBtn').className = 'action-btn cashout';
-            document.getElementById('actionBtn').disabled = true;
+                const data = await res.json();
+                user.balance = data.newBalance;
+                updateBalance();
 
-            // Start countdown
-            startCountdown();
+                betAmount = amount;
+                hasBet = true;
+                hasCashedOut = false;
+
+                // Update UI
+                document.getElementById('activeBetAmount').textContent = `₹${betAmount}`;
+                document.getElementById('potentialWin').textContent = `₹${Math.floor(betAmount * 1.00)}`;
+                document.getElementById('activeBet').style.display = 'flex';
+                document.getElementById('actionBtn').textContent = 'Cash Out';
+                document.getElementById('actionBtn').className = 'action-btn cashout';
+                document.getElementById('actionBtn').disabled = true;
+
+                // Start countdown
+                startCountdown();
+            } catch (e) {
+                alert('Network error');
+            }
         }
 
         function startCountdown() {
@@ -645,22 +665,41 @@
             hasCashedOut = true;
             clearInterval(gameInterval);
 
-            const winAmount = Math.floor(betAmount * currentMultiplier);
-            user.balance += winAmount;
-            updateBalance();
+            // Call API for cashout
+            try {
+                const res = await fetch(`${API}/api/game/cashout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ stake: betAmount, multiplier: currentMultiplier })
+                });
 
-            // Show win
-            document.getElementById('multiplierDisplay').textContent = `+₹${winAmount - betAmount}`;
-            document.getElementById('statusText').textContent = `You won ₹${winAmount}!`;
-            document.getElementById('actionBtn').textContent = 'Cashed Out!';
-            document.getElementById('actionBtn').className = 'action-btn waiting';
-            document.getElementById('actionBtn').disabled = true;
+                if (!res.ok) {
+                    console.error('Cashout failed');
+                    return;
+                }
 
-            // Log to history
-            addToHistory(currentMultiplier, true);
+                const data = await res.json();
+                user.balance = data.newBalance;
+                updateBalance();
 
-            // Reset after delay
-            setTimeout(resetGame, 3000);
+                // Show win
+                document.getElementById('multiplierDisplay').textContent = `+₹${data.profit}`;
+                document.getElementById('statusText').textContent = `You won ₹${data.winAmount}!`;
+                document.getElementById('actionBtn').textContent = 'Cashed Out!';
+                document.getElementById('actionBtn').className = 'action-btn waiting';
+                document.getElementById('actionBtn').disabled = true;
+
+                // Log to history
+                addToHistory(currentMultiplier, true);
+
+                // Reset after delay
+                setTimeout(resetGame, 3000);
+            } catch (e) {
+                console.error('Cashout error:', e);
+            }
         }
 
         function crash() {
