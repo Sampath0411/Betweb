@@ -500,8 +500,11 @@
                     <button class="btn" id="randomMatchBtn" style="background: var(--purple);">
                         🎲 Random Match
                     </button>
-                    <div style="display: flex; align-items: center; gap: 8px; background: var(--bg-elev); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; margin-left: auto;">
-                        <span style="font-size: 13px; color: var(--text-dim);">Auto-Settle</span>
+                    <button class="btn btn-success" id="settleNowBtn" style="margin-left: auto;">
+                        ⚡ Settle Now
+                    </button>
+                    <div style="display: flex; align-items: center; gap: 8px; background: var(--bg-elev); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px;">
+                        <span style="font-size: 13px; color: var(--text-dim);">Auto</span>
                         <label for="autoSettleToggle" id="toggleLabel" style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
                             <span id="toggleBg" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border); border-radius: 24px; transition: 0.3s;"></span>
                             <span id="toggleKnob" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s;"></span>
@@ -1094,17 +1097,27 @@
         }
 
         async function loadAutoSettleStatus() {
+            // Load from localStorage for persistence
+            const savedState = localStorage.getItem('autoSettleEnabled') === 'true';
+            autoSettleToggle.checked = savedState;
+            updateToggleUI(savedState);
+
+            // Also sync with server
             try {
                 const res = await fetch(`${API}/api/admin/auto-settle`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    autoSettleToggle.checked = data.enabled;
-                    updateToggleUI(data.enabled);
+                    // Update if server state differs
+                    if (data.enabled !== savedState) {
+                        autoSettleToggle.checked = data.enabled;
+                        updateToggleUI(data.enabled);
+                        localStorage.setItem('autoSettleEnabled', data.enabled);
+                    }
                 }
             } catch (e) {
-                console.error('Failed to load auto-settle status');
+                console.error('Failed to sync auto-settle status');
             }
         }
 
@@ -1119,6 +1132,7 @@
                     body: JSON.stringify({ enabled })
                 });
                 if (res.ok) {
+                    localStorage.setItem('autoSettleEnabled', enabled);
                     showToast(enabled ? 'Auto-settle enabled' : 'Auto-settle disabled');
                 } else {
                     // Revert on failure
@@ -1150,6 +1164,29 @@
             autoSettleToggle.checked = newState;
             updateToggleUI(newState);
             toggleAutoSettle(newState);
+        });
+
+        // Settle Now button - immediate manual settle
+        document.getElementById('settleNowBtn').addEventListener('click', async () => {
+            if (!confirm('Settle all pending bets now? This will randomly determine winners.')) return;
+            try {
+                const res = await fetch(`${API}/api/admin/bets/settle-all`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    showToast(`Settled ${data.settled || 0} bets!`);
+                    loadAllData();
+                } else {
+                    alert('Failed to settle bets');
+                }
+            } catch (e) {
+                alert('Network error');
+            }
         });
 
         // Override init to load auto-settle status
