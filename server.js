@@ -913,10 +913,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error', message: err.message });
 });
 
-// Auto-settle configuration
-let autoSettleEnabled = false;
-let autoSettleInterval = null;
-
 async function autoSettleMatches() {
   if (!autoSettleEnabled) return;
 
@@ -992,7 +988,7 @@ app.post('/api/admin/settle-now', auth, adminOnly, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}
+});
 
 // Toggle auto-settle endpoint
 app.post('/api/admin/auto-settle', auth, adminOnly, async (req, res) => {
@@ -1005,13 +1001,11 @@ app.post('/api/admin/auto-settle', auth, adminOnly, async (req, res) => {
   autoSettleEnabled = enabled;
 
   if (enabled) {
-    // Start auto-settle interval (every 30 seconds)
     if (!autoSettleInterval) {
-      autoSettleInterval = setInterval(autoSettleMatches, 5000); // 5 seconds for faster settling
+      autoSettleInterval = setInterval(autoSettleMatches, 5000);
     }
     console.log('Auto-settle enabled');
   } else {
-    // Stop auto-settle
     if (autoSettleInterval) {
       clearInterval(autoSettleInterval);
       autoSettleInterval = null;
@@ -1040,7 +1034,6 @@ if (process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Admin login: admin / (see ADMIN_PASSWORD env or default)`);
-    console.log('Auto-match system: 5 matches every 1 minute with random results');
     startServer();
   });
 }
