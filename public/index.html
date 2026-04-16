@@ -591,6 +591,10 @@
                         <input type="text" id="regUsername" required placeholder="Choose username">
                     </div>
                     <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="regEmail" placeholder="your@email.com" style="width: 100%; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; color: var(--text); font-size: 16px; box-sizing: border-box;">
+                    </div>
+                    <div class="input-group">
                         <label>Password</label>
                         <div style="position: relative;">
                             <input type="password" id="regPassword" required placeholder="Create password" style="width: 100%; padding-right: 40px;">
@@ -694,56 +698,99 @@
         <!-- Profile -->
         <div id="profileView" class="view hidden">
             <div class="container">
-                <div class="wallet-card">
-                    <div class="wallet-label">Username</div>
-                    <div class="wallet-balance" id="profileUsername">-</div>
-                </div>
-                <div class="wallet-card">
-                    <div class="wallet-label">Full Name</div>
-                    <div class="wallet-balance" style="font-size: 24px;" id="profileName">-</div>
-                </div>
-                <div class="wallet-card">
-                    <div class="wallet-label">Member Since</div>
-                    <div class="wallet-balance" style="font-size: 24px;" id="profileJoinDate">-</div>
-                </div>
-                <div class="section-title">Referral Code</div>
-                <div class="referral-card" style="background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                        <code id="referralCodeDisplay" style="background: var(--bg); padding: 12px 16px; border-radius: 8px; font-family: monospace; font-size: 18px; color: var(--accent); flex: 1; text-align: center;">-</code>
-                        <button onclick="copyReferralCode()" style="background: var(--accent); color: var(--bg); border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap;">Copy</button>
+                <!-- Profile Header -->
+                <div class="profile-header" style="text-align: center; margin-bottom: 24px; padding: 32px 24px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, var(--bg-elev) 50%, var(--bg) 100%); border-radius: 20px; border: 1px solid var(--border); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--win));"></div>
+                    <div style="width: 90px; height: 90px; background: linear-gradient(135deg, var(--accent), #d97706); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);">👤</div>
+                    <h2 id="profileDisplayName" style="font-size: 26px; font-weight: 800; margin-bottom: 6px;">-</h2>
+                    <p id="profileUsernameDisplay" style="color: var(--text-dim); font-size: 15px; margin: 0; font-weight: 500;">@-</p>
+                    <div style="display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 6px 14px; background: var(--bg); border-radius: 20px; border: 1px solid var(--border);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span id="profileJoinDate" style="color: var(--text-dim); font-size: 12px;">Member since -</span>
                     </div>
-                    <p style="color: var(--text-dim); font-size: 13px; margin-top: 12px; text-align: center;">Share your code. Both get ₹50 when they join!</p>
                 </div>
 
-                <div class="section-title">Badges</div>
-                <div id="badgesContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;">
-                    <!-- Badges loaded dynamically -->
+                <!-- Stats Grid -->
+                <div class="profile-stats" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px;">
+                    <div class="stat-card" style="background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; transition: transform 0.2s;">
+                        <div style="font-size: 28px; margin-bottom: 8px;">🔥</div>
+                        <div id="winStreakDisplay" style="font-size: 24px; font-weight: 800; color: var(--accent); margin-bottom: 4px;">0</div>
+                        <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Win Streak</div>
+                    </div>
+                    <div class="stat-card" style="background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; transition: transform 0.2s;">
+                        <div style="font-size: 28px; margin-bottom: 8px;">🏆</div>
+                        <div id="badgeCountDisplay" style="font-size: 24px; font-weight: 800; color: var(--accent); margin-bottom: 4px;">0</div>
+                        <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Badges</div>
+                    </div>
                 </div>
 
-                <div class="section-title">Win Streak</div>
-                <div class="wallet-card" style="margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span style="color: var(--text-dim);">Current Streak</span>
-                        <span id="winStreak" style="font-size: 24px; font-weight: 700; color: var(--accent);">0</span>
+                <!-- Referral Section -->
+                <div style="background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                        <span style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px;">Referral Code</span>
+                        <div style="flex: 1; height: 1px; background: var(--border);"></div>
                     </div>
-                    <div style="margin-top: 8px; font-size: 12px; color: var(--text-dim);">3 wins = ₹100 bonus!</div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+                        <code id="referralCodeDisplay" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)); padding: 14px 20px; border-radius: 12px; font-family: 'SF Mono', monospace; font-size: 20px; color: var(--accent); flex: 1; text-align: center; border: 1px dashed var(--accent); font-weight: 600; letter-spacing: 1px;">-</code>
+                        <button onclick="copyReferralCode()" class="btn" style="padding: 14px 24px; white-space: nowrap; border-radius: 12px;">📋 Copy</button>
+                    </div>
+                    <p style="color: var(--text-dim); font-size: 13px; text-align: center; margin: 0;">💰 Share your code. <strong style="color: var(--accent);">Both get ₹50</strong> when they join!</p>
                 </div>
 
-                <div class="section-title">Edit Profile</div>
-                <div class="wallet-card" style="padding: 20px;">
-                    <div class="input-group" style="margin-bottom: 16px;">
-                        <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px;">Full Name</label>
-                        <input type="text" id="editName" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); font-size: 14px;" placeholder="Your name">
+                <!-- Badges Section -->
+                <div style="background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                        <span style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px;">Your Badges</span>
+                        <div style="flex: 1; height: 1px; background: var(--border);"></div>
                     </div>
-                    <div class="input-group" style="margin-bottom: 16px;">
-                        <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px;">Current Password</label>
-                        <input type="password" id="currentPassword" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); font-size: 14px;" placeholder="Required to save changes">
+                    <div id="badgesContainer" style="min-height: 60px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                        <div style="color: var(--text-dim); text-align: center; font-size: 14px; width: 100%; padding: 16px;">🏅 No badges yet. Start betting to earn rewards!</div>
                     </div>
-                    <div class="input-group" style="margin-bottom: 16px;">
-                        <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px;">New Password (optional)</label>
-                        <input type="password" id="newPassword" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); font-size: 14px;" placeholder="Leave blank to keep current">
+                </div>
+
+                <!-- Edit Profile Button -->
+                <button onclick="toggleEditProfile()" class="btn" style="width: 100%; margin-bottom: 24px; border-radius: 12px; padding: 16px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Edit Profile
+                </button>
+
+                <!-- Edit Profile Section (Hidden by default) -->
+                <div id="editProfileSection" style="display: none;">
+                    <div style="background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px;">
+                        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border);">
+                            <span style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px;">Edit Profile</span>
+                        </div>
+
+                        <div style="padding: 20px;">
+                            <div class="input-group" style="margin-bottom: 16px;">
+                                <label style="display: block; font-size: 11px; font-weight: 700; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Full Name</label>
+                                <input type="text" id="editName" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; color: var(--text); font-size: 15px; box-sizing: border-box; transition: border-color 0.2s;" placeholder="Your name" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+
+                            <div class="input-group" style="margin-bottom: 16px;">
+                                <label style="display: block; font-size: 11px; font-weight: 700; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Current Password <span style="color: var(--accent);">*</span></label>
+                                <input type="password" id="currentPassword" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; color: var(--text); font-size: 15px; box-sizing: border-box; transition: border-color 0.2s;" placeholder="Required to save changes" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+
+                            <div class="input-group" style="margin-bottom: 24px;">
+                                <label style="display: block; font-size: 11px; font-weight: 700; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">New Password <span style="color: var(--text-dim); font-weight: 400;">(Optional)</span></label>
+                                <input type="password" id="newPassword" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; color: var(--text); font-size: 15px; box-sizing: border-box; transition: border-color 0.2s;" placeholder="Leave blank to keep current" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+
+                            <div style="display: flex; gap: 12px;">
+                                <button onclick="saveProfile()" class="btn" style="flex: 1; border-radius: 10px;">Save Changes</button>
+                                <button onclick="toggleEditProfile()" style="flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text); padding: 14px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 15px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">Cancel</button>
+                            </div>
+                        </div>
                     </div>
-                    <button onclick="saveProfile()" class="btn" style="width: 100%;">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -988,13 +1035,14 @@
             e.preventDefault();
             const name = document.getElementById('regName').value.trim();
             const username = document.getElementById('regUsername').value.trim().toLowerCase();
+            const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
 
             try {
                 const res = await fetch(`${API}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, username, password })
+                    body: JSON.stringify({ name, username, email, password })
                 });
                 const data = await res.json();
 
@@ -1347,10 +1395,11 @@
                 });
                 if (res.ok) {
                     const userData = await res.json();
-                    document.getElementById('profileUsername').textContent = userData.username || '-';
-                    document.getElementById('profileName').textContent = userData.name || '-';
+                    document.getElementById('profileDisplayName').textContent = userData.name || userData.username || '-';
+                    document.getElementById('profileUsernameDisplay').textContent = '@' + (userData.username || '-');
                     document.getElementById('referralCodeDisplay').textContent = userData.username || '-';
-                    document.getElementById('profileJoinDate').textContent = new Date(userData.created_at).toLocaleDateString();
+                    document.getElementById('profileJoinDate').textContent = 'Member since ' + new Date(userData.created_at).toLocaleDateString();
+                    document.getElementById('editName').value = userData.name || '';
                     loadBadges();
                     loadStreak();
                 }
@@ -1387,7 +1436,23 @@
         // Load streak
         function loadStreak() {
             const streak = parseInt(localStorage.getItem('winStreak') || '0');
-            document.getElementById('winStreak').textContent = streak;
+            document.getElementById('winStreakDisplay').textContent = streak;
+            // Update badge count too
+            const badges = JSON.parse(localStorage.getItem('badges') || '[]');
+            document.getElementById('badgeCountDisplay').textContent = badges.length;
+        }
+
+        // Toggle edit profile section
+        function toggleEditProfile() {
+            const editSection = document.getElementById('editProfileSection');
+            if (editSection.style.display === 'none') {
+                editSection.style.display = 'block';
+            } else {
+                editSection.style.display = 'none';
+                // Clear password fields when canceling
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+            }
         }
 
         // Track wins and award badges

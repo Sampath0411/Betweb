@@ -493,13 +493,22 @@
 
             <!-- Matches Tab -->
             <div id="matchesTab" class="tab-content active">
-                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
                     <button class="btn btn-blue" id="addMatchBtn">
                         + Add Match
                     </button>
                     <button class="btn" id="randomMatchBtn" style="background: var(--purple);">
                         🎲 Random Match
                     </button>
+                    <div style="display: flex; align-items: center; gap: 8px; background: var(--bg-elev); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; margin-left: auto;">
+                        <span style="font-size: 13px; color: var(--text-dim);">Auto-Settle</span>
+                        <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
+                            <input type="checkbox" id="autoSettleToggle" style="opacity: 0; width: 0; height: 0;">
+                            <span id="toggleBg" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border); border-radius: 24px; transition: 0.3s;"></span>
+                            <span id="toggleKnob" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s;"></span>
+                        </label>
+                        <span id="autoSettleStatus" style="font-size: 12px; color: var(--text-dim);">OFF</span>
+                    </div>
                 </div>
 
                 <div class="card">
@@ -976,18 +985,26 @@
         // Setup event listeners
         document.getElementById('addMatchBtn').addEventListener('click', openAddMatchModal);
 
-        // Random match generator
-        const indianTeams = [
-            'India', 'Australia', 'England', 'Pakistan',
-            'Mumbai Indians', 'Chennai Super Kings', 'Royal Challengers Bangalore',
-            'Rajasthan Royals', 'Delhi Capitals', 'Kolkata Knight Riders',
-            'Punjab Kings', 'Gujarat Titans', 'Lucknow Super Giants',
-            'Sunrisers Hyderabad', 'New Zealand', 'South Africa',
-            'Sri Lanka', 'West Indies', 'Bangladesh', 'Afghanistan'
+        // Random match generator - separate international and IPL
+        const internationalTeams = [
+            'India', 'Australia', 'England', 'Pakistan', 'South Africa', 'New Zealand',
+            'Sri Lanka', 'Bangladesh', 'West Indies', 'Afghanistan', 'Ireland', 'Zimbabwe'
         ];
 
-        function getRandomTeam() {
-            return indianTeams[Math.floor(Math.random() * indianTeams.length)];
+        const iplTeams = [
+            'Mumbai Indians', 'Chennai Super Kings', 'Royal Challengers Bangalore',
+            'Kolkata Knight Riders', 'Delhi Capitals', 'Punjab Kings',
+            'Rajasthan Royals', 'Sunrisers Hyderabad', 'Gujarat Titans', 'Lucknow Super Giants'
+        ];
+
+        function getRandomTeams() {
+            // Pick category first (50/50 chance)
+            const useInternational = Math.random() < 0.5;
+            const teamPool = useInternational ? internationalTeams : iplTeams;
+
+            // Get two different teams from same pool
+            const shuffled = [...teamPool].sort(() => 0.5 - Math.random());
+            return [shuffled[0], shuffled[1]];
         }
 
         function getRandomOdds() {
@@ -996,13 +1013,7 @@
         }
 
         async function createRandomMatch() {
-            let teamA = getRandomTeam();
-            let teamB = getRandomTeam();
-
-            // Ensure different teams
-            while (teamA === teamB) {
-                teamB = getRandomTeam();
-            }
+            const [teamA, teamB] = getRandomTeams();
 
             const oddsA = parseFloat(getRandomOdds());
             const oddsDraw = parseFloat(getRandomOdds());
@@ -1061,6 +1072,86 @@
                 alert('Network error');
             }
         });
+
+        // Auto-settle toggle
+        const autoSettleToggle = document.getElementById('autoSettleToggle');
+        const toggleBg = document.getElementById('toggleBg');
+        const toggleKnob = document.getElementById('toggleKnob');
+        const autoSettleStatus = document.getElementById('autoSettleStatus');
+
+        function updateToggleUI(enabled) {
+            if (enabled) {
+                toggleBg.style.background = 'var(--win)';
+                toggleKnob.style.transform = 'translateX(20px)';
+                autoSettleStatus.textContent = 'ON';
+                autoSettleStatus.style.color = 'var(--win)';
+            } else {
+                toggleBg.style.background = 'var(--border)';
+                toggleKnob.style.transform = 'translateX(0)';
+                autoSettleStatus.textContent = 'OFF';
+                autoSettleStatus.style.color = 'var(--text-dim)';
+            }
+        }
+
+        async function loadAutoSettleStatus() {
+            try {
+                const res = await fetch(`${API}/api/admin/auto-settle`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    autoSettleToggle.checked = data.enabled;
+                    updateToggleUI(data.enabled);
+                }
+            } catch (e) {
+                console.error('Failed to load auto-settle status');
+            }
+        }
+
+        async function toggleAutoSettle() {
+            const enabled = autoSettleToggle.checked;
+            try {
+                const res = await fetch(`${API}/api/admin/auto-settle`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ enabled })
+                });
+                if (res.ok) {
+                    updateToggleUI(enabled);
+                    showToast(enabled ? 'Auto-settle enabled' : 'Auto-settle disabled');
+                } else {
+                    autoSettleToggle.checked = !enabled;
+                    updateToggleUI(!enabled);
+                    alert('Failed to toggle auto-settle');
+                }
+            } catch (e) {
+                autoSettleToggle.checked = !enabled;
+                updateToggleUI(!enabled);
+                alert('Network error');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position: fixed; top: 80px; right: 20px; background: var(--win); color: white; padding: 12px 20px; border-radius: 8px; font-weight: 600; z-index: 1000; animation: fadeInOut 3s ease;';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        autoSettleToggle.addEventListener('change', toggleAutoSettle);
+
+        // Override init to load auto-settle status
+        const originalInit = init;
+        init = async function() {
+            await originalInit();
+            if (token) {
+                loadAutoSettleStatus();
+            }
+        };
 
         // Start
         init();

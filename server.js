@@ -111,17 +111,25 @@ async function initDatabase() {
   }
 }
 
-// Auto-match system
-const TEAMS = [
+// Auto-match system - separate international and IPL teams
+const INTERNATIONAL_TEAMS = [
   'India', 'Australia', 'England', 'Pakistan', 'South Africa', 'New Zealand',
-  'Sri Lanka', 'Bangladesh', 'West Indies', 'Afghanistan',
+  'Sri Lanka', 'Bangladesh', 'West Indies', 'Afghanistan', 'Ireland', 'Zimbabwe'
+];
+
+const IPL_TEAMS = [
   'Mumbai Indians', 'Chennai Super Kings', 'Royal Challengers Bangalore',
   'Kolkata Knight Riders', 'Delhi Capitals', 'Punjab Kings',
   'Rajasthan Royals', 'Sunrisers Hyderabad', 'Gujarat Titans', 'Lucknow Super Giants'
 ];
 
 function getRandomTeams() {
-  const shuffled = [...TEAMS].sort(() => 0.5 - Math.random());
+  // Pick category first (50/50 chance)
+  const useInternational = Math.random() < 0.5;
+  const teamPool = useInternational ? INTERNATIONAL_TEAMS : IPL_TEAMS;
+
+  // Get two different teams from same pool
+  const shuffled = [...teamPool].sort(() => 0.5 - Math.random());
   return [shuffled[0], shuffled[1]];
 }
 
@@ -188,10 +196,15 @@ const adminOnly = (req, res, next) => {
 
 // Auth routes with rate limiting
 app.post('/api/register', authLimiter, async (req, res) => {
-  let { name, username, password, referral_code } = req.body;
+  let { name, username, email, password, referral_code } = req.body;
 
   if (!name || !username || !password) {
     return res.status(400).json({ error: 'Missing fields' });
+  }
+
+  // Validate email if provided
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
   }
 
   if (!validateName(name)) {
@@ -226,9 +239,12 @@ app.post('/api/register', authLimiter, async (req, res) => {
       }
     }
 
+    const insertData = { name, username, password: hashed, balance: welcomeBonus, referred_by: referrerId };
+    if (email) insertData.email = email;
+
     const { data: newUser, error } = await supabase
       .from('users')
-      .insert({ name, username, password: hashed, balance: welcomeBonus, referred_by: referrerId })
+      .insert(insertData)
       .select()
       .single();
 
@@ -895,6 +911,110 @@ app.get('/api/admin/fix-password', async (req, res) => {
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
   res.status(500).json({ error: 'Server error', message: err.message });
+});
+
+// Auto-settle configuration
+let autoSettleEnabled = false;
+let autoSettleInterval = null;
+
+async function autoSettleMatches() {
+  if (!autoSettleEnabled) return;
+
+  try {
+    // Get all live matches
+    const { data: matches, error } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('status', 'live');
+
+    if (error || !matches || matches.length === 0) return;
+
+    // Settle each match with random result
+    for (const match of matches) {
+      const results = ['A', 'draw', 'B'];
+      const result = results[Math.floor(Math.random() * results.length)];
+
+      // Update match
+      await supabase
+        .from('matches')
+        .update({ status: 'settled', result, settled_at: new Date().toISOString() })
+        .eq('id', match.id);
+
+      // Get pending bets for this match
+      const { data: bets } = await supabase
+        .from('bets')
+        .select('*')
+        .eq('match_id', match.id)
+        .eq('status', 'pending');
+
+      if (bets && bets.length > 0) {
+        for (const bet of bets) {
+          let won = false;
+          if (result === 'A' && bet.pick === match.team_a) won = true;
+          else if (result === 'B' && bet.pick === match.team_b) won = true;
+          else if (result === 'draw' && bet.pick === 'Draw') won = true;
+
+          if (won) {
+            await supabase.from('bets').update({ status: 'won', settled_at: new Date().toISOString() }).eq('id', bet.id);
+            const { data: user } = await supabase.from('users').select('balance').eq('id', bet.user_id).single();
+            if (user) {
+              await supabase.from('users').update({ balance: user.balance + bet.payout }).eq('id', bet.user_id);
+            }
+            await supabase.from('transactions').insert({
+              user_id: bet.user_id,
+              type: 'credit',
+              amount: bet.payout,
+              description: `Won bet on ${match.team_a} vs ${match.team_b}`
+            });
+          } else {
+            await supabase.from('bets').update({ status: 'lost', settled_at: new Date().toISOString() }).eq('id', bet.id);
+            await supabase.from('transactions').insert({
+              user_id: bet.user_id,
+              type: 'loss',
+              amount: 0,
+              description: `Lost bet on ${match.team_a} vs ${match.team_b}`
+            });
+          }
+        }
+      }
+    }
+    console.log('Auto-settled', matches.length, 'matches');
+  } catch (err) {
+    console.error('Auto-settle error:', err);
+  }
+}
+
+// Toggle auto-settle endpoint
+app.post('/api/admin/auto-settle', auth, adminOnly, async (req, res) => {
+  const { enabled } = req.body;
+
+  if (typeof enabled !== 'boolean') {
+    return res.status(400).json({ error: 'enabled must be boolean' });
+  }
+
+  autoSettleEnabled = enabled;
+
+  if (enabled) {
+    // Start auto-settle interval (every 30 seconds)
+    if (!autoSettleInterval) {
+      autoSettleInterval = setInterval(autoSettleMatches, 30000);
+    }
+    console.log('Auto-settle enabled');
+  } else {
+    // Stop auto-settle
+    if (autoSettleInterval) {
+      clearInterval(autoSettleInterval);
+      autoSettleInterval = null;
+    }
+    console.log('Auto-settle disabled');
+  }
+
+  res.json({ enabled: autoSettleEnabled });
+});
+
+// Get auto-settle status
+app.get('/api/admin/auto-settle', auth, adminOnly, async (req, res) => {
+  res.json({ enabled: autoSettleEnabled });
 });
 
 // Initialize and start
