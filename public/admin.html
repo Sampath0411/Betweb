@@ -500,6 +500,9 @@
                     <button class="btn" id="randomMatchBtn" style="background: var(--purple);">
                         🎲 Random Match
                     </button>
+                    <button class="btn" id="create10MatchesBtn" style="background: var(--win);">
+                        +10 Matches
+                    </button>
                     <button class="btn btn-success" id="settleNowBtn" style="margin-left: auto;">
                         ⚡ Settle Now
                     </button>
@@ -1183,6 +1186,29 @@
                     loadAllData();
                 } else {
                     alert('Failed to settle bets');
+                }
+            } catch (e) {
+                alert('Network error');
+            }
+        });
+
+        // Create 10 matches button
+        document.getElementById('create10MatchesBtn').addEventListener('click', async () => {
+            if (!confirm('Create 10 new matches?')) return;
+            try {
+                const res = await fetch(`${API}/api/admin/matches/bulk`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ count: 10 })
+                });
+                if (res.ok) {
+                    showToast('Created 10 matches!');
+                    loadMatches();
+                } else {
+                    alert('Failed to create matches');
                 }
             } catch (e) {
                 alert('Network error');

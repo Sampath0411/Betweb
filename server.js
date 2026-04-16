@@ -446,6 +446,32 @@ app.get('/api/admin/matches', auth, adminOnly, async (req, res) => {
   }
 });
 
+// Create multiple matches at once
+app.post("/api/admin/matches/bulk", auth, adminOnly, async (req, res) => {
+  const { count = 10 } = req.body;
+  try {
+    await createAutoMatches(count);
+    res.json({ message: `Created ${count} matches` });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to create matches" });
+  }
+});
+
+// Cron endpoint - can be called by Vercel cron or external scheduler
+app.get("/api/cron/check-matches", async (req, res) => {
+  // Simple auth via query param for cron jobs
+  const { key } = req.query;
+  if (key !== process.env.CRON_SECRET) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    await checkAndCreateMatches();
+    res.json({ message: "Check complete" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 app.post('/api/admin/matches', auth, adminOnly, async (req, res) => {
   let { team_a, team_b, odds_a, odds_draw, odds_b } = req.body;
 
