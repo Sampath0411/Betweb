@@ -144,10 +144,10 @@ function getRandomOdds() {
   };
 }
 
-async function createAutoMatches() {
+async function createAutoMatches(count = 5) {
   try {
     const matches = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < count; i++) {
       const [teamA, teamB] = getRandomTeams();
       const odds = getRandomOdds();
       matches.push({
@@ -166,6 +166,25 @@ async function createAutoMatches() {
   } catch (err) {
     console.error('Create matches error:', err);
   }
+// Check and auto-create matches if none live
+async function checkAndCreateMatches() {
+  try {
+    const { data: liveMatches, error } = await supabase
+      .from('matches')
+      .select('id')
+      .eq('status', 'live');
+
+    if (error) throw error;
+
+    // If no live matches, create 10 new ones
+    if (!liveMatches || liveMatches.length === 0) {
+      console.log('No live matches found. Creating 10 new matches...');
+      await createAutoMatches(10);
+    }
+  } catch (err) {
+    console.error('Check/create matches error:', err);
+  }
+}
 }
 
 
@@ -531,6 +550,8 @@ app.post('/api/admin/matches/:id/settle', auth, adminOnly, async (req, res) => {
     }
 
     res.json({ message: 'Match settled', result, betsProcessed: processed });
+n    // Check if we need to create new matches
+    await checkAndCreateMatches();
   } catch (err) {
     console.error('Settle error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -823,6 +844,9 @@ app.post('/api/admin/bets/settle-all', auth, adminOnly, async (req, res) => {
     }
 
     res.json({ settled, message: `Settled ${settled} bets` });
+
+    // Check if we need to create new matches
+    await checkAndCreateMatches();
   } catch (err) {
     console.error('Settle all error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -975,6 +999,8 @@ async function autoSettleMatches() {
       }
     }
     console.log('Auto-settled', matches.length, 'matches');
+n    // Check if we need to create new matches
+    await checkAndCreateMatches();
   } catch (err) {
     console.error('Auto-settle error:', err);
   }
