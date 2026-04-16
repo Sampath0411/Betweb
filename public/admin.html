@@ -1108,8 +1108,7 @@
             }
         }
 
-        async function toggleAutoSettle() {
-            const enabled = autoSettleToggle.checked;
+        async function toggleAutoSettle(enabled) {
             try {
                 const res = await fetch(`${API}/api/admin/auto-settle`, {
                     method: 'POST',
@@ -1120,14 +1119,15 @@
                     body: JSON.stringify({ enabled })
                 });
                 if (res.ok) {
-                    updateToggleUI(enabled);
                     showToast(enabled ? 'Auto-settle enabled' : 'Auto-settle disabled');
                 } else {
+                    // Revert on failure
                     autoSettleToggle.checked = !enabled;
                     updateToggleUI(!enabled);
                     alert('Failed to toggle auto-settle');
                 }
             } catch (e) {
+                // Revert on error
                 autoSettleToggle.checked = !enabled;
                 updateToggleUI(!enabled);
                 alert('Network error');
@@ -1142,16 +1142,15 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // Handle toggle via label click (better UX)
+        // Handle toggle via label click
         const toggleLabel = document.getElementById('toggleLabel');
         toggleLabel.addEventListener('click', (e) => {
             e.preventDefault();
-            autoSettleToggle.checked = !autoSettleToggle.checked;
-            toggleAutoSettle();
+            const newState = !autoSettleToggle.checked;
+            autoSettleToggle.checked = newState;
+            updateToggleUI(newState);
+            toggleAutoSettle(newState);
         });
-
-        // Also listen for direct checkbox changes
-        autoSettleToggle.addEventListener('change', toggleAutoSettle);
 
         // Override init to load auto-settle status
         const originalInit = init;
