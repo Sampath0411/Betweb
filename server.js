@@ -984,6 +984,16 @@ async function autoSettleMatches() {
   }
 }
 
+// Manual settle endpoint for testing
+app.post('/api/admin/settle-now', auth, adminOnly, async (req, res) => {
+  try {
+    await autoSettleMatches();
+    res.json({ message: 'Settle triggered' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 // Toggle auto-settle endpoint
 app.post('/api/admin/auto-settle', auth, adminOnly, async (req, res) => {
   const { enabled } = req.body;
@@ -997,7 +1007,7 @@ app.post('/api/admin/auto-settle', auth, adminOnly, async (req, res) => {
   if (enabled) {
     // Start auto-settle interval (every 30 seconds)
     if (!autoSettleInterval) {
-      autoSettleInterval = setInterval(autoSettleMatches, 30000);
+      autoSettleInterval = setInterval(autoSettleMatches, 5000); // 5 seconds for faster settling
     }
     console.log('Auto-settle enabled');
   } else {
