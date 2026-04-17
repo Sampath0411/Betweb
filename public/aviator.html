@@ -478,6 +478,7 @@
         let hasBet = false;
         let hasCashedOut = false;
         let gameInterval = null;
+        let gameLoopInterval = null;
         let planePos = { x: 10, y: 80 };
         let crashPoint = 0;
 
@@ -763,13 +764,21 @@
         }
 
         function startGameLoop() {
+            // Clear any existing interval first
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
             // Auto-start if no bets after 10 seconds
-            setInterval(() => {
+            gameLoopInterval = setInterval(() => {
                 if (gameState === 'waiting' && hasBet) {
                     startCountdown();
                 }
             }, 10000);
         }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (gameInterval) clearInterval(gameInterval);
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+        });
 
         // Start
         init();

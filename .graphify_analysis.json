@@ -1,0 +1,58 @@
+{
+  "communities": {
+    "0": [
+      "server",
+      "server_adminonly",
+      "server_auth",
+      "server_autosettlematches",
+      "server_sanitize",
+      "server_validatename",
+      "server_validateodds",
+      "server_validatepassword",
+      "server_validatestake",
+      "server_validateusername"
+    ],
+    "1": [
+      "server_createautomatches",
+      "server_getrandomodds",
+      "server_getrandomteams"
+    ],
+    "2": [
+      "server_initdatabase",
+      "server_startserver"
+    ]
+  },
+  "cohesion": {
+    "0": 0.2,
+    "1": 0.67,
+    "2": 1.0
+  },
+  "gods": [
+    {
+      "id": "server_createautomatches",
+      "label": "createAutoMatches()",
+      "edges": 3
+    },
+    {
+      "id": "server_initdatabase",
+      "label": "initDatabase()",
+      "edges": 2
+    },
+    {
+      "id": "server_getrandomteams",
+      "label": "getRandomTeams()",
+      "edges": 2
+    },
+    {
+      "id": "server_getrandomodds",
+      "label": "getRandomOdds()",
+      "edges": 2
+    },
+    {
+      "id": "server_startserver",
+      "label": "startServer()",
+      "edges": 2
+    }
+  ],
+  "surprises": []
+}

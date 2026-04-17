@@ -841,7 +841,7 @@
 
     <script>
         const API = window.location.origin;
-        console.log('API URL:', API); // Debug
+        // API initialized
         let token = localStorage.getItem('token');
         let user = null;
         let matches = [];
@@ -911,7 +911,7 @@
         }
 
         // Update countdown timers every second
-        setInterval(() => {
+        const timerUpdateInterval = setInterval(() => {
             document.querySelectorAll('.match-timer').forEach(timer => {
                 const expires = new Date(timer.dataset.expires);
                 const now = new Date();
@@ -926,6 +926,12 @@
                     `${minutes}:${seconds.toString().padStart(2, '0')}`;
             });
         }, 1000);
+
+        // Cleanup intervals on page unload
+        window.addEventListener('beforeunload', () => {
+            stopAutoRefresh();
+            clearInterval(timerUpdateInterval);
+        });
 
         async function refreshUserData() {
             try {
