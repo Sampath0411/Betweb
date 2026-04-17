@@ -692,7 +692,7 @@
                     body: JSON.stringify({ username, password })
                 });
                 const data = await res.json();
-                console.log('Login response:', data);
+                // Login successful
                 if (res.ok && data.user && data.user.isAdmin) {
                     token = data.token;
                     localStorage.setItem('adminToken', token);
@@ -752,6 +752,14 @@
             }
         }
 
+        // XSS protection - escape HTML entities
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return text;
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         // Render matches
         function renderMatches(matches) {
             const tbody = document.querySelector('#matchesTable tbody');
@@ -767,17 +775,17 @@
                 <tr>
                     <td>#${m.id}</td>
                     <td>
-                        <strong>${m.team_a}</strong> vs <strong>${m.team_b}</strong>
+                        <strong>${escapeHtml(m.team_a)}</strong> vs <strong>${escapeHtml(m.team_b)}</strong>
                     </td>
                     <td>${m.odds_a} / ${m.odds_draw} / ${m.odds_b}</td>
                     <td><span class="badge badge-${m.status}">${m.status}</span></td>
-                    <td>${m.result || '-'}</td>
+                    <td>${m.result ? escapeHtml(m.result) : '-'}</td>
                     <td>
                         ${m.status === 'live' ? `
                             <div class="settle-btns">
-                                <button class="settle-btn settle-btn-a" onclick="openSettleModal(${m.id}, 'A', '${m.team_a}')">${m.team_a}</button>
+                                <button class="settle-btn settle-btn-a" onclick="openSettleModal(${m.id}, 'A', '${escapeHtml(m.team_a).replace(/'/g, "\\'")}')">${escapeHtml(m.team_a)}</button>
                                 <button class="settle-btn settle-btn-draw" onclick="openSettleModal(${m.id}, 'draw', 'Draw')">Draw</button>
-                                <button class="settle-btn settle-btn-b" onclick="openSettleModal(${m.id}, 'B', '${m.team_b}')">${m.team_b}</button>
+                                <button class="settle-btn settle-btn-b" onclick="openSettleModal(${m.id}, 'B', '${escapeHtml(m.team_b).replace(/'/g, "\\'")}')">${escapeHtml(m.team_b)}</button>
                             </div>
                         ` : '<span style="color: var(--text-dim);">Settled</span>'}
                     </td>
@@ -812,8 +820,8 @@
             tbody.innerHTML = users.map(u => `
                 <tr>
                     <td>#${u.id}</td>
-                    <td>${u.name}</td>
-                    <td>@${u.username}</td>
+                    <td>${escapeHtml(u.name)}</td>
+                    <td>@${escapeHtml(u.username)}</td>
                     <td>₹${u.balance}</td>
                     <td>${new Date(u.created_at).toLocaleDateString()}</td>
                     <td>
@@ -855,9 +863,9 @@
             tbody.innerHTML = bets.map(b => `
                 <tr>
                     <td>#${b.id}</td>
-                    <td>${b.name}</td>
-                    <td>${b.team_a} vs ${b.team_b}</td>
-                    <td>${b.pick}</td>
+                    <td>${escapeHtml(b.name)}</td>
+                    <td>${escapeHtml(b.team_a)} vs ${escapeHtml(b.team_b)}</td>
+                    <td>${escapeHtml(b.pick)}</td>
                     <td>₹${b.stake}</td>
                     <td>₹${b.payout}</td>
                     <td><span class="badge badge-${b.status}">${b.status}</span></td>
@@ -895,7 +903,7 @@
                 return;
             }
 
-            console.log('Creating match:', { team_a, team_b, odds_a, odds_draw, odds_b });
+            // Creating match...
 
             try {
                 const res = await fetch(`${API}/api/admin/matches`, {
@@ -907,7 +915,7 @@
                     body: JSON.stringify({ team_a, team_b, odds_a, odds_draw, odds_b })
                 });
                 const data = await res.json();
-                console.log('Response:', res.status, data);
+                // Response received
 
                 if (res.ok) {
                     closeAddMatchModal();

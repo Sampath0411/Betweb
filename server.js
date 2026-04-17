@@ -40,7 +40,8 @@ app.use(helmet({
   }
 }));
 
-app.use(cors());
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 app.use(express.json({ limit: '10kb' }));
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -95,7 +96,11 @@ async function initDatabase() {
       .single();
 
     if (!adminExists) {
-      const hashed = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123ChangeMe!', SALT_ROUNDS);
+      if (!process.env.ADMIN_PASSWORD) {
+        console.error('FATAL: ADMIN_PASSWORD environment variable not set');
+        process.exit(1);
+      }
+      const hashed = await bcrypt.hash(process.env.ADMIN_PASSWORD, SALT_ROUNDS);
       await supabase.from('users').insert({
         name: 'Admin',
         username: 'admin',
@@ -103,7 +108,7 @@ async function initDatabase() {
         is_admin: true,
         balance: 0
       });
-      console.log('Admin user created');
+      // Admin user created successfully
     }
 
   } catch (err) {
@@ -162,7 +167,7 @@ async function createAutoMatches(count = 5) {
     }
     const { data, error } = await supabase.from('matches').insert(matches).select();
     if (error) throw error;
-    console.log('Created 5 matches:', data.map(m => `${m.team_a} vs ${m.team_b}`));
+    // Matches created successfully
   } catch (err) {
     console.error('Create matches error:', err);
   }
@@ -178,7 +183,7 @@ async function checkAndCreateMatches() {
 
     // If no live matches, create 10 new ones
     if (!liveMatches || liveMatches.length === 0) {
-      console.log('No live matches found. Creating 10 new matches...');
+      // No live matches found, creating new ones
       await createAutoMatches(10);
     }
   } catch (err) {
@@ -961,74 +966,12 @@ app.delete('/api/admin/matches/:id', auth, adminOnly, async (req, res) => {
   }
 });
 
-// Debug login (development only - remove in production)
-app.post('/api/debug/login', async (req, res) => {
-  const { username } = req.body;
-  try {
-    const { data: user } = await supabase
-      .from('users')
-      .select('*')
-      .eq('username', username.toLowerCase().trim())
-      .single();
-    if (!user) {
-      return res.json({ exists: false, message: 'User not found' });
-    }
-    res.json({
-      exists: true,
-      is_admin: user.is_admin,
-      has_password: !!user.password,
-      password_length: user.password ? user.password.length : 0
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// Debug endpoints removed - were only for development
 
-// Admin password reset (development only - remove in production)
-app.get('/api/admin/fix-password', async (req, res) => {
-  try {
-    const hashed = await bcrypt.hash('admin123', SALT_ROUNDS);
-
-    // Check if admin exists
-    const { data: existing } = await supabase
-      .from('users')
-      .select('id')
-      .eq('username', 'admin')
-      .single();
-
-    if (existing) {
-      // Update password
-      const { data, error } = await supabase
-        .from('users')
-        .update({ password: hashed })
-        .eq('username', 'admin')
-        .select();
-      if (error) throw error;
-      return res.json({ message: 'Admin password reset to: admin123', data });
-    } else {
-      // Create admin
-      const { data, error } = await supabase
-        .from('users')
-        .insert({
-          name: 'Admin',
-          username: 'admin',
-          password: hashed,
-          is_admin: true,
-          balance: 0
-        })
-        .select();
-      if (error) throw error;
-      return res.json({ message: 'Admin created with password: admin123', data });
-    }
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to reset', details: err.message });
-  }
-});
-
-// Error handler
+// Error handler - never expose internal error details to client
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
-  res.status(500).json({ error: 'Server error', message: err.message });
+  res.status(500).json({ error: 'Server error' });
 });
 
 async function autoSettleMatches() {
@@ -1092,7 +1035,7 @@ async function autoSettleMatches() {
         }
       }
     }
-    console.log('Auto-settled', matches.length, 'matches');
+    // Auto-settle complete
 n    // Check if we need to create new matches
     await checkAndCreateMatches();
   } catch (err) {
@@ -1124,13 +1067,13 @@ app.post('/api/admin/auto-settle', auth, adminOnly, async (req, res) => {
     if (!autoSettleInterval) {
       autoSettleInterval = setInterval(autoSettleMatches, 5000);
     }
-    console.log('Auto-settle enabled');
+    // Auto-settle enabled
   } else {
     if (autoSettleInterval) {
       clearInterval(autoSettleInterval);
       autoSettleInterval = null;
     }
-    console.log('Auto-settle disabled');
+    // Auto-settle disabled
   }
 
   res.json({ enabled: autoSettleEnabled });
@@ -1152,8 +1095,7 @@ if (process.env.VERCEL) {
   startServer();
 } else {
   app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Admin login: admin / (see ADMIN_PASSWORD env or default)`);
+    // Server started
     startServer();
   });
 }
